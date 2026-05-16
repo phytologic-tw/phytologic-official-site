@@ -4,11 +4,11 @@ export default function App() {
       style={{
         background: "black",
         minHeight: "100vh",
+        color: "white",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        color: "white",
-        fontSize: "100px",
+        fontSize: "80px",
         fontWeight: 900,
       }}
     >
