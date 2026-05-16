@@ -1,4 +1,3 @@
-import React from "react";
 export default function App() {
   return (
     <div
@@ -13,11 +12,21 @@ export default function App() {
         fontFamily: "sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "48px", marginBottom: "20px" }}>
+      <h1
+        style={{
+          fontSize: "48px",
+          marginBottom: "20px",
+        }}
+      >
         PHYTOLOGIC
       </h1>
 
-      <p style={{ fontSize: "20px", color: "#94a3b8" }}>
+      <p
+        style={{
+          fontSize: "20px",
+          color: "#94a3b8",
+        }}
+      >
         全植物機能飲 × AI健康系統
       </p>
     </div>
