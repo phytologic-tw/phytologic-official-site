@@ -1,4 +1,9 @@
+import { useState } from "react";
+
 export default function App() {
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+
   const colors = [
     ["珍珠白", "清楚與清醒", "保持腦袋清楚，才能把愛與經驗完整交給下一代。", "#f8fafc"],
     ["翡翠綠", "代謝與腸胃", "吃得下、吸收得了，才是一切健康修復的起點。", "#22c55e"],
@@ -7,6 +12,22 @@ export default function App() {
     ["水晶紫", "看見世界", "想和家人一起，再多看看這個世界一點。", "#8b5cf6"],
     ["鉑金白", "全人平衡", "健康不是只活得久，而是能陪伴、能擁抱、能大笑。", "#e5e7eb"],
   ];
+
+  const questions = [
+    "最近是否容易疲勞、睡醒仍沒精神？",
+    "腸胃是否容易腹脹、便祕或消化不順？",
+    "最近是否常覺得身體沉重、水腫或代謝變慢？",
+    "是否長時間使用 3C，眼睛容易疲勞？",
+    "是否常吃外食、甜食、炸物或加工食品？",
+    "今天最想改善的是代謝、氣色、體力、專注還是修復？",
+  ];
+
+  const result =
+    score >= 4
+      ? "今日推薦：翡翠綠 × 水晶紫"
+      : score >= 2
+      ? "今日推薦：珍珠白 × 翡翠綠"
+      : "今日推薦：鉑金白 × 玫瑰紅";
 
   return (
     <main style={page}>
@@ -27,7 +48,7 @@ export default function App() {
       </nav>
 
       <section style={hero}>
-        <div style={left}>
+        <div>
           <div style={tag}>AI HEALTH SYSTEM・PLANT FUNCTIONAL DRINK</div>
           <h1 style={h1}>讓每一個人<br />活得久，<br />還要活得精彩。</h1>
           <p style={lead}>
@@ -96,18 +117,48 @@ export default function App() {
         </div>
 
         <div style={dashboard}>
-          <div style={dashTitle}>AI ANALYSIS</div>
-          {[
-            ["發炎傾向", "68%"],
-            ["腸胃代謝", "54%"],
-            ["氧化壓力", "76%"],
-          ].map(([name, value]) => (
-            <div key={name} style={{ marginTop: 24 }}>
-              <div style={dashRow}><span>{name}</span><b>{value}</b></div>
-              <div style={bar}><div style={{ ...barIn, width: value }} /></div>
-            </div>
-          ))}
-          <div style={recommend}>今日推薦：翡翠綠 × 水晶紫</div>
+          <div style={dashTitle}>派森問卷</div>
+
+          {!done ? (
+            <>
+              {questions.map((q, i) => (
+                <div key={q} style={questionCard}>
+                  <div style={{ fontWeight: 900 }}>
+                    {i + 1}. {q}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+                    <button style={yesBtn} onClick={() => setScore(score + 1)}>
+                      是
+                    </button>
+                    <button style={noBtn}>否</button>
+                  </div>
+                </div>
+              ))}
+
+              <button style={{ ...primary, border: "none", marginTop: 24 }} onClick={() => setDone(true)}>
+                產生 AI 建議
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={recommend}>{result}</div>
+              <p style={text}>
+                派森判斷你今天的身體狀態需要從代謝、抗氧與修復開始調整。
+                建議今天減少甜食與炸物，多補充水分，並選擇適合的植物機能飲作為日常支持。
+              </p>
+
+              <button
+                style={{ ...ghost, marginTop: 24 }}
+                onClick={() => {
+                  setScore(0);
+                  setDone(false);
+                }}
+              >
+                重新測驗
+              </button>
+            </>
+          )}
         </div>
       </section>
 
@@ -145,13 +196,12 @@ const links = { display: "flex", gap: 30 };
 const link = { color: "#f8f5ea", textDecoration: "none", fontWeight: 800 };
 
 const hero = { minHeight: "calc(100vh - 92px)", display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center", gap: 40, padding: "70px 72px", background: "radial-gradient(circle at 20% 20%, rgba(34,197,94,.18), transparent 30%), radial-gradient(circle at 80% 70%, rgba(250,204,21,.16), transparent 30%)" };
-const left = {};
 const tag = { display: "inline-block", padding: "12px 22px", border: "1px solid rgba(214,176,74,.42)", borderRadius: 999, color: "#d6b04a", fontWeight: 950, letterSpacing: 1 };
 const h1 = { fontSize: 86, lineHeight: 1.02, margin: "30px 0", letterSpacing: "-5px", fontWeight: 950 };
 const lead = { fontSize: 24, lineHeight: 1.85, color: "rgba(248,245,234,.78)", maxWidth: 780, fontWeight: 600 };
 const btns = { display: "flex", gap: 18, marginTop: 36 };
-const primary = { padding: "19px 38px", borderRadius: 999, background: "#d6b04a", color: "#07130d", textDecoration: "none", fontSize: 19, fontWeight: 950 };
-const ghost = { padding: "19px 38px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", color: "#f8f5ea", textDecoration: "none", fontSize: 19, fontWeight: 950 };
+const primary = { padding: "19px 38px", borderRadius: 999, background: "#d6b04a", color: "#07130d", textDecoration: "none", fontSize: 19, fontWeight: 950, cursor: "pointer" };
+const ghost = { padding: "19px 38px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", color: "#f8f5ea", background: "transparent", textDecoration: "none", fontSize: 19, fontWeight: 950, cursor: "pointer" };
 
 const orbit = { position: "relative", width: 560, height: 560, margin: "0 auto", borderRadius: "50%", border: "1px solid rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center" };
 const orb = { position: "absolute", width: 128, height: 128, borderRadius: "50%", boxShadow: "0 25px 60px rgba(0,0,0,.35)" };
@@ -173,12 +223,12 @@ const colorName = { color: "#d6b04a", fontWeight: 950, fontSize: 20 };
 const colorTitle = { fontSize: 34, fontWeight: 950, marginTop: 4 };
 const colorText = { width: "48%", fontSize: 21, lineHeight: 1.7, color: "rgba(248,245,234,.72)" };
 
-const aiSection = { padding: "100px 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44, alignItems: "center" };
+const aiSection = { padding: "100px 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44, alignItems: "start" };
 const dashboard = { borderRadius: 42, padding: 42, background: "linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.04))", border: "1px solid rgba(255,255,255,.14)", boxShadow: "0 35px 90px rgba(0,0,0,.25)" };
 const dashTitle = { fontSize: 38, fontWeight: 950, color: "#d6b04a" };
-const dashRow = { display: "flex", justifyContent: "space-between", fontSize: 22, fontWeight: 850 };
-const bar = { height: 12, background: "rgba(255,255,255,.12)", borderRadius: 999, marginTop: 10 };
-const barIn = { height: "100%", background: "#d6b04a", borderRadius: 999 };
+const questionCard = { marginTop: 18, padding: 22, borderRadius: 24, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.1)", fontSize: 20, lineHeight: 1.6 };
+const yesBtn = { padding: "10px 22px", borderRadius: 999, border: "none", background: "#d6b04a", color: "#07130d", fontWeight: 900, cursor: "pointer" };
+const noBtn = { padding: "10px 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,.2)", background: "transparent", color: "white", fontWeight: 900, cursor: "pointer" };
 const recommend = { marginTop: 32, padding: 24, borderRadius: 26, background: "rgba(214,176,74,.16)", color: "#f8f5ea", fontSize: 25, fontWeight: 950 };
 
 const standard = { padding: "100px 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40 };
