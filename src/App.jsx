@@ -1,8 +1,15 @@
 import { useState } from "react";
 
 export default function App() {
-  const [score, setScore] = useState(0);
+  const [profile, setProfile] = useState({
+    gender: "",
+    age: "",
+    workType: "",
+  });
+  const [started, setStarted] = useState(false);
   const [done, setDone] = useState(false);
+  const [score, setScore] = useState(0);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   const colors = [
     ["珍珠白", "清楚與清醒", "保持腦袋清楚，才能把愛與經驗完整交給下一代。", "#f8fafc"],
@@ -13,21 +20,54 @@ export default function App() {
     ["鉑金白", "全人平衡", "健康不是只活得久，而是能陪伴、能擁抱、能大笑。", "#e5e7eb"],
   ];
 
-  const questions = [
-    "最近是否容易疲勞、睡醒仍沒精神？",
-    "腸胃是否容易腹脹、便祕或消化不順？",
-    "最近是否常覺得身體沉重、水腫或代謝變慢？",
-    "是否長時間使用 3C，眼睛容易疲勞？",
-    "是否常吃外食、甜食、炸物或加工食品？",
-    "今天最想改善的是代謝、氣色、體力、專注還是修復？",
+  const questionBank = [
+    "最近是否容易疲勞，睡醒後仍覺得沒有精神？",
+    "是否經常睡眠品質不好、淺眠、多夢或晚睡？",
+    "是否常感覺注意力不集中、腦袋昏沉或記憶力變差？",
+    "最近是否容易腹脹、便祕、腹瀉或消化不順？",
+    "是否常覺得身體沉重、水腫、小腹凸出或代謝變慢？",
+    "是否經常外食、吃甜食、炸物、加工食品或含糖飲料？",
+    "是否長時間使用手機、電腦，眼睛容易乾澀或疲勞？",
+    "是否容易肩頸痠痛、腰背緊繃或運動後恢復很慢？",
+    "是否經常感覺壓力大、焦慮、煩躁或情緒起伏明顯？",
+    "是否容易皮膚暗沉、氣色不好、長痘或覺得老化變快？",
+    "是否覺得體力下降、爬樓梯容易喘或肌力不足？",
+    "是否常覺得口乾、尿液偏黃、身體不清爽？",
   ];
 
-  const result =
-    score >= 4
-      ? "今日推薦：翡翠綠 × 水晶紫"
-      : score >= 2
-      ? "今日推薦：珍珠白 × 翡翠綠"
-      : "今日推薦：鉑金白 × 玫瑰紅";
+  const canStart = profile.gender && profile.age && profile.workType;
+
+  function startQuiz() {
+    const shuffled = [...questionBank].sort(() => Math.random() - 0.5);
+    setSelectedQuestions(shuffled.slice(0, 6));
+    setScore(0);
+    setDone(false);
+    setStarted(true);
+  }
+
+  function resetQuiz() {
+    setStarted(false);
+    setDone(false);
+    setScore(0);
+    setSelectedQuestions([]);
+  }
+
+  function getResult() {
+    if (score >= 4) return "今日推薦：翡翠綠 × 水晶紫";
+    if (score >= 2) return "今日推薦：珍珠白 × 翡翠綠";
+    return "今日推薦：鉑金白 × 玫瑰紅";
+  }
+
+  function getProfileNote() {
+    const age = Number(profile.age);
+    const work = profile.workType;
+
+    if (age >= 50) return "熟齡族群建議優先重視代謝、肌力、睡眠與長期修復。";
+    if (work === "久坐辦公") return "久坐辦公型態建議優先關注腸胃代謝、眼睛疲勞與肩頸壓力。";
+    if (work === "高壓管理") return "高壓管理型態建議優先關注睡眠修復、壓力調節與慢性發炎。";
+    if (work === "體力勞動") return "體力勞動型態建議優先關注肌肉恢復、能量補給與電解質平衡。";
+    return "依照你的基本資料，建議從日常代謝、抗氧化與穩定營養補充開始。";
+  }
 
   return (
     <main style={page}>
@@ -111,26 +151,86 @@ export default function App() {
           <div style={small}>PAISEN AI SYSTEM</div>
           <h2 style={h2}>派森 AI 健康系統</h2>
           <p style={text}>
-            用 6 題快速理解今天的身體狀態，從疲勞、腸胃、代謝、壓力與氧化反應，
-            推薦最適合你的植物機能飲與生活建議。
+            先建立基本資料，再由派森隨機抽出 6 題健康狀態問題。
+            每一次測驗題目都不同，讓推薦更像真正的互動分析。
           </p>
         </div>
 
         <div style={dashboard}>
           <div style={dashTitle}>派森問卷</div>
 
-          {!done ? (
+          {!started && (
             <>
-              {questions.map((q, i) => (
-                <div key={q} style={questionCard}>
-                  <div style={{ fontWeight: 900 }}>
-                    {i + 1}. {q}
-                  </div>
+              <div style={formGrid}>
+                <label style={field}>
+                  性別
+                  <select
+                    style={input}
+                    value={profile.gender}
+                    onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                  >
+                    <option value="">請選擇</option>
+                    <option value="女性">女性</option>
+                    <option value="男性">男性</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </label>
 
+                <label style={field}>
+                  年齡
+                  <input
+                    style={input}
+                    type="number"
+                    placeholder="例如：42"
+                    value={profile.age}
+                    onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+                  />
+                </label>
+
+                <label style={field}>
+                  工作類型
+                  <select
+                    style={input}
+                    value={profile.workType}
+                    onChange={(e) => setProfile({ ...profile, workType: e.target.value })}
+                  >
+                    <option value="">請選擇</option>
+                    <option value="久坐辦公">久坐辦公</option>
+                    <option value="高壓管理">高壓管理</option>
+                    <option value="體力勞動">體力勞動</option>
+                    <option value="服務業站立">服務業站立</option>
+                    <option value="自由工作">自由工作</option>
+                    <option value="退休生活">退休生活</option>
+                  </select>
+                </label>
+              </div>
+
+              <button
+                style={{
+                  ...primary,
+                  border: "none",
+                  marginTop: 28,
+                  opacity: canStart ? 1 : 0.45,
+                }}
+                disabled={!canStart}
+                onClick={startQuiz}
+              >
+                開始派森問卷
+              </button>
+            </>
+          )}
+
+          {started && !done && (
+            <>
+              <div style={profileBox}>
+                {profile.gender}｜{profile.age} 歲｜{profile.workType}
+              </div>
+
+              {selectedQuestions.map((q, i) => (
+                <div key={q} style={questionCard}>
+                  <div style={{ fontWeight: 900 }}>{i + 1}. {q}</div>
                   <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                    <button style={yesBtn} onClick={() => setScore(score + 1)}>
-                      是
-                    </button>
+                    <button style={yesBtn} onClick={() => setScore(score + 1)}>是</button>
                     <button style={noBtn}>否</button>
                   </div>
                 </div>
@@ -140,21 +240,17 @@ export default function App() {
                 產生 AI 建議
               </button>
             </>
-          ) : (
+          )}
+
+          {started && done && (
             <>
-              <div style={recommend}>{result}</div>
+              <div style={recommend}>{getResult()}</div>
               <p style={text}>
-                派森判斷你今天的身體狀態需要從代謝、抗氧與修復開始調整。
-                建議今天減少甜食與炸物，多補充水分，並選擇適合的植物機能飲作為日常支持。
+                {getProfileNote()} 派森判斷你今天的身體狀態需要從代謝、抗氧與修復開始調整。
+                建議今天減少甜食、炸物與過度加工食品，多補充水分，並選擇適合的植物機能飲作為日常支持。
               </p>
 
-              <button
-                style={{ ...ghost, marginTop: 24 }}
-                onClick={() => {
-                  setScore(0);
-                  setDone(false);
-                }}
-              >
+              <button style={{ ...ghost, marginTop: 24 }} onClick={resetQuiz}>
                 重新測驗
               </button>
             </>
@@ -226,6 +322,10 @@ const colorText = { width: "48%", fontSize: 21, lineHeight: 1.7, color: "rgba(24
 const aiSection = { padding: "100px 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44, alignItems: "start" };
 const dashboard = { borderRadius: 42, padding: 42, background: "linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.04))", border: "1px solid rgba(255,255,255,.14)", boxShadow: "0 35px 90px rgba(0,0,0,.25)" };
 const dashTitle = { fontSize: 38, fontWeight: 950, color: "#d6b04a" };
+const formGrid = { display: "grid", gap: 18, marginTop: 24 };
+const field = { display: "grid", gap: 10, fontSize: 18, fontWeight: 900 };
+const input = { padding: "16px 18px", borderRadius: 18, border: "1px solid rgba(255,255,255,.16)", background: "rgba(255,255,255,.08)", color: "#f8f5ea", fontSize: 18 };
+const profileBox = { padding: 18, borderRadius: 20, background: "rgba(214,176,74,.14)", color: "#d6b04a", fontSize: 19, fontWeight: 900, marginTop: 20 };
 const questionCard = { marginTop: 18, padding: 22, borderRadius: 24, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.1)", fontSize: 20, lineHeight: 1.6 };
 const yesBtn = { padding: "10px 22px", borderRadius: 999, border: "none", background: "#d6b04a", color: "#07130d", fontWeight: 900, cursor: "pointer" };
 const noBtn = { padding: "10px 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,.2)", background: "transparent", color: "white", fontWeight: 900, cursor: "pointer" };
