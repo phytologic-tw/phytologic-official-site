@@ -324,8 +324,16 @@ const dashboard = { borderRadius: 42, padding: 42, background: "linear-gradient(
 const dashTitle = { fontSize: 38, fontWeight: 950, color: "#d6b04a" };
 const formGrid = { display: "grid", gap: 18, marginTop: 24 };
 const field = { display: "grid", gap: 10, fontSize: 18, fontWeight: 900 };
-const input = { padding: "16px 18px", borderRadius: 18, border: "1px solid rgba(255,255,255,.16)", background: "rgba(255,255,255,.08)", color: "#f8f5ea", fontSize: 18 };
-const profileBox = { padding: 18, borderRadius: 20, background: "rgba(214,176,74,.14)", color: "#d6b04a", fontSize: 19, fontWeight: 900, marginTop: 20 };
+const input = {
+  padding: "16px 18px",
+  borderRadius: 18,
+  border: "1px solid rgba(255,255,255,.16)",
+  background: "#1a2a22",
+  color: "white",
+  fontSize: 18,
+  width: "100%",
+  outline: "none",
+};const profileBox = { padding: 18, borderRadius: 20, background: "rgba(214,176,74,.14)", color: "#d6b04a", fontSize: 19, fontWeight: 900, marginTop: 20 };
 const questionCard = { marginTop: 18, padding: 22, borderRadius: 24, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.1)", fontSize: 20, lineHeight: 1.6 };
 const yesBtn = { padding: "10px 22px", borderRadius: 999, border: "none", background: "#d6b04a", color: "#07130d", fontWeight: 900, cursor: "pointer" };
 const noBtn = { padding: "10px 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,.2)", background: "transparent", color: "white", fontWeight: 900, cursor: "pointer" };
