@@ -9,610 +9,284 @@
   <style>
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
       background: #f7f3ea;
       color: #123d2a;
     }
-
-    a { color: inherit; }
-
     header {
       position: sticky;
       top: 0;
       z-index: 50;
-      height: 88px;
+      height: 82px;
       padding: 0 8%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(247, 243, 234, 0.92);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(18, 61, 42, 0.08);
+      background: rgba(247,243,234,.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(18,61,42,.08);
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-weight: 900;
-      letter-spacing: .06em;
-      color: #17482f;
-    }
-
+    .brand { display:flex; align-items:center; gap:12px; font-weight:900; color:#17482f; }
     .mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
-      background:
-        radial-gradient(circle at 28% 28%, #d4af37 0 18%, transparent 20%),
-        linear-gradient(135deg, #1f5b3b, #78b66d);
-      box-shadow: 0 10px 24px rgba(31, 91, 59, .22);
+      width:36px; height:36px; border-radius:14px;
+      background: radial-gradient(circle at 28% 28%, #d4af37 0 18%, transparent 20%), linear-gradient(135deg,#1f5b3b,#78b66d);
     }
-
-    nav {
-      display: flex;
-      gap: 34px;
-      font-size: 15px;
-      font-weight: 800;
-      color: #24523b;
-    }
-
-    nav a {
-      text-decoration: none;
-      opacity: .86;
-    }
-
-    nav a:hover { opacity: 1; }
+    nav { display:flex; gap:28px; font-size:15px; font-weight:800; }
+    nav a { text-decoration:none; color:#24523b; }
 
     .hero {
-      min-height: calc(100vh - 88px);
+      min-height: calc(100vh - 82px);
       padding: 86px 8%;
-      display: grid;
+      display:grid;
       grid-template-columns: 1.05fr .95fr;
-      gap: 64px;
-      align-items: center;
-      background:
-        radial-gradient(circle at 88% 14%, rgba(212, 175, 55, .26), transparent 30%),
-        radial-gradient(circle at 8% 12%, rgba(122, 182, 109, .18), transparent 34%),
-        linear-gradient(135deg, #f7f3ea 0%, #edf5e8 100%);
+      gap:60px;
+      align-items:center;
+      background: radial-gradient(circle at 88% 14%, rgba(212,175,55,.24), transparent 30%), linear-gradient(135deg,#f7f3ea,#edf5e8);
     }
-
     .eyebrow {
-      display: inline-flex;
-      padding: 10px 18px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.78);
-      border: 1px solid rgba(31, 91, 59, .12);
-      color: #1f5b3b;
-      font-size: 14px;
-      font-weight: 900;
-      margin-bottom: 26px;
-      box-shadow: 0 10px 26px rgba(20, 51, 38, .06);
+      display:inline-block; padding:10px 18px; border-radius:999px;
+      background:#fff; color:#1f5b3b; font-size:14px; font-weight:900;
+      margin-bottom:24px;
     }
-
     h1 {
-      margin: 0 0 28px;
-      font-size: clamp(56px, 8vw, 112px);
-      line-height: .9;
-      letter-spacing: -.055em;
-      color: #103c29;
+      margin:0 0 24px;
+      font-size:clamp(56px,8vw,108px);
+      line-height:.9;
+      letter-spacing:-.055em;
+      color:#103c29;
     }
-
-    .gold { color: #b8942f; }
-
-    .hero h2 {
-      margin: 0 0 24px;
-      font-size: clamp(28px, 4vw, 46px);
-      line-height: 1.22;
-      color: #1f5b3b;
-    }
-
-    .hero p {
-      max-width: 720px;
-      margin: 0;
-      font-size: 19px;
-      line-height: 2;
-      color: #3e5d4d;
-      font-weight: 600;
-    }
-
-    .buttons {
-      margin-top: 38px;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
+    .gold { color:#b8942f; }
+    .hero h2 { font-size:clamp(28px,4vw,44px); margin:0 0 24px; color:#1f5b3b; }
+    .hero p { font-size:19px; line-height:2; color:#3e5d4d; font-weight:600; }
+    .buttons { margin-top:36px; display:flex; gap:16px; flex-wrap:wrap; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 52px;
-      padding: 0 28px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 900;
-      transition: .25s ease;
+      display:inline-flex; align-items:center; justify-content:center;
+      min-height:52px; padding:0 28px; border-radius:999px;
+      text-decoration:none; font-weight:900; border:0; cursor:pointer;
     }
-
-    .btn:hover { transform: translateY(-2px); }
-
-    .btn-primary {
-      background: #1f5b3b;
-      color: white;
-      box-shadow: 0 16px 36px rgba(31, 91, 59, .26);
-    }
-
-    .btn-outline {
-      background: rgba(255,255,255,.58);
-      color: #1f5b3b;
-      border: 1px solid rgba(31, 91, 59, .25);
-    }
-
-    .visual {
-      position: relative;
-      min-height: 520px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .btn-primary { background:#1f5b3b; color:white; }
+    .btn-outline { background:white; color:#1f5b3b; border:1px solid rgba(31,91,59,.25); }
 
     .visual-card {
-      width: min(440px, 88vw);
-      min-height: 440px;
-      border-radius: 42px;
-      background:
-        radial-gradient(circle at 25% 18%, rgba(255,255,255,.82), transparent 21%),
-        radial-gradient(circle at 72% 72%, rgba(212,175,55,.55), transparent 28%),
-        linear-gradient(135deg, #17482f, #071b13);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 46px;
-      box-shadow: 0 42px 100px rgba(20,51,38,.28);
+      min-height:430px; border-radius:42px;
+      background: radial-gradient(circle at 72% 72%, rgba(212,175,55,.55), transparent 28%), linear-gradient(135deg,#17482f,#071b13);
+      color:white; display:flex; flex-direction:column; justify-content:center; align-items:center;
+      text-align:center; padding:44px; box-shadow:0 34px 90px rgba(20,51,38,.25);
     }
+    .visual-card strong { font-size:48px; margin-bottom:18px; }
+    .visual-card span { color:#d9eadf; line-height:1.8; font-size:18px; font-weight:800; }
 
-    .visual-card strong {
-      font-size: clamp(36px, 5vw, 56px);
-      margin-bottom: 18px;
+    section { padding:96px 8%; }
+    .section-label { color:#b8942f; font-weight:900; letter-spacing:.12em; font-size:13px; margin-bottom:14px; }
+    .section-title { margin:0 0 20px; font-size:clamp(38px,5vw,60px); line-height:1.08; color:#123d2a; }
+    .section-desc { max-width:920px; font-size:19px; line-height:1.95; color:#3e5d4d; font-weight:600; }
+
+    .story-card, .quiz-box {
+      background:white; border-radius:36px; padding:46px;
+      box-shadow:0 22px 60px rgba(20,51,38,.08);
+      border:1px solid rgba(31,91,59,.08);
     }
-
-    .visual-card span {
-      color: #d9eadf;
-      line-height: 1.8;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .badge {
-      position: absolute;
-      background: rgba(255,255,255,.9);
-      border: 1px solid rgba(31,91,59,.1);
-      border-radius: 999px;
-      padding: 14px 22px;
-      color: #1f5b3b;
-      font-weight: 900;
-      box-shadow: 0 18px 42px rgba(20,51,38,.12);
-    }
-
-    .badge.one { top: 28px; left: 0; }
-    .badge.two { bottom: 46px; right: 0; color: #b8942f; }
-
-    section {
-      padding: 104px 8%;
-    }
-
-    .section-head {
-      max-width: 920px;
-      margin-bottom: 46px;
-    }
-
-    .section-label {
-      color: #b8942f;
-      font-weight: 900;
-      letter-spacing: .12em;
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-
-    .section-title {
-      margin: 0 0 20px;
-      font-size: clamp(38px, 5vw, 64px);
-      line-height: 1.08;
-      letter-spacing: -.035em;
-      color: #123d2a;
-    }
-
-    .section-desc {
-      margin: 0;
-      font-size: 19px;
-      line-height: 1.95;
-      color: #3e5d4d;
-      font-weight: 600;
-    }
-
-    .story-card {
-      background: white;
-      border-radius: 36px;
-      padding: 48px;
-      border: 1px solid rgba(31,91,59,.08);
-      box-shadow: 0 24px 64px rgba(20,51,38,.08);
-    }
-
-    .story-card p {
-      margin: 0;
-      font-size: 19px;
-      line-height: 2;
-      color: #3e5d4d;
-      font-weight: 600;
-    }
+    .story-card p { margin:0; font-size:19px; line-height:2; color:#3e5d4d; font-weight:600; }
 
     .color-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+      display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:42px;
     }
-
     .color-card {
-      min-height: 240px;
-      border-radius: 34px;
-      padding: 30px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 52px rgba(20,51,38,.12);
-      border: 1px solid rgba(255,255,255,.6);
+      min-height:220px; border-radius:32px; padding:30px;
+      box-shadow:0 18px 46px rgba(20,51,38,.11);
     }
-
-    .color-card::after {
-      content: "";
-      position: absolute;
-      width: 150px;
-      height: 150px;
-      right: -44px;
-      top: -44px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.36);
-    }
-
-    .color-card h3 {
-      position: relative;
-      margin: 0 0 12px;
-      font-size: 30px;
-      color: #123d2a;
-      z-index: 1;
-    }
-
-    .color-card p {
-      position: relative;
-      margin: 0;
-      font-size: 17px;
-      line-height: 1.75;
-      font-weight: 800;
-      color: rgba(18,61,42,.78);
-      z-index: 1;
-    }
-
-    .white { background: linear-gradient(135deg, #fffefa, #eee7d9); }
-    .green { background: linear-gradient(135deg, #dff3d3, #83be72); }
-    .red { background: linear-gradient(135deg, #ffd7d7, #df8282); }
-    .yellow { background: linear-gradient(135deg, #ffedae, #d7aa32); }
-    .purple { background: linear-gradient(135deg, #eadfff, #a78cdc); }
-    .platinum { background: linear-gradient(135deg, #f8f3e5, #c6a345); }
+    .color-card h3 { margin:0 0 12px; font-size:30px; color:#123d2a; }
+    .color-card p { margin:0; font-size:17px; line-height:1.75; font-weight:800; color:rgba(18,61,42,.78); }
+    .white { background:linear-gradient(135deg,#fffefa,#eee7d9); }
+    .green { background:linear-gradient(135deg,#dff3d3,#83be72); }
+    .red { background:linear-gradient(135deg,#ffd7d7,#df8282); }
+    .yellow { background:linear-gradient(135deg,#ffedae,#d7aa32); }
+    .purple { background:linear-gradient(135deg,#eadfff,#a78cdc); }
+    .platinum { background:linear-gradient(135deg,#f8f3e5,#c6a345); }
 
     .ai {
-      background:
-        radial-gradient(circle at 90% 10%, rgba(212,175,55,.24), transparent 28%),
-        linear-gradient(135deg, #123d2a, #071b13);
-      color: white;
+      background: radial-gradient(circle at 90% 10%, rgba(212,175,55,.24), transparent 28%), linear-gradient(135deg,#123d2a,#071b13);
+      color:white;
     }
+    .ai .section-title { color:white; }
+    .ai .section-desc { color:#d9eadf; }
 
-    .ai .section-title { color: white; }
-    .ai .section-desc { color: #d9eadf; }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+    .quiz-box { margin-top:42px; color:#123d2a; }
+    .question { margin-bottom:28px; }
+    .question p { font-size:20px; font-weight:900; margin:0 0 14px; color:#17482f; }
+    .question button {
+      padding:12px 22px; border:0; border-radius:999px; margin:0 10px 10px 0;
+      background:#edf3ea; color:#17482f; font-size:16px; font-weight:800; cursor:pointer;
     }
-
-    .feature-card {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.13);
-      border-radius: 34px;
-      padding: 34px;
-      backdrop-filter: blur(12px);
+    .question button.selected { background:#17482f; color:white; }
+    .submit-btn {
+      margin-top:16px; padding:16px 38px; border:0; border-radius:999px;
+      background:#d4af37; color:#123d2a; font-size:18px; font-weight:900; cursor:pointer;
     }
-
-    .feature-card h3 {
-      margin: 0 0 14px;
-      color: #d4af37;
-      font-size: 24px;
-    }
-
-    .feature-card p {
-      margin: 0;
-      color: #d9eadf;
-      line-height: 1.85;
-      font-size: 17px;
-    }
-
-    .partner {
-      background: #fff;
+    #result {
+      margin-top:34px; padding:32px; border-radius:28px; background:#f7f3ea; display:none;
     }
 
     .cta-box {
-      background:
-        radial-gradient(circle at 90% 16%, rgba(212,175,55,.24), transparent 28%),
-        linear-gradient(135deg, #17482f, #0f2c20);
-      border-radius: 44px;
-      padding: 64px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 36px;
-      align-items: center;
-      color: white;
-      box-shadow: 0 34px 90px rgba(20,51,38,.22);
+      background:linear-gradient(135deg,#17482f,#0f2c20);
+      border-radius:44px; padding:60px; color:white;
+      display:grid; grid-template-columns:1fr auto; gap:32px; align-items:center;
     }
+    .cta-box h2 { font-size:clamp(34px,4vw,52px); margin:0 0 18px; }
+    .cta-box p { color:#d9eadf; line-height:1.9; font-size:18px; }
 
-    .cta-box h2 {
-      margin: 0 0 18px;
-      font-size: clamp(34px, 4vw, 54px);
-      line-height: 1.1;
-    }
+    footer { padding:54px 8%; background:#071b13; color:#d9eadf; line-height:1.8; }
+    footer a { color:#d4af37; text-decoration:none; }
 
-    .cta-box p {
-      margin: 0;
-      max-width: 760px;
-      color: #d9eadf;
-      font-size: 18px;
-      line-height: 1.9;
-    }
-
-    .gold-btn {
-      background: #d4af37;
-      color: #123d2a;
-    }
-
-    footer {
-      padding: 54px 8%;
-      background: #071b13;
-      color: #d9eadf;
-      line-height: 1.8;
-    }
-
-    footer strong {
-      color: white;
-      font-size: 20px;
-    }
-
-    footer a {
-      color: #d4af37;
-      text-decoration: none;
-    }
-
-    @media (max-width: 1080px) {
-      nav { display: none; }
-
-      .hero {
-        grid-template-columns: 1fr;
-        padding-top: 70px;
-      }
-
-      .visual {
-        min-height: 430px;
-      }
-
-      .visual-card {
-        min-height: 360px;
-      }
-
-      .badge {
-        position: static;
-        margin: 10px;
-      }
-
-      .color-grid,
-      .feature-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .cta-box {
-        grid-template-columns: 1fr;
-        padding: 40px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      header {
-        height: 76px;
-        padding: 0 22px;
-      }
-
-      .brand {
-        font-size: 14px;
-        letter-spacing: .03em;
-      }
-
-      .mark {
-        width: 32px;
-        height: 32px;
-      }
-
-      .hero,
-      section {
-        padding-left: 22px;
-        padding-right: 22px;
-      }
-
-      .hero {
-        padding-top: 54px;
-      }
-
-      .buttons {
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-      }
-
-      .story-card,
-      .color-card,
-      .feature-card {
-        border-radius: 26px;
-        padding: 28px;
-      }
+    @media (max-width: 960px) {
+      nav { display:none; }
+      .hero { grid-template-columns:1fr; }
+      .color-grid { grid-template-columns:1fr; }
+      .cta-box { grid-template-columns:1fr; padding:38px; }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="brand">
-      <div class="mark"></div>
-      <div>PHYTOLOGIC｜植本邏輯</div>
+<header>
+  <div class="brand"><div class="mark"></div><div>PHYTOLOGIC｜植本邏輯</div></div>
+  <nav>
+    <a href="#story">品牌故事</a>
+    <a href="#system">六色系統</a>
+    <a href="#ai">派森問卷</a>
+    <a href="#partner">加盟合作</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">AI HEALTH SYSTEM · PLANT FUNCTIONAL DRINK</div>
+      <h1>PHYTO<span class="gold">LOGIC</span></h1>
+      <h2>全植物機能飲 × AI健康系統</h2>
+      <p>以天然蔬菜、穀物、水果與植物營養為核心，結合派森 AI 健康系統，從生活狀態、身體反應與個人化需求出發，建立每一天都能實踐的健康飲用邏輯。</p>
+      <div class="buttons">
+        <a class="btn btn-primary" href="#ai">開始派森問卷</a>
+        <a class="btn btn-outline" href="#system">探索六色系統</a>
+      </div>
     </div>
-    <nav>
-      <a href="#story">品牌故事</a>
-      <a href="#system">六色系統</a>
-      <a href="#ai">派森系統</a>
-      <a href="#partner">加盟合作</a>
-    </nav>
-  </header>
+    <div class="visual-card">
+      <strong>植物 × AI</strong>
+      <span>讓每一個人活得久<br>還要活得好精彩</span>
+    </div>
+  </section>
 
-  <main>
-    <section class="hero">
+  <section id="story">
+    <div class="section-label">BRAND STORY</div>
+    <h2 class="section-title">從陪伴開始的健康品牌</h2>
+    <p class="section-desc">植本邏輯來自一個很單純的起點：健康，才是幸福與未來一切的根本。</p>
+    <div class="story-card">
+      <p>從一位國際品牌專案經理人，到一位丈夫，再到 50 歲成為父親，陪伴成為生命中最重要的課題。我們開始重新理解「食物」的價值：它不只是補充熱量，而是每天都能支持身體、關係與生活品質的基礎。因此，PHYTOLOGIC 不只是飲品品牌，而是一套以植物、機能、科技與愛為核心的健康系統。</p>
+    </div>
+  </section>
+
+  <section id="system">
+    <div class="section-label">SIX COLOR WELLNESS SYSTEM</div>
+    <h2 class="section-title">六色植物機能系統</h2>
+    <p class="section-desc">以不同身體需求與生活狀態為基礎，建立六色產品邏輯，讓飲品不只是好喝，更能成為日常健康管理的一部分。</p>
+    <div class="color-grid">
+      <div class="color-card white"><h3>修復白</h3><p>基礎修復｜日常平衡｜身體打底</p></div>
+      <div class="color-card green"><h3>淨化綠</h3><p>代謝順暢｜腸胃清爽｜身體環保</p></div>
+      <div class="color-card red"><h3>美顏紅</h3><p>氣色美感｜青春亮澤｜女性保養</p></div>
+      <div class="color-card yellow"><h3>強健黃</h3><p>體力支撐｜活力補給｜肌力感受</p></div>
+      <div class="color-card purple"><h3>護眼紫</h3><p>清晰守護｜專注支持｜珍貴時刻</p></div>
+      <div class="color-card platinum"><h3>鉑金白</h3><p>頂級平衡｜高階修護｜全方位支持</p></div>
+    </div>
+  </section>
+
+  <section id="ai" class="ai">
+    <div class="section-label">PYTHON AI HEALTH SYSTEM</div>
+    <h2 class="section-title">派森 AI 健康問卷</h2>
+    <p class="section-desc">回答 6 個簡單問題，派森會根據你的生活狀態與身體反應，推薦適合的植物機能飲方向。</p>
+
+    <div class="quiz-box">
+      <div class="question"><p>1. 最近容易疲勞嗎？</p><button onclick="selectAnswer(this,'fatigue','yes')">是</button><button onclick="selectAnswer(this,'fatigue','no')">否</button></div>
+      <div class="question"><p>2. 腸胃是否容易脹氣或不順？</p><button onclick="selectAnswer(this,'digest','yes')">是</button><button onclick="selectAnswer(this,'digest','no')">否</button></div>
+      <div class="question"><p>3. 最近睡眠品質如何？</p><button onclick="selectAnswer(this,'sleep','bad')">不好</button><button onclick="selectAnswer(this,'sleep','good')">不錯</button></div>
+      <div class="question"><p>4. 是否長時間使用手機或電腦？</p><button onclick="selectAnswer(this,'eye','yes')">是</button><button onclick="selectAnswer(this,'eye','no')">否</button></div>
+      <div class="question"><p>5. 是否正在控制體態或想提升代謝？</p><button onclick="selectAnswer(this,'body','yes')">是</button><button onclick="selectAnswer(this,'body','no')">否</button></div>
+      <div class="question"><p>6. 最近壓力是否偏高？</p><button onclick="selectAnswer(this,'stress','yes')">是</button><button onclick="selectAnswer(this,'stress','no')">否</button></div>
+
+      <button class="submit-btn" onclick="showResult()">開始分析</button>
+      <div id="result"></div>
+    </div>
+  </section>
+
+  <section id="partner">
+    <div class="cta-box">
       <div>
-        <div class="eyebrow">AI HEALTH SYSTEM · PLANT FUNCTIONAL DRINK</div>
-        <h1>PHYTO<span class="gold">LOGIC</span></h1>
-        <h2>全植物機能飲 × AI健康系統</h2>
-        <p>
-          以天然蔬菜、穀物、水果與植物營養為核心，結合派森 AI 健康系統，
-          從生活狀態、身體反應與個人化需求出發，建立每一天都能實踐的健康飲用邏輯。
-        </p>
-        <div class="buttons">
-          <a class="btn btn-primary" href="#ai">開始派森問卷</a>
-          <a class="btn btn-outline" href="#system">探索六色系統</a>
-        </div>
+        <h2>城市合作與加盟計畫</h2>
+        <p>植本邏輯正在建立全植物機能飲品牌、AI 健康會員系統與城市合作模型。歡迎認同健康、科技與長期品牌價值的合作夥伴加入。</p>
       </div>
+      <a class="btn" style="background:#d4af37;color:#123d2a;" href="mailto:bryan@phytologic.tw">聯絡合作</a>
+    </div>
+  </section>
+</main>
 
-      <div class="visual">
-        <div class="badge one">三好：好喝・好看・好有效</div>
-        <div class="visual-card">
-          <strong>植物 × AI</strong>
-          <span>讓每一個人活得久<br>還要活得好精彩</span>
-        </div>
-        <div class="badge two">三無：無人工・無合成・無化學</div>
-      </div>
-    </section>
+<footer>
+  <strong>PHYTOLOGIC 植本邏輯</strong><br>
+  全植物機能飲 × AI健康系統<br>
+  Email：<a href="mailto:bryan@phytologic.tw">bryan@phytologic.tw</a>
+</footer>
 
-    <section id="story">
-      <div class="section-head">
-        <div class="section-label">BRAND STORY</div>
-        <h2 class="section-title">從陪伴開始的健康品牌</h2>
-        <p class="section-desc">
-          植本邏輯來自一個很單純的起點：健康，才是幸福與未來一切的根本。
-        </p>
-      </div>
+<script>
+  const answers = {};
 
-      <div class="story-card">
-        <p>
-          從一位國際品牌專案經理人，到一位丈夫，再到 50 歲成為父親，
-          陪伴成為生命中最重要的課題。我們開始重新理解「食物」的價值：
-          它不只是補充熱量，而是每天都能支持身體、關係與生活品質的基礎。
-          因此，PHYTOLOGIC 不只是飲品品牌，而是一套以植物、機能、科技與愛為核心的健康系統。
-        </p>
-      </div>
-    </section>
+  function selectAnswer(button, key, value) {
+    answers[key] = value;
+    const buttons = button.parentElement.querySelectorAll("button");
+    buttons.forEach(btn => btn.classList.remove("selected"));
+    button.classList.add("selected");
+  }
 
-    <section id="system">
-      <div class="section-head">
-        <div class="section-label">SIX COLOR WELLNESS SYSTEM</div>
-        <h2 class="section-title">六色植物機能系統</h2>
-        <p class="section-desc">
-          以不同身體需求與生活狀態為基礎，建立六色產品邏輯，
-          讓飲品不只是好喝，更能成為日常健康管理的一部分。
-        </p>
-      </div>
+  function showResult() {
+    let result = "修復白";
+    let tip = "建議先穩定作息、補充足夠水分，讓身體回到基本平衡。";
 
-      <div class="color-grid">
-        <div class="color-card white">
-          <h3>修復白</h3>
-          <p>基礎修復｜日常平衡｜身體打底</p>
-        </div>
-        <div class="color-card green">
-          <h3>淨化綠</h3>
-          <p>代謝順暢｜腸胃清爽｜身體環保</p>
-        </div>
-        <div class="color-card red">
-          <h3>美顏紅</h3>
-          <p>氣色美感｜青春亮澤｜女性保養</p>
-        </div>
-        <div class="color-card yellow">
-          <h3>強健黃</h3>
-          <p>體力支撐｜活力補給｜肌力感受</p>
-        </div>
-        <div class="color-card purple">
-          <h3>護眼紫</h3>
-          <p>清晰守護｜專注支持｜珍貴時刻</p>
-        </div>
-        <div class="color-card platinum">
-          <h3>鉑金白</h3>
-          <p>頂級平衡｜高階修護｜全方位支持</p>
-        </div>
-      </div>
-    </section>
+    if (answers.digest === "yes") {
+      result = "淨化綠";
+      tip = "建議增加蔬菜、水分與規律活動，支持代謝與腸胃清爽感。";
+    }
 
-    <section id="ai" class="ai">
-      <div class="section-head">
-        <div class="section-label">PYTHON AI HEALTH SYSTEM</div>
-        <h2 class="section-title">派森 AI 健康問卷</h2>
-        <p class="section-desc">
-          派森會從使用者的生活、身體反應與個人需求出發，
-          推薦適合的飲品方向與健康生活建議。
-        </p>
-      </div>
+    if (answers.eye === "yes") {
+      result = "護眼紫";
+      tip = "建議每 30 分鐘讓眼睛休息，減少長時間藍光刺激。";
+    }
 
-      <div class="feature-grid">
-        <div class="feature-card">
-          <h3>01 生活狀態</h3>
-          <p>睡眠、壓力、飲食、活動量，建立使用者日常健康輪廓。</p>
-        </div>
-        <div class="feature-card">
-          <h3>02 身體反應</h3>
-          <p>消化、疲勞、代謝、氣色與發炎相關感受，判斷可能需求。</p>
-        </div>
-        <div class="feature-card">
-          <h3>03 飲品推薦</h3>
-          <p>依照問卷結果，推薦六色系統中的適合飲品與生活小提醒。</p>
-        </div>
-      </div>
-    </section>
+    if (answers.body === "yes") {
+      result = "強健黃";
+      tip = "建議搭配蛋白質攝取與規律運動，支持體力與身體線條。";
+    }
 
-    <section id="partner" class="partner">
-      <div class="cta-box">
-        <div>
-          <h2>城市合作與加盟計畫</h2>
-          <p>
-            植本邏輯正在建立全植物機能飲品牌、AI 健康會員系統與城市合作模型。
-            歡迎認同健康、科技與長期品牌價值的合作夥伴加入。
-          </p>
-        </div>
-        <a class="btn gold-btn" href="mailto:bryan@phytologic.tw">聯絡合作</a>
-      </div>
-    </section>
-  </main>
+    if (answers.stress === "yes" || answers.sleep === "bad") {
+      result = "鉑金白";
+      tip = "建議每天保留安靜時間，透過深呼吸與固定睡眠節奏支持修復。";
+    }
 
-  <footer>
-    <strong>PHYTOLOGIC 植本邏輯</strong><br>
-    全植物機能飲 × AI健康系統<br>
-    Email：<a href="mailto:bryan@phytologic.tw">bryan@phytologic.tw</a>
-  </footer>
+    if (answers.fatigue === "yes" && answers.digest !== "yes" && answers.stress !== "yes") {
+      result = "修復白";
+      tip = "建議先從基礎營養與睡眠修復開始，建立身體底盤。";
+    }
+
+    document.getElementById("result").style.display = "block";
+    document.getElementById("result").innerHTML = `
+      <h3 style="font-size:32px;color:#17482f;margin:0 0 18px;">你的推薦飲品：${result}</h3>
+      <p style="font-size:20px;line-height:1.8;color:#385748;margin:0;">
+        派森根據你的生活狀態與身體反應，建議優先從「${result}」系列開始。
+      </p>
+      <p style="margin-top:18px;font-size:18px;line-height:1.8;color:#6d7c70;">
+        健康小提醒：${tip}
+      </p>
+    `;
+  }
+</script>
+
 </body>
 </html>
