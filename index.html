@@ -5,120 +5,133 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PHYTOLOGIC 植本邏輯</title>
   <meta name="description" content="全植物機能飲 × AI健康系統" />
+
   <style>
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
       background: #f7f3ea;
-      color: #17382a;
+      color: #123d2a;
     }
+
+    a { color: inherit; }
 
     header {
       position: sticky;
       top: 0;
-      z-index: 20;
-      padding: 20px 8%;
+      z-index: 50;
+      height: 88px;
+      padding: 0 8%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(247,243,234,.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid rgba(23,56,42,.08);
+      background: rgba(247, 243, 234, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(18, 61, 42, 0.08);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       font-weight: 900;
-      letter-spacing: .08em;
+      letter-spacing: .06em;
       color: #17482f;
     }
 
     .mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
       background:
-        radial-gradient(circle at 30% 30%, #d8b64c 0 18%, transparent 19%),
-        linear-gradient(135deg, #1f5b3b, #83b86f);
-      box-shadow: 0 8px 20px rgba(31,91,59,.25);
+        radial-gradient(circle at 28% 28%, #d4af37 0 18%, transparent 20%),
+        linear-gradient(135deg, #1f5b3b, #78b66d);
+      box-shadow: 0 10px 24px rgba(31, 91, 59, .22);
+    }
+
+    nav {
+      display: flex;
+      gap: 34px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #24523b;
     }
 
     nav a {
-      margin-left: 24px;
       text-decoration: none;
-      color: #17382a;
-      font-size: 14px;
-      font-weight: 600;
-      opacity: .82;
+      opacity: .86;
     }
 
+    nav a:hover { opacity: 1; }
+
     .hero {
-      min-height: 92vh;
-      padding: 92px 8%;
+      min-height: calc(100vh - 88px);
+      padding: 86px 8%;
       display: grid;
       grid-template-columns: 1.05fr .95fr;
-      gap: 60px;
+      gap: 64px;
       align-items: center;
       background:
-        radial-gradient(circle at 83% 14%, rgba(212,175,55,.32), transparent 28%),
-        radial-gradient(circle at 12% 20%, rgba(123,178,107,.24), transparent 30%),
-        linear-gradient(135deg, #f7f3ea 0%, #e9f1e2 100%);
-      overflow: hidden;
+        radial-gradient(circle at 88% 14%, rgba(212, 175, 55, .26), transparent 30%),
+        radial-gradient(circle at 8% 12%, rgba(122, 182, 109, .18), transparent 34%),
+        linear-gradient(135deg, #f7f3ea 0%, #edf5e8 100%);
     }
 
     .eyebrow {
       display: inline-flex;
-      gap: 10px;
-      align-items: center;
-      padding: 10px 16px;
+      padding: 10px 18px;
       border-radius: 999px;
-      background: rgba(255,255,255,.72);
-      border: 1px solid rgba(31,91,59,.12);
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(31, 91, 59, .12);
       color: #1f5b3b;
       font-size: 14px;
-      font-weight: 800;
-      margin-bottom: 24px;
+      font-weight: 900;
+      margin-bottom: 26px;
+      box-shadow: 0 10px 26px rgba(20, 51, 38, .06);
     }
 
     h1 {
-      margin: 0 0 24px;
-      font-size: clamp(54px, 8vw, 108px);
-      line-height: .92;
-      letter-spacing: -.05em;
-      color: #123d2a;
+      margin: 0 0 28px;
+      font-size: clamp(56px, 8vw, 112px);
+      line-height: .9;
+      letter-spacing: -.055em;
+      color: #103c29;
     }
 
     .gold { color: #b8942f; }
 
-    .subtitle {
-      font-size: clamp(22px, 3vw, 36px);
-      line-height: 1.4;
-      color: #265f42;
-      font-weight: 900;
-      margin-bottom: 26px;
+    .hero h2 {
+      margin: 0 0 24px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.22;
+      color: #1f5b3b;
     }
 
-    .desc {
-      max-width: 690px;
-      font-size: 18px;
-      line-height: 1.95;
-      color: #3d5b4b;
+    .hero p {
+      max-width: 720px;
+      margin: 0;
+      font-size: 19px;
+      line-height: 2;
+      color: #3e5d4d;
+      font-weight: 600;
     }
 
     .buttons {
-      margin-top: 36px;
+      margin-top: 38px;
       display: flex;
-      flex-wrap: wrap;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
     .btn {
-      display: inline-block;
-      padding: 15px 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 28px;
       border-radius: 999px;
       text-decoration: none;
       font-weight: 900;
@@ -127,229 +140,243 @@
 
     .btn:hover { transform: translateY(-2px); }
 
-    .primary {
+    .btn-primary {
       background: #1f5b3b;
-      color: #fff;
-      box-shadow: 0 16px 34px rgba(31,91,59,.25);
-    }
-
-    .secondary {
-      color: #1f5b3b;
-      border: 1px solid rgba(31,91,59,.32);
-      background: rgba(255,255,255,.5);
-    }
-
-    .hero-visual {
-      position: relative;
-      min-height: 560px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .orb {
-      width: min(430px, 80vw);
-      aspect-ratio: 1;
-      border-radius: 44px;
-      background:
-        radial-gradient(circle at 28% 18%, rgba(255,255,255,.9), transparent 22%),
-        radial-gradient(circle at 70% 70%, rgba(212,175,55,.72), transparent 30%),
-        linear-gradient(135deg, #17482f, #071b13);
-      box-shadow: 0 40px 110px rgba(23,72,47,.35);
-      transform: rotate(-8deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       color: white;
+      box-shadow: 0 16px 36px rgba(31, 91, 59, .26);
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,.58);
+      color: #1f5b3b;
+      border: 1px solid rgba(31, 91, 59, .25);
+    }
+
+    .visual {
+      position: relative;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .visual-card {
+      width: min(440px, 88vw);
+      min-height: 440px;
+      border-radius: 42px;
+      background:
+        radial-gradient(circle at 25% 18%, rgba(255,255,255,.82), transparent 21%),
+        radial-gradient(circle at 72% 72%, rgba(212,175,55,.55), transparent 28%),
+        linear-gradient(135deg, #17482f, #071b13);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      padding: 40px;
+      padding: 46px;
+      box-shadow: 0 42px 100px rgba(20,51,38,.28);
     }
 
-    .orb-inner {
-      transform: rotate(8deg);
+    .visual-card strong {
+      font-size: clamp(36px, 5vw, 56px);
+      margin-bottom: 18px;
     }
 
-    .orb strong {
-      display: block;
-      font-size: 46px;
+    .visual-card span {
+      color: #d9eadf;
+      line-height: 1.8;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .badge {
+      position: absolute;
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(31,91,59,.1);
+      border-radius: 999px;
+      padding: 14px 22px;
+      color: #1f5b3b;
+      font-weight: 900;
+      box-shadow: 0 18px 42px rgba(20,51,38,.12);
+    }
+
+    .badge.one { top: 28px; left: 0; }
+    .badge.two { bottom: 46px; right: 0; color: #b8942f; }
+
+    section {
+      padding: 104px 8%;
+    }
+
+    .section-head {
+      max-width: 920px;
+      margin-bottom: 46px;
+    }
+
+    .section-label {
+      color: #b8942f;
+      font-weight: 900;
+      letter-spacing: .12em;
+      font-size: 13px;
       margin-bottom: 14px;
     }
 
-    .floating {
-      position: absolute;
-      background: rgba(255,255,255,.82);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,.7);
-      border-radius: 24px;
-      padding: 18px 20px;
-      box-shadow: 0 20px 48px rgba(20,51,38,.16);
-      font-weight: 900;
-      color: #17482f;
-    }
-
-    .f1 { top: 40px; left: 0; }
-    .f2 { right: 0; bottom: 80px; }
-    .f3 { left: 40px; bottom: 20px; color: #b8942f; }
-
-    section {
-      padding: 96px 8%;
-    }
-
     .section-title {
-      font-size: clamp(34px, 5vw, 56px);
-      line-height: 1.1;
       margin: 0 0 20px;
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: 1.08;
+      letter-spacing: -.035em;
       color: #123d2a;
     }
 
-    .section-text {
-      max-width: 900px;
-      font-size: 18px;
-      line-height: 1.9;
-      color: #3d5b4b;
+    .section-desc {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.95;
+      color: #3e5d4d;
+      font-weight: 600;
     }
 
-    .story-box {
-      margin-top: 42px;
-      background: #fff;
+    .story-card {
+      background: white;
       border-radius: 36px;
-      padding: 46px;
-      box-shadow: 0 20px 60px rgba(20,51,38,.08);
+      padding: 48px;
       border: 1px solid rgba(31,91,59,.08);
+      box-shadow: 0 24px 64px rgba(20,51,38,.08);
+    }
+
+    .story-card p {
+      margin: 0;
+      font-size: 19px;
+      line-height: 2;
+      color: #3e5d4d;
+      font-weight: 600;
     }
 
     .color-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 16px;
-      margin-top: 46px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
     }
 
     .color-card {
       min-height: 240px;
-      border-radius: 32px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 18px 44px rgba(20,51,38,.12);
-      overflow: hidden;
+      border-radius: 34px;
+      padding: 30px;
       position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 52px rgba(20,51,38,.12);
+      border: 1px solid rgba(255,255,255,.6);
     }
 
     .color-card::after {
       content: "";
       position: absolute;
-      width: 120px;
-      height: 120px;
+      width: 150px;
+      height: 150px;
+      right: -44px;
+      top: -44px;
       border-radius: 999px;
       background: rgba(255,255,255,.36);
-      right: -34px;
-      top: -34px;
     }
 
     .color-card h3 {
-      margin: 0;
-      font-size: 24px;
+      position: relative;
+      margin: 0 0 12px;
+      font-size: 30px;
+      color: #123d2a;
       z-index: 1;
     }
 
     .color-card p {
+      position: relative;
       margin: 0;
-      font-size: 14px;
-      line-height: 1.7;
+      font-size: 17px;
+      line-height: 1.75;
+      font-weight: 800;
+      color: rgba(18,61,42,.78);
       z-index: 1;
-      color: rgba(20,51,38,.72);
     }
 
-    .white { background: linear-gradient(135deg,#fffefa,#eee7d9); }
-    .green { background: linear-gradient(135deg,#d9efcd,#7fbb70); }
-    .red { background: linear-gradient(135deg,#ffd2d2,#df7a7a); }
-    .yellow { background: linear-gradient(135deg,#ffe9a5,#d6a92f); }
-    .purple { background: linear-gradient(135deg,#e5d8ff,#a48bd9); }
-    .platinum { background: linear-gradient(135deg,#f8f4e7,#c9a646); }
+    .white { background: linear-gradient(135deg, #fffefa, #eee7d9); }
+    .green { background: linear-gradient(135deg, #dff3d3, #83be72); }
+    .red { background: linear-gradient(135deg, #ffd7d7, #df8282); }
+    .yellow { background: linear-gradient(135deg, #ffedae, #d7aa32); }
+    .purple { background: linear-gradient(135deg, #eadfff, #a78cdc); }
+    .platinum { background: linear-gradient(135deg, #f8f3e5, #c6a345); }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-      margin-top: 46px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 32px;
-      padding: 34px;
-      box-shadow: 0 18px 48px rgba(20,51,38,.08);
-      border: 1px solid rgba(31,91,59,.08);
-    }
-
-    .card h3 {
-      margin: 0 0 14px;
-      color: #17482f;
-      font-size: 24px;
-    }
-
-    .card p {
-      margin: 0;
-      line-height: 1.85;
-      color: #50675b;
-    }
-
-    .ai-section {
+    .ai {
       background:
-        radial-gradient(circle at 85% 20%, rgba(212,175,55,.22), transparent 26%),
+        radial-gradient(circle at 90% 10%, rgba(212,175,55,.24), transparent 28%),
         linear-gradient(135deg, #123d2a, #071b13);
       color: white;
     }
 
-    .ai-section .section-title,
-    .ai-section .section-text {
-      color: white;
+    .ai .section-title { color: white; }
+    .ai .section-desc { color: #d9eadf; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
     }
 
-    .ai-section .section-text {
-      color: #d9eadf;
-    }
-
-    .ai-section .card {
+    .feature-card {
       background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      color: white;
-      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 34px;
+      padding: 34px;
+      backdrop-filter: blur(12px);
     }
 
-    .ai-section .card h3 { color: #d4af37; }
-    .ai-section .card p { color: #d9eadf; }
+    .feature-card h3 {
+      margin: 0 0 14px;
+      color: #d4af37;
+      font-size: 24px;
+    }
 
-    .cta {
+    .feature-card p {
+      margin: 0;
+      color: #d9eadf;
+      line-height: 1.85;
+      font-size: 17px;
+    }
+
+    .partner {
       background: #fff;
     }
 
     .cta-box {
       background:
-        radial-gradient(circle at 88% 20%, rgba(212,175,55,.28), transparent 30%),
+        radial-gradient(circle at 90% 16%, rgba(212,175,55,.24), transparent 28%),
         linear-gradient(135deg, #17482f, #0f2c20);
-      color: white;
       border-radius: 44px;
       padding: 64px;
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 32px;
+      gap: 36px;
       align-items: center;
-      box-shadow: 0 30px 80px rgba(20,51,38,.22);
+      color: white;
+      box-shadow: 0 34px 90px rgba(20,51,38,.22);
     }
 
     .cta-box h2 {
-      font-size: clamp(34px, 4vw, 52px);
       margin: 0 0 18px;
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1.1;
     }
 
     .cta-box p {
       margin: 0;
+      max-width: 760px;
       color: #d9eadf;
-      line-height: 1.85;
-      max-width: 720px;
+      font-size: 18px;
+      line-height: 1.9;
+    }
+
+    .gold-btn {
+      background: #d4af37;
+      color: #123d2a;
     }
 
     footer {
@@ -359,31 +386,87 @@
       line-height: 1.8;
     }
 
+    footer strong {
+      color: white;
+      font-size: 20px;
+    }
+
     footer a {
       color: #d4af37;
       text-decoration: none;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1080px) {
       nav { display: none; }
+
       .hero {
         grid-template-columns: 1fr;
         padding-top: 70px;
       }
-      .hero-visual {
-        min-height: 460px;
+
+      .visual {
+        min-height: 430px;
       }
+
+      .visual-card {
+        min-height: 360px;
+      }
+
+      .badge {
+        position: static;
+        margin: 10px;
+      }
+
       .color-grid,
-      .cards {
+      .feature-grid {
         grid-template-columns: 1fr;
       }
+
       .cta-box {
         grid-template-columns: 1fr;
-        padding: 38px;
+        padding: 40px;
       }
-      .floating {
-        position: static;
-        margin: 12px;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        height: 76px;
+        padding: 0 22px;
+      }
+
+      .brand {
+        font-size: 14px;
+        letter-spacing: .03em;
+      }
+
+      .mark {
+        width: 32px;
+        height: 32px;
+      }
+
+      .hero,
+      section {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .hero {
+        padding-top: 54px;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .story-card,
+      .color-card,
+      .feature-card {
+        border-radius: 26px;
+        padding: 28px;
       }
     }
   </style>
@@ -408,37 +491,38 @@
       <div>
         <div class="eyebrow">AI HEALTH SYSTEM · PLANT FUNCTIONAL DRINK</div>
         <h1>PHYTO<span class="gold">LOGIC</span></h1>
-        <div class="subtitle">全植物機能飲 × AI健康系統</div>
-        <p class="desc">
+        <h2>全植物機能飲 × AI健康系統</h2>
+        <p>
           以天然蔬菜、穀物、水果與植物營養為核心，結合派森 AI 健康系統，
           從生活狀態、身體反應與個人化需求出發，建立每一天都能實踐的健康飲用邏輯。
         </p>
         <div class="buttons">
-          <a class="btn primary" href="#ai">開始派森問卷</a>
-          <a class="btn secondary" href="#system">探索六色系統</a>
+          <a class="btn btn-primary" href="#ai">開始派森問卷</a>
+          <a class="btn btn-outline" href="#system">探索六色系統</a>
         </div>
       </div>
 
-      <div class="hero-visual">
-        <div class="floating f1">三好：好喝・好看・好有效</div>
-        <div class="orb">
-          <div class="orb-inner">
-            <strong>植物 × AI</strong>
-            <div>讓每一個人活得久<br>還要活得好精彩</div>
-          </div>
+      <div class="visual">
+        <div class="badge one">三好：好喝・好看・好有效</div>
+        <div class="visual-card">
+          <strong>植物 × AI</strong>
+          <span>讓每一個人活得久<br>還要活得好精彩</span>
         </div>
-        <div class="floating f2">三無：無人工・無合成・無化學</div>
-        <div class="floating f3">Six Color Wellness System</div>
+        <div class="badge two">三無：無人工・無合成・無化學</div>
       </div>
     </section>
 
     <section id="story">
-      <h2 class="section-title">品牌故事</h2>
-      <p class="section-text">
-        植本邏輯來自一個很單純的起點：健康，才是幸福與未來一切的根本。
-      </p>
-      <div class="story-box">
-        <p class="section-text">
+      <div class="section-head">
+        <div class="section-label">BRAND STORY</div>
+        <h2 class="section-title">從陪伴開始的健康品牌</h2>
+        <p class="section-desc">
+          植本邏輯來自一個很單純的起點：健康，才是幸福與未來一切的根本。
+        </p>
+      </div>
+
+      <div class="story-card">
+        <p>
           從一位國際品牌專案經理人，到一位丈夫，再到 50 歲成為父親，
           陪伴成為生命中最重要的課題。我們開始重新理解「食物」的價值：
           它不只是補充熱量，而是每天都能支持身體、關係與生活品質的基礎。
@@ -448,11 +532,14 @@
     </section>
 
     <section id="system">
-      <h2 class="section-title">六色植物機能系統</h2>
-      <p class="section-text">
-        以身體狀態與生活需求為基礎，建立六色飲品邏輯，讓每一杯都不只是好喝，
-        更能對應不同健康目標。
-      </p>
+      <div class="section-head">
+        <div class="section-label">SIX COLOR WELLNESS SYSTEM</div>
+        <h2 class="section-title">六色植物機能系統</h2>
+        <p class="section-desc">
+          以不同身體需求與生活狀態為基礎，建立六色產品邏輯，
+          讓飲品不只是好喝，更能成為日常健康管理的一部分。
+        </p>
+      </div>
 
       <div class="color-grid">
         <div class="color-card white">
@@ -482,30 +569,33 @@
       </div>
     </section>
 
-    <section id="ai" class="ai-section">
-      <h2 class="section-title">派森 AI 健康系統</h2>
-      <p class="section-text">
-        派森不是單純的問卷，而是植本邏輯未來會員系統的核心。
-        它會從使用者的生活、身體反應與個人需求出發，推薦適合的飲品方向與健康生活建議。
-      </p>
+    <section id="ai" class="ai">
+      <div class="section-head">
+        <div class="section-label">PYTHON AI HEALTH SYSTEM</div>
+        <h2 class="section-title">派森 AI 健康問卷</h2>
+        <p class="section-desc">
+          派森會從使用者的生活、身體反應與個人需求出發，
+          推薦適合的飲品方向與健康生活建議。
+        </p>
+      </div>
 
-      <div class="cards">
-        <div class="card">
+      <div class="feature-grid">
+        <div class="feature-card">
           <h3>01 生活狀態</h3>
           <p>睡眠、壓力、飲食、活動量，建立使用者日常健康輪廓。</p>
         </div>
-        <div class="card">
+        <div class="feature-card">
           <h3>02 身體反應</h3>
           <p>消化、疲勞、代謝、氣色與發炎相關感受，判斷可能需求。</p>
         </div>
-        <div class="card">
+        <div class="feature-card">
           <h3>03 飲品推薦</h3>
           <p>依照問卷結果，推薦六色系統中的適合飲品與生活小提醒。</p>
         </div>
       </div>
     </section>
 
-    <section id="partner" class="cta">
+    <section id="partner" class="partner">
       <div class="cta-box">
         <div>
           <h2>城市合作與加盟計畫</h2>
@@ -514,9 +604,7 @@
             歡迎認同健康、科技與長期品牌價值的合作夥伴加入。
           </p>
         </div>
-        <a class="btn primary" style="background:#d4af37;color:#143326;" href="mailto:bryan@phytologic.tw">
-          聯絡合作
-        </a>
+        <a class="btn gold-btn" href="mailto:bryan@phytologic.tw">聯絡合作</a>
       </div>
     </section>
   </main>
