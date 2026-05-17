@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { ArrowRight, Check, Leaf, Loader2, RotateCcw, Sparkles } from "lucide-react";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { supabase, supabaseConfigMessage } from "../lib/supabase";
+import UnlockFullReportCard from "./line/UnlockFullReportCard";
 
 const QUESTION_COUNT = 15;
+const hasJoinedLine = false;
 
 const AGE_GROUPS = [
   { label: "青少年", range: "12-16 歲" },
@@ -155,16 +157,19 @@ ${productSummary}
 
 export default function HealthAssessment() {
   const [step, setStep] = useState(0);
+  const [profile, setProfile] = useState({ gender: "", age: "", workType: "", height: "", weight: "" });
   const [ageGroup, setAgeGroup] = useState(null);
   const [questions, setQuestions] = useState(() => shuffleQuestions());
   const [answers, setAnswers] = useState({});
   const [aiResult, setAiResult] = useState(null);
   const [statusText, setStatusText] = useState("");
   const [saveNotice, setSaveNotice] = useState("");
+  const [saveStatus, setSaveStatus] = useState("idle");
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / QUESTION_COUNT) * 100);
   const completed = answeredCount === QUESTION_COUNT;
+  const profileCompleted = profile.gender && profile.age && profile.workType && profile.height && profile.weight && ageGroup;
 
   const result = useMemo(() => {
     if (!ageGroup) return null;
@@ -191,12 +196,14 @@ export default function HealthAssessment() {
 
   const resetAssessment = () => {
     setStep(0);
+    setProfile({ gender: "", age: "", workType: "", height: "", weight: "" });
     setAgeGroup(null);
     setQuestions(shuffleQuestions());
     setAnswers({});
     setAiResult(null);
     setStatusText("");
     setSaveNotice("");
+    setSaveStatus("idle");
   };
 
   const runAnalysis = async () => {
@@ -205,6 +212,7 @@ export default function HealthAssessment() {
     setStep(2);
     setStatusText("派森正在分析 15 題發炎指數線索...");
     setSaveNotice("");
+    setSaveStatus("idle");
 
     const fallbackProductChoice = result.fallbackProduct;
     const fallback = {
@@ -246,18 +254,49 @@ export default function HealthAssessment() {
 
     setAiResult(finalResult);
 
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from("assessments").insert({
-        age_group: ageGroup.label,
-        total_score: result.total,
+    const reportPayload = {
+      name: null,
+      gender: profile.gender,
+      age: Number(profile.age),
+      work_type: profile.workType,
+      total_score: result.total,
+      inflammation_level: result.levelLabel,
+      primary_systems: result.categoryScores,
+      recommended_products: [selectedProduct.name],
+      partial_report: {
+        analysis: finalResult.analysis,
+        lifestyleChange: finalResult.lifestyleChange,
         level: result.levelLabel,
-        system_scores: result.categoryScores,
-        recommended_products: [selectedProduct.name],
-        ai_analysis: `${finalResult.analysis}\n生活建議：${finalResult.lifestyleChange}`,
-      });
-      setSaveNotice(error ? "資料暫時未寫入 Supabase，結果仍可正常查看。" : "本次評估已寫入健康檢測紀錄。");
+        recommendedProductName: selectedProduct.name,
+      },
+      full_report: {
+        ageGroup: ageGroup.label,
+        systemScores: result.categoryScores,
+        topSignals: result.topSignals,
+        answerSummary: result.answerSummary,
+        questions: questions.map((question) => ({
+          id: question.id,
+          category: question.category,
+          text: question.text,
+          score: answers[question.id] ?? null,
+        })),
+      },
+      has_joined_line: hasJoinedLine,
+    };
+
+    if (supabase) {
+      setSaveStatus("loading");
+      const { error } = await supabase.from("assessment_reports").insert(reportPayload);
+      if (error) {
+        setSaveStatus("error");
+        setSaveNotice(`測驗結果儲存失敗：${error.message}`);
+      } else {
+        setSaveStatus("success");
+        setSaveNotice("本次評估已儲存到 Supabase assessment_reports。");
+      }
     } else {
-      setSaveNotice("尚未設定 Supabase 連線，這次結果只顯示在目前頁面。");
+      setSaveStatus("error");
+      setSaveNotice(supabaseConfigMessage);
     }
 
     setStep(3);
@@ -277,21 +316,59 @@ export default function HealthAssessment() {
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C3D2B] text-white"><Leaf className="h-5 w-5" /></div>
             <div>
               <p className="text-sm text-[#8B7A4C]">步驟 1 / 3</p>
-              <h4 className="text-2xl font-semibold">選擇您的年齡層</h4>
+              <h4 className="text-2xl font-semibold">輸入基本資料</h4>
             </div>
           </div>
+          <div className="mb-7 grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">性別</span>
+              <select value={profile.gender} onChange={(event) => setProfile((prev) => ({ ...prev, gender: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                <option>男</option>
+                <option>女</option>
+                <option>其他</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">年齡</span>
+              <input type="number" min="1" value={profile.age} onChange={(event) => setProfile((prev) => ({ ...prev, age: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="例如 35" />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">工作類型</span>
+              <select value={profile.workType} onChange={(event) => setProfile((prev) => ({ ...prev, workType: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                <option>久坐辦公</option>
+                <option>外勤走動</option>
+                <option>體力勞動</option>
+                <option>學生</option>
+                <option>自由業</option>
+                <option>其他</option>
+              </select>
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-2 block text-sm text-[#8B7A4C]">身高 cm</span>
+                <input type="number" min="1" value={profile.height} onChange={(event) => setProfile((prev) => ({ ...prev, height: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="170" />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm text-[#8B7A4C]">體重 kg</span>
+                <input type="number" min="1" value={profile.weight} onChange={(event) => setProfile((prev) => ({ ...prev, weight: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="65" />
+              </label>
+            </div>
+          </div>
+          <h5 className="mb-4 text-lg font-semibold">依年齡切換題庫</h5>
           <div className="grid gap-4 md:grid-cols-5">
             {AGE_GROUPS.map((group) => {
               const active = ageGroup?.label === group.label;
               return (
                 <button key={group.label} type="button" onClick={() => setAgeGroup(group)} className={`rounded-2xl border p-5 text-left transition ${active ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white hover:border-[#C8A96E]"}`}>
                   <span className="block text-lg font-semibold">{group.label}</span>
-                  <span className={`mt-2 block text-sm ${active ? "text-white/72" : "text-[#49675A]"}`}>{group.range}</span>
+                  <span className={`mt-2 block text-sm ${active ? "text-white/70" : "text-[#49675A]"}`}>{group.range}</span>
                 </button>
               );
             })}
           </div>
-          <button type="button" disabled={!ageGroup} onClick={() => setStep(1)} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
+          <button type="button" disabled={!profileCompleted} onClick={() => setStep(1)} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
             開始 15 題快篩 <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -351,9 +428,9 @@ export default function HealthAssessment() {
           <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
             <div className="rounded-2xl border border-[#E5E0D5] bg-[#1C3D2B] p-7 text-white">
               <p className="text-sm tracking-[0.24em] text-[#C8A96E]">INFLAMMATION SCORE</p>
-              <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/55">/30</span></div>
+              <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/50">/30</span></div>
               <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1C3D2B]">{result.levelLabel}</div>
-              <p className="mt-5 leading-8 text-white/72">{ageGroup.label}（{ageGroup.range}）｜15 題發炎指數快篩</p>
+              <p className="mt-5 leading-8 text-white/70">{ageGroup.label}（{ageGroup.range}）｜15 題發炎指數快篩</p>
             </div>
             <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7">
               <h4 className="text-2xl font-semibold">AI 判讀重點</h4>
@@ -370,8 +447,17 @@ export default function HealthAssessment() {
             <div className="rounded-2xl border border-[#E5E0D5] bg-[#FDFBF6] p-7">
               <h4 className="text-2xl font-semibold">今天開始的生活改變</h4>
               <p className="mt-4 text-lg leading-9 text-[#49675A]">{aiResult.lifestyleChange}</p>
-              {saveNotice && <p className="mt-5 rounded-2xl bg-white px-5 py-4 text-sm text-[#8B7A4C]">{saveNotice}</p>}
+              {saveNotice && <p className={`mt-5 rounded-2xl px-5 py-4 text-sm ${saveStatus === "error" ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-white text-[#8B7A4C]"}`}>{saveStatus === "loading" ? "測驗結果儲存中..." : saveNotice}</p>}
             </div>
+          </div>
+          {!hasJoinedLine && <UnlockFullReportCard />}
+          <div className={`${hasJoinedLine ? "" : "pointer-events-none select-none blur-sm"} grid gap-5 md:grid-cols-2`}>
+            {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+              <div key={key} className="rounded-2xl border border-[#E5E0D5] bg-white p-5">
+                <div className="text-sm text-[#8B7A4C]">{label}</div>
+                <div className="mt-3 text-3xl font-semibold">{result.categoryScores[key] || 0}<span className="text-sm text-[#7D8D7F]"> 分</span></div>
+              </div>
+            ))}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <p className="max-w-3xl text-sm leading-7 text-[#7D8D7F]">本檢測為健康管理與產品建議參考，不能取代醫療診斷、治療或專業醫師建議。如有明顯不適或慢性疾病，請諮詢合格醫療人員。</p>

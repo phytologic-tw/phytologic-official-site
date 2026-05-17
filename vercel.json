@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/partners", "destination": "/" },
+    { "source": "/news", "destination": "/" },
+    { "source": "/gallery", "destination": "/" }
+  ]
+}
