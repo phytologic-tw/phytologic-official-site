@@ -17,6 +17,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import HealthAssessment from "./components/HealthAssessment";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 const logo = "/logo.png";
@@ -316,7 +317,11 @@ export default function PhytologicWebsite() {
 
         <section id="產品系列" className="bg-white/45 px-5 py-20 md:px-8"><SectionTitle eyebrow="Product System" title="五色植物機能系統" text="每一種顏色，都是一種人生願望；每一款配方，對應一種現代人的身體需求。" /><div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-5">{products.map((p) => { const Icon = p.icon; return <button key={p.id} type="button" onClick={() => setActiveProduct(p)} className={`rounded-[2rem] border p-6 text-left shadow-sm transition hover:-translate-y-1 ${activeProduct.id === p.id ? "border-[#B89B5E] bg-white" : "border-[#E7DDBF] bg-white/65"}`}><div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: p.accent, color: p.deep }}><Icon /></div><div className="text-xl font-semibold">{p.name}</div><div className="mt-1 text-xs uppercase tracking-[0.18em] text-[#8B7A4C]">{p.english}</div><p className="mt-4 min-h-[84px] text-sm leading-7 text-[#49675A]">{p.desc}</p></button>; })}</div><button type="button" onClick={() => setDetailOpen(true)} className="mx-auto mt-8 block w-full max-w-7xl rounded-[2.5rem] border border-[#E7DDBF] bg-[#123828] p-8 text-left text-white transition hover:-translate-y-1 hover:shadow-2xl md:p-10"><div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center"><div><div className="text-sm tracking-[0.32em] text-[#D8C99C]">{activeProduct.colorName}</div><h3 className="mt-3 text-4xl font-semibold">{activeProduct.name}</h3><p className="mt-4 text-lg text-white/75">{activeProduct.theme}</p></div><div><p className="leading-8 text-white/78">{activeProduct.desc}</p><div className="mt-6 flex flex-wrap gap-3">{activeProduct.tags.map((tag) => <span key={tag} className="rounded-full bg-white/10 px-4 py-2 text-sm text-white/85">{tag}</span>)}</div></div></div></button></section>
 
-        <section id="派森" className="relative overflow-hidden px-5 py-20 md:px-8">
+        <section id="派森" className="bg-[#F5F2EB] px-5 py-20 md:px-8">
+          <HealthAssessment />
+        </section>
+
+        <section className="hidden">
           <div className="pointer-events-none absolute left-[8%] top-20 h-56 w-56 rounded-full bg-[#DDEEDB]/70 blur-3xl" />
           <div className="pointer-events-none absolute bottom-24 right-[8%] h-72 w-72 rounded-full bg-[#D8C99C]/40 blur-3xl" />
           <SectionTitle eyebrow="AI Health System" title="每個人，都應該擁有自己的植物機能建議" text="以LINE會員作為初期入口，結合生活狀態、身體反應、飲用紀錄與個人化建議，讓派森成為健康陪伴與品牌服務的核心。" />
