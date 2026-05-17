@@ -2,6 +2,8 @@
   "rewrites": [
     { "source": "/partners", "destination": "/" },
     { "source": "/news", "destination": "/" },
-    { "source": "/gallery", "destination": "/" }
+    { "source": "/gallery", "destination": "/" },
+    { "source": "/admin", "destination": "/" },
+    { "source": "/admin/:path*", "destination": "/" }
   ]
 }

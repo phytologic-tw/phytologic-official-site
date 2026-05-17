@@ -16,13 +16,14 @@ import {
   X,
 } from "lucide-react";
 import HealthAssessment from "./components/HealthAssessment";
+import AdminDashboard from "./components/admin/AdminDashboard";
 import FloatingLineButton from "./components/line/FloatingLineButton";
 import LineCTA from "./components/line/LineCTA";
 import LineQRCode from "./components/line/LineQRCode";
 import { isSupabaseConfigured, supabase, supabaseConfigMessage } from "./lib/supabase";
 
 const logo = "/logo.png";
-const lineUrl = import.meta.env.VITE_LINE_OFFICIAL_URL || import.meta.env.VITE_LINE_CTA_URL || "https://lin.ee/YpVA4C8";
+const lineUrl = import.meta.env.VITE_LINE_OA_URL || import.meta.env.VITE_LINE_OFFICIAL_URL || import.meta.env.VITE_LINE_CTA_URL || "https://lin.ee/YpVA4C8";
 const lineId = "@phytologic";
 
 const products = [
@@ -392,13 +393,14 @@ function Footer() {
 
 export default function PhytologicWebsite() {
   const [route, go] = useRoute();
-  const page = route === "/partners" ? <PartnersPage /> : route === "/news" ? <NewsPage /> : route === "/gallery" ? <GalleryPage /> : <HomePage go={go} />;
+  const isAdminRoute = route === "/admin" || route.startsWith("/admin/");
+  const page = isAdminRoute ? <AdminDashboard route={route} go={go} /> : route === "/partners" ? <PartnersPage /> : route === "/news" ? <NewsPage /> : route === "/gallery" ? <GalleryPage /> : <HomePage go={go} />;
   return (
     <div className="min-h-screen bg-[#F9F5EA] text-[#123828]">
-      <Header route={route} go={go} />
+      {!isAdminRoute && <Header route={route} go={go} />}
       {page}
-      <Footer />
-      <FloatingLineButton />
+      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <FloatingLineButton />}
     </div>
   );
 }

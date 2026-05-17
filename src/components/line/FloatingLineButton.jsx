@@ -1,7 +1,7 @@
 import React from "react";
 import { MessageCircle } from "lucide-react";
 
-const lineUrl = import.meta.env.VITE_LINE_OFFICIAL_URL || import.meta.env.VITE_LINE_CTA_URL || "https://lin.ee/YpVA4C8";
+const lineUrl = import.meta.env.VITE_LINE_OA_URL || import.meta.env.VITE_LINE_OFFICIAL_URL || import.meta.env.VITE_LINE_CTA_URL || "https://lin.ee/YpVA4C8";
 
 export default function FloatingLineButton() {
   return (
