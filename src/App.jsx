@@ -21,7 +21,6 @@ import {
 import HealthAssessment from "./components/HealthAssessment";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import FloatingLineButton from "./components/line/FloatingLineButton";
-import LineCTA from "./components/line/LineCTA";
 import LineQRCode from "./components/line/LineQRCode";
 import { isSupabaseConfigured, supabase, supabaseConfigMessage } from "./lib/supabase";
 
@@ -217,10 +216,6 @@ function HomePage({ go }) {
             </div>
           </motion.div>
         </div>
-      </section>
-
-      <section className="px-5 py-14 md:px-8">
-        <div className="mx-auto max-w-7xl"><LineCTA /></div>
       </section>
 
       <section id="品牌理念" className="px-5 py-20 md:px-8">
