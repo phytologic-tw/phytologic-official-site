@@ -71,6 +71,27 @@ create table if not exists public.assessment_reports (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  full_name text,
+  role text not null default 'viewer' check (role in ('admin', 'viewer')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.contact_submissions (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text,
+  email text,
+  type text,
+  message text,
+  status text not null default 'unread' check (status in ('unread', 'read', 'archived')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table public.assessment_reports
   add column if not exists age_group text,
   add column if not exists height_cm numeric,
@@ -90,27 +111,43 @@ create index if not exists partners_status_created_at_idx on public.partners (st
 create index if not exists announcements_public_order_idx on public.announcements (status, is_pinned desc, published_at desc);
 create index if not exists gallery_items_public_order_idx on public.gallery_items (status, published_at desc);
 create index if not exists assessment_reports_created_at_idx on public.assessment_reports (created_at desc);
+create index if not exists profiles_role_idx on public.profiles (role);
+create index if not exists contact_submissions_status_created_at_idx on public.contact_submissions (status, created_at desc);
 
 alter table public.partners enable row level security;
 alter table public.announcements enable row level security;
 alter table public.gallery_items enable row level security;
 alter table public.assessment_reports enable row level security;
+alter table public.profiles enable row level security;
+alter table public.contact_submissions enable row level security;
 
 alter table public.partners force row level security;
 alter table public.announcements force row level security;
 alter table public.gallery_items force row level security;
 alter table public.assessment_reports force row level security;
+alter table public.profiles force row level security;
+alter table public.contact_submissions force row level security;
 
 revoke all on public.partners from anon, authenticated;
 revoke all on public.announcements from anon, authenticated;
 revoke all on public.gallery_items from anon, authenticated;
 revoke all on public.assessment_reports from anon, authenticated;
+revoke all on public.profiles from anon, authenticated;
+revoke all on public.contact_submissions from anon, authenticated;
 
 grant usage on schema public to anon, authenticated;
 grant select, insert on public.partners to anon, authenticated;
 grant select on public.announcements to anon, authenticated;
 grant select on public.gallery_items to anon, authenticated;
 grant insert on public.assessment_reports to anon, authenticated;
+grant select, insert on public.contact_submissions to anon, authenticated;
+grant select on public.profiles to authenticated;
+grant select, insert, update, delete on public.partners to authenticated;
+grant select, insert, update, delete on public.announcements to authenticated;
+grant select, insert, update, delete on public.gallery_items to authenticated;
+grant select, insert, update, delete on public.assessment_reports to authenticated;
+grant select, insert, update, delete on public.contact_submissions to authenticated;
+grant select, insert, update, delete on public.profiles to authenticated;
 
 grant insert (
   partner_name,
@@ -190,6 +227,33 @@ grant insert (
   created_at
 ) on public.assessment_reports to anon, authenticated;
 
+grant insert (
+  name,
+  phone,
+  email,
+  type,
+  message,
+  status
+) on public.contact_submissions to anon, authenticated;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'admin'
+  );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+
 drop policy if exists "Public can submit partner applications" on public.partners;
 create policy "Public can submit partner applications"
 on public.partners for insert
@@ -219,6 +283,60 @@ create policy "Public can create assessment reports"
 on public.assessment_reports for insert
 to anon, authenticated
 with check (true);
+
+drop policy if exists "Public can create contact submissions" on public.contact_submissions;
+create policy "Public can create contact submissions"
+on public.contact_submissions for insert
+to anon, authenticated
+with check (status = 'unread');
+
+drop policy if exists "Users can read own profile" on public.profiles;
+create policy "Users can read own profile"
+on public.profiles for select
+to authenticated
+using (id = auth.uid());
+
+drop policy if exists "Admins can manage profiles" on public.profiles;
+create policy "Admins can manage profiles"
+on public.profiles for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins can manage partners" on public.partners;
+create policy "Admins can manage partners"
+on public.partners for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins can manage announcements" on public.announcements;
+create policy "Admins can manage announcements"
+on public.announcements for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins can manage gallery items" on public.gallery_items;
+create policy "Admins can manage gallery items"
+on public.gallery_items for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins can manage assessment reports" on public.assessment_reports;
+create policy "Admins can manage assessment reports"
+on public.assessment_reports for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins can manage contact submissions" on public.contact_submissions;
+create policy "Admins can manage contact submissions"
+on public.contact_submissions for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
@@ -258,39 +376,39 @@ drop policy if exists "Authenticated can upload gallery files" on storage.object
 create policy "Authenticated can upload gallery files"
 on storage.objects for insert
 to authenticated
-with check (bucket_id = 'gallery');
+with check (bucket_id = 'gallery' and public.is_admin());
 
 drop policy if exists "Authenticated can upload announcement files" on storage.objects;
 create policy "Authenticated can upload announcement files"
 on storage.objects for insert
 to authenticated
-with check (bucket_id = 'announcements');
+with check (bucket_id = 'announcements' and public.is_admin());
 
 drop policy if exists "Authenticated can update gallery files" on storage.objects;
 create policy "Authenticated can update gallery files"
 on storage.objects for update
 to authenticated
-using (bucket_id = 'gallery')
-with check (bucket_id = 'gallery');
+using (bucket_id = 'gallery' and public.is_admin())
+with check (bucket_id = 'gallery' and public.is_admin());
 
 drop policy if exists "Authenticated can update announcement files" on storage.objects;
 create policy "Authenticated can update announcement files"
 on storage.objects for update
 to authenticated
-using (bucket_id = 'announcements')
-with check (bucket_id = 'announcements');
+using (bucket_id = 'announcements' and public.is_admin())
+with check (bucket_id = 'announcements' and public.is_admin());
 
 drop policy if exists "Authenticated can delete gallery files" on storage.objects;
 create policy "Authenticated can delete gallery files"
 on storage.objects for delete
 to authenticated
-using (bucket_id = 'gallery');
+using (bucket_id = 'gallery' and public.is_admin());
 
 drop policy if exists "Authenticated can delete announcement files" on storage.objects;
 create policy "Authenticated can delete announcement files"
 on storage.objects for delete
 to authenticated
-using (bucket_id = 'announcements');
+using (bucket_id = 'announcements' and public.is_admin());
 
 -- ============================================================
 -- Phase 1: LINE full report delivery

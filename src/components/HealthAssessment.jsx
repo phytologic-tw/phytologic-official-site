@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { ArrowRight, Check, Leaf, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { supabase, supabaseConfigMessage } from "../lib/supabase";
+import { submitPublicRecord } from "../lib/adminData";
 import UnlockFullReportCard from "./line/UnlockFullReportCard";
 
 const QUESTION_COUNT = 15;
@@ -375,8 +376,8 @@ export default function HealthAssessment() {
       created_at: createdAt,
     };
 
+    setSaveStatus("loading");
     if (supabase) {
-      setSaveStatus("loading");
       const { error, removedColumns } = await insertAssessmentReport(reportPayload);
       if (error) {
         setSaveStatus("error");
@@ -387,8 +388,15 @@ export default function HealthAssessment() {
         setSaveNotice(removedColumns.length ? "本次評估已建立，請至下方取得報告編號。部分完整欄位待資料庫更新後啟用。" : "本次評估已建立，請至下方取得報告編號。");
       }
     } else {
-      setSaveStatus("error");
-      setSaveNotice(supabaseConfigMessage);
+      try {
+        await submitPublicRecord("assessment_reports", reportPayload);
+        setAssessmentId(clientGeneratedId);
+        setSaveStatus("success");
+        setSaveNotice("Supabase 尚未設定，本次評估已暫存在 localStorage demo fallback。");
+      } catch (requestError) {
+        setSaveStatus("error");
+        setSaveNotice(`${supabaseConfigMessage} ${requestError.message}`);
+      }
     }
 
     setStep(3);

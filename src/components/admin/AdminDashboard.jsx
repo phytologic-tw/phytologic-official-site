@@ -1,562 +1,523 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Activity,
+  Archive,
+  BarChart3,
+  Check,
+  Download,
+  Eye,
+  Image as ImageIcon,
+  LayoutDashboard,
+  Lock,
+  Mail,
+  Newspaper,
+  Pencil,
+  Pin,
+  Plus,
+  Search,
+  Settings,
+  Trash2,
+  Upload,
+  Users,
+  X,
+} from "lucide-react";
+import {
+  createRecord,
+  deleteRecord,
+  getAdminSession,
+  getDemoSession,
+  isFallbackMode,
+  listRecords,
+  onAdminAuthChange,
+  signInAdmin,
+  signOutAdmin,
+  unlockDemo,
+  updateRecord,
+  uploadAdminFile,
+} from "../../lib/adminData";
+import { ADMIN_TABLES } from "../../lib/adminSeed";
+import { clearLocal, downloadText, rowsToCSV } from "../../lib/adminStorage";
 
-const adminPasscode = import.meta.env.VITE_ADMIN_PASSCODE || "";
+const logo = "/logo.png";
+const inputClass = "w-full rounded-lg border border-[#E2D5B5] bg-white px-4 py-3 text-sm text-[#123828] outline-none focus:border-[#B89B5E]";
+const buttonClass = "inline-flex items-center justify-center gap-2 rounded-full bg-[#123828] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#A9B6AE]";
+const ghostClass = "inline-flex items-center justify-center gap-2 rounded-full border border-[#D8C99C] bg-white px-4 py-2.5 text-sm font-semibold text-[#123828] transition hover:border-[#B89B5E] hover:bg-[#FDFBF6]";
+const dangerClass = "inline-flex items-center justify-center gap-2 rounded-full bg-[#9A3C2D] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#7C2D22]";
 
-const emptyAnnouncement = {
-  category: "品牌活動",
-  title: "",
-  summary: "",
-  content: "",
-  cover_image_url: "",
-  status: "draft",
-  is_pinned: false,
-};
+const nav = [
+  { label: "Dashboard", title: "總覽儀表板", path: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "合作夥伴", title: "合作夥伴管理", path: "/admin/partners", icon: Users },
+  { label: "最新消息", title: "最新消息管理", path: "/admin/news", icon: Newspaper },
+  { label: "精彩剪影", title: "精彩剪影管理", path: "/admin/gallery", icon: ImageIcon },
+  { label: "快篩結果", title: "快篩結果查閱", path: "/admin/assessments", icon: Activity },
+  { label: "聯絡表單", title: "聯絡表單管理", path: "/admin/contact", icon: Mail },
+  { label: "系統設定", title: "系統設定", path: "/admin/settings", icon: Settings },
+];
 
-const emptyGalleryItem = {
-  title: "",
-  type: "image",
-  category: "活動現場",
-  media_url: "",
-  thumbnail_url: "",
-  description: "",
-  status: "draft",
-};
+const blankNews = { title: "", category: "品牌活動", summary: "", content: "", cover_image_url: "", status: "draft", is_pinned: false };
+const blankGallery = { title: "", type: "photo", category: "活動現場", media_url: "", thumbnail_url: "", description: "", status: "draft" };
 
-const inputClass = "w-full rounded-2xl border border-[#E2D5B5] bg-white px-4 py-3 text-[#123828] outline-none focus:border-[#B89B5E]";
-const buttonClass = "rounded-full bg-[#123828] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#9FAEA5]";
-const ghostButtonClass = "rounded-full border border-[#B89B5E] bg-white/70 px-5 py-3 text-sm font-semibold text-[#123828] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60";
-
-function getStoredPasscode() {
-  return window.sessionStorage.getItem("phytologic_admin_passcode") || "";
+function formatDate(value) {
+  return value ? new Date(value).toLocaleString("zh-TW", { dateStyle: "short", timeStyle: "short" }) : "-";
 }
 
-async function adminRequest(body) {
-  const response = await fetch("/api/admin", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-passcode": getStoredPasscode(),
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data?.error || "Admin request failed");
-  return data.data;
+function matches(item, query, keys) {
+  if (!query.trim()) return true;
+  const q = query.trim().toLowerCase();
+  return keys.some((key) => String(item[key] || "").toLowerCase().includes(q));
 }
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+function exportJSON(table, rows) {
+  downloadText(`${table}_${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(rows, null, 2));
 }
 
-function AdminNotice({ type = "info", children }) {
-  const tone = type === "error" ? "border-[#E8B4A8] bg-[#FFF7F5] text-[#9A3C2D]" : "border-[#D8C99C] bg-white/75 text-[#49675A]";
-  return <div className={`rounded-2xl border p-4 text-sm ${tone}`}>{children}</div>;
+function exportCSV(table, rows) {
+  downloadText(`${table}_${new Date().toISOString().slice(0, 10)}.csv`, rowsToCSV(rows), "text/csv;charset=utf-8");
 }
 
-function AdminField({ label, children }) {
+function Notice({ type = "info", children }) {
+  const tone = type === "error" ? "border-[#E8B4A8] bg-[#FFF7F5] text-[#9A3C2D]" : "border-[#E7DDBF] bg-white/75 text-[#49675A]";
+  return <div className={`rounded-lg border p-4 text-sm ${tone}`}>{children}</div>;
+}
+
+function StatusBadge({ status }) {
+  const tones = {
+    pending: "bg-[#F8E6AD] text-[#7B6229]",
+    approved: "bg-[#DDEEDB] text-[#1E6B43]",
+    rejected: "bg-[#FCEBEB] text-[#A32D2D]",
+    published: "bg-[#DDEEDB] text-[#1E6B43]",
+    draft: "bg-[#F0EDE5] text-[#6F6B5B]",
+    archived: "bg-[#E9E3D3] text-[#5F5641]",
+    unread: "bg-[#E7F0FB] text-[#255C90]",
+    read: "bg-[#F0EDE5] text-[#6F6B5B]",
+  };
+  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tones[status] || tones.draft}`}>{status || "-"}</span>;
+}
+
+function LevelBadge({ level }) {
+  const tones = {
+    健康綠燈: "bg-[#DDEEDB] text-[#1E6B43]",
+    輕度發炎: "bg-[#F8E6AD] text-[#7B6229]",
+    中度發炎: "bg-[#FAEEDA] text-[#854F0B]",
+    重度發炎: "bg-[#FCEBEB] text-[#A32D2D]",
+  };
+  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tones[level] || tones["輕度發炎"]}`}>{level || "-"}</span>;
+}
+
+function Modal({ open, onClose, title, children, width = "max-w-2xl" }) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (event) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [open, onClose]);
+  if (!open) return null;
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-medium text-[#8B7A4C]">{label}</span>
-      {children}
-    </label>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#123828]/55 px-4 backdrop-blur-sm" onClick={onClose}>
+      <section className={`max-h-[86vh] w-full overflow-hidden rounded-2xl border border-[#E7DDBF] bg-[#F9F5EA] shadow-2xl ${width}`} onClick={(event) => event.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-[#E7DDBF] bg-white px-6 py-4">
+          <h2 className="text-xl font-semibold text-[#123828]">{title}</h2>
+          <button type="button" onClick={onClose} className="rounded-full p-2 hover:bg-[#F5F2EB]"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="max-h-[70vh] overflow-y-auto p-6">{children}</div>
+      </section>
+    </div>
   );
 }
 
-function useAdminTable(table) {
+function Field({ label, children }) {
+  return <label className="block"><span className="mb-2 block text-sm font-semibold text-[#6F5D35]">{label}</span>{children}</label>;
+}
+
+function ImageUpload({ label, value, onChange, bucket, session }) {
+  const [busy, setBusy] = useState(false);
+  async function select(file) {
+    if (!file) return;
+    setBusy(true);
+    try {
+      onChange(await uploadAdminFile(bucket, file, session));
+    } catch (error) {
+      window.alert(`上傳失敗：${error.message}`);
+    }
+    setBusy(false);
+  }
+  return (
+    <Field label={label}>
+      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-[#D8C99C] bg-[#FDFBF6] px-4 py-5 text-sm text-[#49675A]">
+        <Upload className="h-4 w-4" /> {busy ? "上傳中..." : "選擇圖片"}
+        <input className="hidden" type="file" accept="image/*" onChange={(event) => select(event.target.files?.[0])} />
+      </label>
+      {value && <img src={value} alt="" className="mt-3 aspect-video w-full rounded-lg border border-[#E7DDBF] object-cover" />}
+    </Field>
+  );
+}
+
+function RichEditor({ value, onChange }) {
+  const add = (left, right = "") => onChange(`${value}${left}${right}`);
+  return (
+    <div>
+      <div className="mb-2 flex gap-2">
+        <button type="button" className={ghostClass} onClick={() => add("**粗體**")}>B</button>
+        <button type="button" className={ghostClass} onClick={() => add("*斜體*")}>I</button>
+        <button type="button" className={ghostClass} onClick={() => add("\n")}>換行</button>
+        <button type="button" className={ghostClass} onClick={() => onChange("")}>清除</button>
+      </div>
+      <textarea className={inputClass} rows="6" value={value} onChange={(event) => onChange(event.target.value)} />
+      <p className="mt-2 text-xs text-[#8B7A4C]">{value.length} 字</p>
+    </div>
+  );
+}
+
+function AdminTable({ columns, data, actions, emptyText = "目前沒有資料。" }) {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-[#E7DDBF] bg-white/85">
+      <table className="w-full text-left text-sm">
+        <thead className="border-b border-[#E7DDBF] bg-[#FDFBF6] text-[#6F5D35]">
+          <tr>{columns.map((column) => <th key={column.key} className="px-4 py-3 font-semibold">{column.label}</th>)}{actions && <th className="px-4 py-3 font-semibold">操作</th>}</tr>
+        </thead>
+        <tbody>
+          {data.length === 0 && <tr><td colSpan={columns.length + 1} className="px-4 py-10 text-center text-[#8B7A4C]">{emptyText}</td></tr>}
+          {data.map((row) => (
+            <tr key={row.id} className="border-b border-[#F0EDE5] align-top hover:bg-[#FDFBF6]">
+              {columns.map((column) => <td key={column.key} className="px-4 py-3 text-[#49675A]">{column.render ? column.render(row[column.key], row) : row[column.key] || "-"}</td>)}
+              {actions && <td className="px-4 py-3"><div className="flex flex-wrap gap-2">{actions(row)}</div></td>}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function useAdminRecords(table, session) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const refresh = async () => {
+    if (!session?.isAdmin) return;
     setLoading(true);
     setError("");
     try {
-      const data = await adminRequest({ action: "list", table });
-      setItems(data || []);
+      setItems(await listRecords(table, session, { limit: table === "assessment_reports" ? 500 : 1000 }));
     } catch (requestError) {
       setError(requestError.message);
-      setItems([]);
     }
     setLoading(false);
   };
-
-  useEffect(() => {
-    refresh();
-  }, [table]);
-
-  return { items, loading, error, refresh };
+  useEffect(() => { refresh(); }, [table, session?.mode, session?.isAdmin]);
+  return { items, loading, error, refresh, setItems };
 }
 
-function PasscodeGate({ onUnlock }) {
-  const [value, setValue] = useState("");
-  const [error, setError] = useState("");
+function Toolbar({ search, setSearch, onExport, children }) {
+  return (
+    <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#B89B5E]" />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} className={`${inputClass} pl-10`} placeholder="搜尋..." />
+      </div>
+      <div className="flex flex-wrap gap-2">{children}<button type="button" className={ghostClass} onClick={onExport}><Download className="h-4 w-4" />匯出</button></div>
+    </div>
+  );
+}
 
-  const submit = (event) => {
+function Login({ onReady, go }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passcode, setPasscode] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event) {
     event.preventDefault();
-    if (!adminPasscode) {
-      setError("尚未設定 VITE_ADMIN_PASSCODE。");
-      return;
+    setBusy(true);
+    setError("");
+    try {
+      const next = await signInAdmin(email, password);
+      if (!next.isAdmin) throw new Error(next.message || "登入成功，但此帳號不是 admin。");
+      onReady(next);
+      go("/admin/dashboard");
+    } catch (requestError) {
+      setError(requestError.message);
     }
-    if (value !== adminPasscode) {
-      setError("密碼不正確。");
-      return;
+    setBusy(false);
+  }
+
+  function demo() {
+    try {
+      onReady(unlockDemo(passcode));
+    } catch (requestError) {
+      setError(requestError.message);
     }
-    window.sessionStorage.setItem("phytologic_admin_unlocked", "true");
-    window.sessionStorage.setItem("phytologic_admin_passcode", value);
-    onUnlock();
-  };
+  }
 
   return (
-    <main className="px-5 py-16 md:px-8">
-      <div className="mx-auto max-w-xl rounded-2xl border border-[#E7DDBF] bg-white/80 p-7 shadow-sm">
-        <p className="text-sm uppercase tracking-[0.3em] text-[#B89B5E]">Temporary Admin</p>
-        <h1 className="mt-3 text-3xl font-semibold text-[#123828]">後台管理入口</h1>
-        <p className="mt-4 leading-7 text-[#49675A]">目前使用臨時 passcode gate。後續會改為 Supabase Auth、LINE Login 與 RBAC。</p>
-        <form onSubmit={submit} className="mt-7 space-y-4">
-          <AdminField label="管理密碼">
-            <input type="password" value={value} onChange={(event) => setValue(event.target.value)} className={inputClass} placeholder="輸入 VITE_ADMIN_PASSCODE" />
-          </AdminField>
-          <button className={buttonClass}>進入後台</button>
-          {error && <AdminNotice type="error">{error}</AdminNotice>}
+    <main className="flex min-h-screen items-center justify-center bg-[#F9F5EA] px-5 py-12">
+      <section className="w-full max-w-md rounded-2xl border border-[#E7DDBF] bg-white p-8 shadow-xl">
+        <img src={logo} alt="植本邏輯 Logo" className="h-14 w-14 object-contain" />
+        <h1 className="mt-6 text-3xl font-semibold text-[#123828]">後台管理入口</h1>
+        <p className="mt-2 text-sm leading-6 text-[#49675A]">正式後台使用 Supabase Auth，並由 profiles.role=admin 控制權限。</p>
+        <form onSubmit={submit} className="mt-7 grid gap-4">
+          <Field label="Email"><input className={inputClass} type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></Field>
+          <Field label="Password"><input className={inputClass} type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></Field>
+          <button disabled={busy} className={buttonClass}><Lock className="h-4 w-4" />{busy ? "登入中..." : "登入後台"}</button>
         </form>
-      </div>
+        <div className="mt-6 border-t border-[#E7DDBF] pt-5">
+          <Field label="Demo fallback passcode"><input className={inputClass} type="password" value={passcode} onChange={(event) => setPasscode(event.target.value)} placeholder="只在 Supabase 尚未完成時使用" /></Field>
+          <button type="button" className={`${ghostClass} mt-3 w-full`} onClick={demo}>使用 localStorage demo</button>
+        </div>
+        {error && <div className="mt-4"><Notice type="error">{error}</Notice></div>}
+      </section>
     </main>
   );
 }
 
-function AdminShell({ route, go, children }) {
-  const tabs = [
-    { path: "/admin/partners", label: "合作夥伴" },
-    { path: "/admin/news", label: "公告" },
-    { path: "/admin/gallery", label: "精彩剪影" },
-    { path: "/admin/assessments", label: "評估報告" },
+function DashboardHome({ session, go }) {
+  const [data, setData] = useState({ partners: [], announcements: [], gallery_items: [], assessment_reports: [] });
+  useEffect(() => {
+    Promise.all(["partners", "announcements", "gallery_items", "assessment_reports"].map((table) => listRecords(table, session)))
+      .then(([partners, announcements, gallery_items, assessment_reports]) => setData({ partners, announcements, gallery_items, assessment_reports }))
+      .catch(() => {});
+  }, [session]);
+  const pending = data.partners.filter((item) => item.status === "pending").slice(0, 5);
+  const reports = data.assessment_reports.slice(0, 7);
+  const stats = [
+    ["合作夥伴申請", data.partners.filter((item) => item.status === "pending").length, Users],
+    ["已發布公告", data.announcements.filter((item) => item.status === "published").length, Newspaper],
+    ["精彩剪影", data.gallery_items.length, ImageIcon],
+    ["快篩結果", data.assessment_reports.length, Activity],
   ];
   return (
-    <main className="px-5 py-10 md:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-[#B89B5E]">CMS Admin</p>
-            <h1 className="mt-2 text-3xl font-semibold text-[#123828] md:text-4xl">植本邏輯後台</h1>
-            <p className="mt-3 text-sm text-[#49675A]">臨時管理入口；service role 與 Claude key 都不進前端。</p>
-          </div>
-          <button type="button" onClick={() => { window.sessionStorage.removeItem("phytologic_admin_unlocked"); window.sessionStorage.removeItem("phytologic_admin_passcode"); window.location.assign("/admin"); }} className={ghostButtonClass}>鎖定後台</button>
-        </div>
-        <div className="mb-8 flex flex-wrap gap-3">
-          {tabs.map((tab) => (
-            <button key={tab.path} type="button" onClick={() => go(tab.path)} className={(route === tab.path || (route === "/admin" && tab.path === "/admin/partners")) ? buttonClass : ghostButtonClass}>{tab.label}</button>
-          ))}
-        </div>
-        {children}
-      </div>
-    </main>
-  );
-}
-
-function PartnersAdmin() {
-  const { items, loading, error, refresh } = useAdminTable("partners");
-  const [busyId, setBusyId] = useState("");
-  const grouped = useMemo(() => ({
-    pending: items.filter((item) => item.status === "pending"),
-    approved: items.filter((item) => item.status === "approved"),
-    rejected: items.filter((item) => item.status === "rejected"),
-  }), [items]);
-
-  const updateStatus = async (id, status) => {
-    setBusyId(id);
-    try {
-      await adminRequest({ action: "update", table: "partners", id, payload: { status } });
-      await refresh();
-    } catch (requestError) {
-      window.alert(`更新失敗：${requestError.message}`);
-    }
-    setBusyId("");
-  };
-
-  const remove = async (id) => {
-    if (!window.confirm("確定刪除這筆資料？")) return;
-    setBusyId(id);
-    try {
-      await adminRequest({ action: "delete", table: "partners", id });
-      await refresh();
-    } catch (requestError) {
-      window.alert(`刪除失敗：${requestError.message}`);
-    }
-    setBusyId("");
-  };
-
-  if (loading) return <AdminNotice>合作夥伴資料載入中...</AdminNotice>;
-  if (error) return <AdminNotice type="error">合作夥伴讀取失敗：{error}</AdminNotice>;
-
-  return (
     <div className="grid gap-6">
-      {["pending", "approved", "rejected"].map((status) => (
-        <section key={status} className="rounded-2xl border border-[#E7DDBF] bg-white/75 p-5">
-          <h2 className="text-2xl font-semibold capitalize text-[#123828]">{status}</h2>
-          <div className="mt-5 grid gap-4">
-            {grouped[status].length === 0 && <p className="text-sm text-[#7D8D7F]">目前沒有資料。</p>}
-            {grouped[status].map((partner) => (
-              <div key={partner.id} className="grid gap-4 rounded-2xl border border-[#E2D5B5] bg-[#FDFBF6] p-4 lg:grid-cols-[1fr_auto] lg:items-center">
-                <div className="text-sm leading-7 text-[#49675A]">
-                  <div className="text-lg font-semibold text-[#123828]">{partner.partner_name}</div>
-                  <div>{partner.city} · {partner.created_at ? new Date(partner.created_at).toLocaleString("zh-TW") : ""}</div>
-                  <div className="break-all">IG {partner.instagram_url || "-"} · FB {partner.facebook_url || "-"} · Web {partner.website_url || "-"}</div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {partner.status !== "approved" && <button disabled={busyId === partner.id} onClick={() => updateStatus(partner.id, "approved")} className={buttonClass}>Approve</button>}
-                  {partner.status !== "rejected" && <button disabled={busyId === partner.id} onClick={() => updateStatus(partner.id, "rejected")} className={ghostButtonClass}>Reject</button>}
-                  <button disabled={busyId === partner.id} onClick={() => remove(partner.id)} className="rounded-full bg-[#9A3C2D] px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">Delete</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
-  );
-}
-
-function AnnouncementsAdmin() {
-  const { items, loading, error, refresh } = useAdminTable("announcements");
-  const [form, setForm] = useState(emptyAnnouncement);
-  const [editingId, setEditingId] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const edit = (item) => {
-    setEditingId(item.id);
-    setForm({
-      category: item.category || "品牌活動",
-      title: item.title || "",
-      summary: item.summary || "",
-      content: item.content || "",
-      cover_image_url: item.cover_image_url || "",
-      status: item.status || "draft",
-      is_pinned: Boolean(item.is_pinned),
-    });
-  };
-
-  const save = async (event) => {
-    event.preventDefault();
-    setSaving(true);
-    const payload = { ...form, published_at: form.status === "published" ? new Date().toISOString() : null };
-    try {
-      await adminRequest(editingId ? { action: "update", table: "announcements", id: editingId, payload } : { action: "insert", table: "announcements", payload });
-      setEditingId("");
-      setForm(emptyAnnouncement);
-      await refresh();
-    } catch (requestError) {
-      window.alert(`儲存失敗：${requestError.message}`);
-    }
-    setSaving(false);
-  };
-
-  const remove = async (id) => {
-    if (!window.confirm("確定刪除公告？")) return;
-    try {
-      await adminRequest({ action: "delete", table: "announcements", id });
-      await refresh();
-    } catch (requestError) {
-      window.alert(`刪除失敗：${requestError.message}`);
-    }
-  };
-
-  const toggle = async (item, patch) => {
-    try {
-      await adminRequest({ action: "update", table: "announcements", id: item.id, payload: patch });
-      await refresh();
-    } catch (requestError) {
-      window.alert(`更新失敗：${requestError.message}`);
-    }
-  };
-
-  return (
-    <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
-      <form onSubmit={save} className="rounded-2xl border border-[#E7DDBF] bg-white/80 p-5">
-        <h2 className="text-2xl font-semibold">{editingId ? "編輯公告" : "新增公告"}</h2>
-        <div className="mt-5 grid gap-4">
-          <AdminField label="Category"><input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass} /></AdminField>
-          <AdminField label="Title"><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClass} required /></AdminField>
-          <AdminField label="Summary"><textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} className={inputClass} rows="3" /></AdminField>
-          <AdminField label="Content"><textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={inputClass} rows="5" /></AdminField>
-          <AdminField label="Cover Image URL"><input value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} className={inputClass} /></AdminField>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Status"><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputClass}><option>draft</option><option>published</option></select></AdminField>
-            <label className="flex items-center gap-3 pt-8 text-sm text-[#49675A]"><input type="checkbox" checked={form.is_pinned} onChange={(e) => setForm({ ...form, is_pinned: e.target.checked })} /> 置頂</label>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <button disabled={saving} className={buttonClass}>{saving ? "儲存中..." : "儲存"}</button>
-            {editingId && <button type="button" onClick={() => { setEditingId(""); setForm(emptyAnnouncement); }} className={ghostButtonClass}>取消</button>}
-          </div>
-        </div>
-      </form>
-      <section className="rounded-2xl border border-[#E7DDBF] bg-white/75 p-5">
-        <h2 className="text-2xl font-semibold">公告列表</h2>
-        {loading && <AdminNotice>公告載入中...</AdminNotice>}
-        {error && <AdminNotice type="error">公告讀取失敗：{error}</AdminNotice>}
-        <div className="mt-5 grid gap-4">
-          {items.map((item) => (
-            <div key={item.id} className="rounded-2xl border border-[#E2D5B5] bg-[#FDFBF6] p-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <div className="text-sm text-[#8B7A4C]">{item.category} · {item.status} {item.is_pinned ? "· pinned" : ""}</div>
-                  <h3 className="mt-1 text-xl font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#49675A]">{item.summary}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={() => edit(item)} className={ghostButtonClass}>Edit</button>
-                  <button onClick={() => toggle(item, { status: item.status === "published" ? "draft" : "published", published_at: item.status === "published" ? null : new Date().toISOString() })} className={ghostButtonClass}>{item.status === "published" ? "Unpublish" : "Publish"}</button>
-                  <button onClick={() => toggle(item, { is_pinned: !item.is_pinned })} className={ghostButtonClass}>{item.is_pinned ? "Unpin" : "Pin"}</button>
-                  <button onClick={() => remove(item.id)} className="rounded-full bg-[#9A3C2D] px-5 py-3 text-sm font-semibold text-white">Delete</button>
-                </div>
-              </div>
-            </div>
-          ))}
-          {!loading && items.length === 0 && <p className="text-sm text-[#7D8D7F]">目前沒有公告。</p>}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function GalleryAdmin() {
-  const { items, loading, error, refresh } = useAdminTable("gallery_items");
-  const [form, setForm] = useState(emptyGalleryItem);
-  const [editingId, setEditingId] = useState("");
-  const [uploading, setUploading] = useState(false);
-
-  const save = async (event) => {
-    event.preventDefault();
-    const payload = { ...form, type: form.type === "image" ? "photo" : "video", published_at: form.status === "published" ? new Date().toISOString() : null };
-    try {
-      await adminRequest(editingId ? { action: "update", table: "gallery_items", id: editingId, payload } : { action: "insert", table: "gallery_items", payload });
-      setEditingId("");
-      setForm(emptyGalleryItem);
-      await refresh();
-    } catch (requestError) {
-      window.alert(`儲存失敗：${requestError.message}`);
-    }
-  };
-
-  const upload = async (file) => {
-    if (!file) return;
-    setUploading(true);
-    try {
-      const folder = file.type.startsWith("video/") ? "videos" : "images";
-      const path = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
-      const base64 = await fileToBase64(file);
-      const data = await adminRequest({ action: "upload", bucket: "gallery", fileName: path, contentType: file.type, base64 });
-      setForm((prev) => ({ ...prev, media_url: data.publicUrl, thumbnail_url: file.type.startsWith("image/") ? data.publicUrl : prev.thumbnail_url, type: file.type.startsWith("video/") ? "video" : "image" }));
-    } catch (requestError) {
-      window.alert(`上傳失敗：${requestError.message}`);
-    }
-    setUploading(false);
-  };
-
-  const edit = (item) => {
-    setEditingId(item.id);
-    setForm({
-      title: item.title || "",
-      type: item.type === "photo" ? "image" : "video",
-      category: item.category || "活動現場",
-      media_url: item.media_url || "",
-      thumbnail_url: item.thumbnail_url || "",
-      description: item.description || "",
-      status: item.status || "draft",
-    });
-  };
-
-  const remove = async (id) => {
-    if (!window.confirm("確定刪除剪影？")) return;
-    try {
-      await adminRequest({ action: "delete", table: "gallery_items", id });
-      await refresh();
-    } catch (requestError) {
-      window.alert(`刪除失敗：${requestError.message}`);
-    }
-  };
-
-  const togglePublish = async (item) => {
-    const nextStatus = item.status === "published" ? "draft" : "published";
-    try {
-      await adminRequest({ action: "update", table: "gallery_items", id: item.id, payload: { status: nextStatus, published_at: nextStatus === "published" ? new Date().toISOString() : null } });
-      await refresh();
-    } catch (requestError) {
-      window.alert(`更新失敗：${requestError.message}`);
-    }
-  };
-
-  return (
-    <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
-      <form onSubmit={save} className="rounded-2xl border border-[#E7DDBF] bg-white/80 p-5">
-        <h2 className="text-2xl font-semibold">{editingId ? "編輯剪影" : "新增剪影"}</h2>
-        <div className="mt-5 grid gap-4">
-          <AdminField label="Upload"><input type="file" accept="image/*,video/mp4" onChange={(e) => upload(e.target.files?.[0])} className={inputClass} />{uploading && <p className="mt-2 text-sm text-[#8B7A4C]">上傳中...</p>}</AdminField>
-          <AdminField label="Title"><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClass} required /></AdminField>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Type"><select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputClass}><option value="image">image</option><option value="video">video</option></select></AdminField>
-            <AdminField label="Status"><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={inputClass}><option>draft</option><option>published</option></select></AdminField>
-          </div>
-          <AdminField label="Category"><input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass} /></AdminField>
-          <AdminField label="Media URL"><input value={form.media_url} onChange={(e) => setForm({ ...form, media_url: e.target.value })} className={inputClass} required /></AdminField>
-          <AdminField label="Thumbnail URL"><input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} className={inputClass} /></AdminField>
-          <AdminField label="Description"><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClass} rows="4" /></AdminField>
-          <div className="flex flex-wrap gap-3">
-            <button className={buttonClass}>儲存</button>
-            {editingId && <button type="button" onClick={() => { setEditingId(""); setForm(emptyGalleryItem); }} className={ghostButtonClass}>取消</button>}
-          </div>
-        </div>
-      </form>
-      <section className="rounded-2xl border border-[#E7DDBF] bg-white/75 p-5">
-        <h2 className="text-2xl font-semibold">剪影列表</h2>
-        {loading && <AdminNotice>剪影載入中...</AdminNotice>}
-        {error && <AdminNotice type="error">剪影讀取失敗：{error}</AdminNotice>}
-        <div className="mt-5 grid gap-4">
-          {items.map((item) => (
-            <div key={item.id} className="rounded-2xl border border-[#E2D5B5] bg-[#FDFBF6] p-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <div className="text-sm text-[#8B7A4C]">{item.category} · {item.type} · {item.status}</div>
-                  <h3 className="mt-1 text-xl font-semibold">{item.title}</h3>
-                  <p className="mt-2 break-all text-sm leading-6 text-[#49675A]">{item.media_url}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={() => edit(item)} className={ghostButtonClass}>Edit</button>
-                  <button onClick={() => togglePublish(item)} className={ghostButtonClass}>{item.status === "published" ? "Unpublish" : "Publish"}</button>
-                  <button onClick={() => remove(item.id)} className="rounded-full bg-[#9A3C2D] px-5 py-3 text-sm font-semibold text-white">Delete</button>
-                </div>
-              </div>
-            </div>
-          ))}
-          {!loading && items.length === 0 && <p className="text-sm text-[#7D8D7F]">目前沒有剪影。</p>}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function AssessmentsAdmin() {
-  const { items, loading, error } = useAdminTable("assessment_reports");
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    if (!search.trim()) return items;
-    const q = search.trim().toLowerCase();
-    return items.filter(
-      (item) =>
-        item.id?.toLowerCase().startsWith(q) ||
-        item.id?.toLowerCase().includes(q)
-    );
-  }, [items, search]);
-
-  return (
-    <div className="grid gap-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-[#123828]">派森評估報告</h2>
-          <p className="mt-1 text-sm text-[#8B7A4C]">顯示最新 50 筆，可依報告編號搜尋。此頁面唯讀，不提供刪除與修改。</p>
-        </div>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="輸入報告編號搜尋..."
-          className={inputClass + " max-w-xs"}
-        />
+      <div className="grid gap-4 md:grid-cols-4">
+        {stats.map(([label, value, Icon]) => <article key={label} className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5"><Icon className="h-5 w-5 text-[#B89B5E]" /><div className="mt-4 text-3xl font-semibold">{value}</div><div className="mt-1 text-sm text-[#49675A]">{label}</div></article>)}
       </div>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <section className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
+          <div className="flex items-center justify-between"><h2 className="text-xl font-semibold">待審合作夥伴</h2><button className={ghostClass} onClick={() => go("/admin/partners")}>查看全部</button></div>
+          <div className="mt-4 grid gap-3">{pending.map((item) => <div key={item.id} className="rounded-lg bg-[#FDFBF6] p-4 text-sm"><b>{item.partner_name}</b><div className="mt-1 text-[#49675A]">{item.city} · {item.category} · {formatDate(item.created_at)}</div></div>)}{pending.length === 0 && <p className="text-sm text-[#8B7A4C]">目前沒有待審申請。</p>}</div>
+        </section>
+        <section className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
+          <h2 className="text-xl font-semibold">快篩結果近況</h2>
+          <div className="mt-4 grid gap-3">{reports.map((item) => <div key={item.id} className="flex items-center justify-between rounded-lg bg-[#FDFBF6] p-4 text-sm"><LevelBadge level={item.inflammation_level} /><span>{item.total_score}/30 · {item.age_group || "-"}</span><span>{formatDate(item.created_at)}</span></div>)}{reports.length === 0 && <p className="text-sm text-[#8B7A4C]">目前沒有快篩結果。</p>}</div>
+        </section>
+      </div>
+    </div>
+  );
+}
 
-      {loading && <AdminNotice>評估報告載入中...</AdminNotice>}
-      {error && <AdminNotice type="error">評估報告讀取失敗：{error}</AdminNotice>}
+function PartnersAdmin({ session }) {
+  const { items, loading, error, refresh } = useAdminRecords("partners", session);
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState("pending");
+  const [detail, setDetail] = useState(null);
+  const filtered = items.filter((item) => item.status === tab && matches(item, query, ["partner_name", "city", "contact_name", "email"]));
+  const patch = async (row, status) => { await updateRecord("partners", row.id, { status }, session); refresh(); };
+  const remove = async (row) => { if (window.confirm("確定刪除這筆合作夥伴？")) { await deleteRecord("partners", row.id, session); refresh(); } };
+  return (
+    <section>
+      <Toolbar search={query} setSearch={setQuery} onExport={() => exportJSON("partners", items)}>{["pending", "approved", "rejected"].map((s) => <button key={s} className={tab === s ? buttonClass : ghostClass} onClick={() => setTab(s)}>{s}</button>)}</Toolbar>
+      {loading && <Notice>合作夥伴資料載入中...</Notice>}{error && <Notice type="error">{error}</Notice>}
+      <AdminTable data={filtered} columns={[
+        { key: "partner_name", label: "名稱" }, { key: "city", label: "城市" }, { key: "category", label: "類型" }, { key: "contact_name", label: "聯絡人" }, { key: "phone", label: "電話" }, { key: "email", label: "Email" }, { key: "status", label: "狀態", render: (v) => <StatusBadge status={v} /> }, { key: "created_at", label: "申請時間", render: formatDate },
+      ]} actions={(row) => [<button key="view" className={ghostClass} onClick={() => setDetail(row)}><Eye className="h-4 w-4" />查看</button>, row.status !== "approved" && <button key="ok" className={ghostClass} onClick={() => patch(row, "approved")}><Check className="h-4 w-4" />Approve</button>, row.status !== "rejected" && <button key="no" className={ghostClass} onClick={() => patch(row, "rejected")}><X className="h-4 w-4" />Reject</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}><Trash2 className="h-4 w-4" />刪除</button>]} />
+      <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title="合作夥伴詳細資料">{detail && <pre className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-7 text-[#49675A]">{JSON.stringify(detail, null, 2)}</pre>}</Modal>
+    </section>
+  );
+}
 
-      {!loading && !error && (
-        <div className="overflow-x-auto rounded-2xl border border-[#E7DDBF] bg-white/80">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#E7DDBF] text-left text-[#8B7A4C]">
-                <th className="px-5 py-4 font-semibold">報告編號</th>
-                <th className="px-5 py-4 font-semibold">建立時間</th>
-                <th className="px-5 py-4 font-semibold">年齡 / 性別</th>
-                <th className="px-5 py-4 font-semibold">發炎等級</th>
-                <th className="px-5 py-4 font-semibold">總分</th>
-                <th className="px-5 py-4 font-semibold">推薦飲品</th>
-                <th className="px-5 py-4 font-semibold">已加入 LINE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-5 py-8 text-center text-[#8B7A4C]">
-                    {search ? "找不到符合的報告。" : "目前沒有評估報告。"}
-                  </td>
-                </tr>
-              )}
-              {filtered.map((item) => (
-                <tr key={item.id} className="border-b border-[#F0EDE5] transition hover:bg-[#FDFBF6]">
-                  <td className="px-5 py-4">
-                    <span className="font-mono font-semibold text-[#123828]">
-                      {item.id?.slice(0, 8).toUpperCase()}
-                    </span>
-                    <span className="ml-2 text-xs text-[#8B7A4C]">{item.id?.slice(8, 16)}</span>
-                  </td>
-                  <td className="px-5 py-4 text-[#49675A]">
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleString("zh-TW", {
-                          month: "2-digit", day: "2-digit",
-                          hour: "2-digit", minute: "2-digit",
-                        })
-                      : "—"}
-                  </td>
-                  <td className="px-5 py-4 text-[#49675A]">
-                    {item.age_group || "—"}／{item.gender || "—"}
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      item.inflammation_level === "健康綠燈" ? "bg-[#DDEEDB] text-[#1E6B43]"
-                      : item.inflammation_level === "輕度發炎" ? "bg-[#F8E6AD] text-[#7B6229]"
-                      : item.inflammation_level === "中度發炎" ? "bg-[#F5DDE2] text-[#AA3F57]"
-                      : "bg-[#E7DDF6] text-[#65439A]"
-                    }`}>
-                      {item.inflammation_level || "—"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 font-semibold text-[#123828]">{item.total_score ?? "—"}</td>
-                  <td className="px-5 py-4 text-[#49675A]">
-                    {Array.isArray(item.recommended_products)
-                      ? item.recommended_products.join("、")
-                      : "—"}
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      item.has_joined_line ? "bg-[#DDEEDB] text-[#1E6B43]" : "bg-[#F0EDE5] text-[#8B7A4C]"
-                    }`}>
-                      {item.has_joined_line ? "已加入" : "未加入"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+function NewsAdmin({ session }) {
+  const { items, loading, error, refresh } = useAdminRecords("announcements", session);
+  const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(blankNews);
+  const filtered = items.filter((item) => matches(item, query, ["title", "category", "summary"]));
+  const save = async (event) => {
+    event.preventDefault();
+    const payload = { ...form, published_at: form.status === "published" ? form.published_at || new Date().toISOString() : null };
+    editing ? await updateRecord("announcements", editing.id, payload, session) : await createRecord("announcements", payload, session);
+    setEditing(null); setForm(blankNews); refresh();
+  };
+  const edit = (row) => { setEditing(row); setForm({ ...blankNews, ...row }); };
+  const toggle = async (row, patch) => { await updateRecord("announcements", row.id, patch, session); refresh(); };
+  const remove = async (row) => { if (window.confirm("確定刪除公告？")) { await deleteRecord("announcements", row.id, session); refresh(); } };
+  return (
+    <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
+      <form onSubmit={save} className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
+        <h2 className="text-xl font-semibold">{editing ? "編輯公告" : "新增公告"}</h2>
+        <div className="mt-5 grid gap-4">
+          <Field label="標題"><input className={inputClass} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
+          <Field label="分類"><select className={inputClass} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>{["品牌活動", "產品公告", "展會消息", "系統開發"].map((x) => <option key={x}>{x}</option>)}</select></Field>
+          <Field label="摘要"><textarea className={inputClass} rows="3" maxLength="100" value={form.summary || ""} onChange={(e) => setForm({ ...form, summary: e.target.value })} /></Field>
+          <Field label="內容"><RichEditor value={form.content || ""} onChange={(content) => setForm({ ...form, content })} /></Field>
+          <ImageUpload label="封面圖" value={form.cover_image_url} onChange={(cover_image_url) => setForm({ ...form, cover_image_url })} bucket="announcements" session={session} />
+          <Field label="狀態"><select className={inputClass} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option>draft</option><option>published</option><option>archived</option></select></Field>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(form.is_pinned)} onChange={(e) => setForm({ ...form, is_pinned: e.target.checked })} /> 置頂</label>
+          <button className={buttonClass}><Plus className="h-4 w-4" />儲存</button>{editing && <button type="button" className={ghostClass} onClick={() => { setEditing(null); setForm(blankNews); }}>取消</button>}
         </div>
-      )}
+      </form>
+      <section><Toolbar search={query} setSearch={setQuery} onExport={() => exportJSON("announcements", items)} />{loading && <Notice>公告載入中...</Notice>}{error && <Notice type="error">{error}</Notice>}<AdminTable data={filtered} columns={[{ key: "is_pinned", label: "置頂", render: (v) => v ? <Pin className="h-4 w-4 text-[#B89B5E]" /> : "-" }, { key: "title", label: "標題" }, { key: "category", label: "分類" }, { key: "status", label: "狀態", render: (v) => <StatusBadge status={v} /> }, { key: "published_at", label: "發布時間", render: formatDate }]} actions={(row) => [<button key="edit" className={ghostClass} onClick={() => edit(row)}><Pencil className="h-4 w-4" />編輯</button>, <button key="pub" className={ghostClass} onClick={() => toggle(row, { status: row.status === "published" ? "draft" : "published", published_at: row.status === "published" ? null : new Date().toISOString() })}>{row.status === "published" ? "取消發布" : "發布"}</button>, <button key="pin" className={ghostClass} onClick={() => toggle(row, { is_pinned: !row.is_pinned })}>{row.is_pinned ? "取消置頂" : "置頂"}</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}><Trash2 className="h-4 w-4" />刪除</button>]} /></section>
+    </div>
+  );
+}
+
+function GalleryAdmin({ session }) {
+  const { items, loading, error, refresh } = useAdminRecords("gallery_items", session);
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState("grid");
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(blankGallery);
+  const filtered = items.filter((item) => matches(item, query, ["title", "category", "description"]));
+  const save = async (event) => {
+    event.preventDefault();
+    const payload = { ...form, published_at: form.status === "published" ? form.published_at || new Date().toISOString() : null };
+    editing ? await updateRecord("gallery_items", editing.id, payload, session) : await createRecord("gallery_items", payload, session);
+    setEditing(null); setForm(blankGallery); refresh();
+  };
+  const edit = (row) => { setEditing(row); setForm({ ...blankGallery, ...row }); };
+  const remove = async (row) => { if (window.confirm("確定刪除剪影？")) { await deleteRecord("gallery_items", row.id, session); refresh(); } };
+  return (
+    <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
+      <form onSubmit={save} className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
+        <h2 className="text-xl font-semibold">{editing ? "編輯剪影" : "新增剪影"}</h2>
+        <div className="mt-5 grid gap-4">
+          <Field label="標題"><input className={inputClass} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></Field>
+          <Field label="類型"><select className={inputClass} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}><option value="photo">photo</option><option value="video">video</option></select></Field>
+          <Field label="分類"><select className={inputClass} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>{["活動現場", "消費者體驗", "合作夥伴", "產品製作", "品牌故事"].map((x) => <option key={x}>{x}</option>)}</select></Field>
+          {form.type === "photo" ? <ImageUpload label="媒體圖片" value={form.media_url} onChange={(media_url) => setForm({ ...form, media_url, thumbnail_url: media_url })} bucket="gallery" session={session} /> : <Field label="影片 URL"><input className={inputClass} value={form.media_url} onChange={(e) => setForm({ ...form, media_url: e.target.value })} required /></Field>}
+          <ImageUpload label="縮圖" value={form.thumbnail_url} onChange={(thumbnail_url) => setForm({ ...form, thumbnail_url })} bucket="gallery" session={session} />
+          <Field label="說明"><textarea className={inputClass} rows="4" value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
+          <Field label="狀態"><select className={inputClass} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option>draft</option><option>published</option></select></Field>
+          <button className={buttonClass}><Plus className="h-4 w-4" />儲存</button>{editing && <button type="button" className={ghostClass} onClick={() => { setEditing(null); setForm(blankGallery); }}>取消</button>}
+        </div>
+      </form>
+      <section><Toolbar search={query} setSearch={setQuery} onExport={() => exportJSON("gallery_items", items)}><button className={view === "grid" ? buttonClass : ghostClass} onClick={() => setView("grid")}>卡片</button><button className={view === "list" ? buttonClass : ghostClass} onClick={() => setView("list")}>列表</button></Toolbar>{loading && <Notice>剪影載入中...</Notice>}{error && <Notice type="error">{error}</Notice>}{view === "list" ? <AdminTable data={filtered} columns={[{ key: "title", label: "標題" }, { key: "type", label: "類型" }, { key: "category", label: "分類" }, { key: "status", label: "狀態", render: (v) => <StatusBadge status={v} /> }]} actions={(row) => [<button key="edit" className={ghostClass} onClick={() => edit(row)}>編輯</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}>刪除</button>]} /> : <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">{filtered.map((row) => <article key={row.id} className="rounded-lg border border-[#E7DDBF] bg-white/85 p-4"><img src={row.thumbnail_url || row.media_url || logo} alt="" className="aspect-[4/3] w-full rounded-lg object-cover" /><div className="mt-4 flex items-start justify-between gap-3"><div><h3 className="font-semibold">{row.title}</h3><p className="mt-1 text-sm text-[#8B7A4C]">{row.category}</p></div><StatusBadge status={row.status} /></div><div className="mt-4 flex gap-2"><button className={ghostClass} onClick={() => edit(row)}>編輯</button><button className={dangerClass} onClick={() => remove(row)}>刪除</button></div></article>)}</div>}</section>
+    </div>
+  );
+}
+
+function AssessmentsAdmin({ session }) {
+  const { items, loading, error, refresh } = useAdminRecords("assessment_reports", session);
+  const [query, setQuery] = useState("");
+  const [level, setLevel] = useState("");
+  const [detail, setDetail] = useState(null);
+  const filtered = items.filter((item) => (!level || item.inflammation_level === level) && matches(item, query, ["age_group", "gender", "inflammation_level"]));
+  const remove = async (row) => { if (window.confirm("確定刪除這筆快篩結果？")) { await deleteRecord("assessment_reports", row.id, session); refresh(); } };
+  const distribution = ["健康綠燈", "輕度發炎", "中度發炎", "重度發炎"].map((x) => ({ label: x, count: items.filter((item) => item.inflammation_level === x).length }));
+  return (
+    <section>
+      <div className="mb-5 grid gap-3 rounded-lg border border-[#E7DDBF] bg-white/85 p-4 md:grid-cols-4">{distribution.map((item) => <div key={item.label}><LevelBadge level={item.label} /><div className="mt-2 h-2 rounded-full bg-[#F0EDE5]"><div className="h-2 rounded-full bg-[#B89B5E]" style={{ width: `${items.length ? (item.count / items.length) * 100 : 0}%` }} /></div><div className="mt-1 text-sm text-[#49675A]">{item.count} 筆</div></div>)}</div>
+      <Toolbar search={query} setSearch={setQuery} onExport={() => exportCSV("assessment_reports", filtered)}><select className={inputClass} value={level} onChange={(e) => setLevel(e.target.value)}><option value="">全部等級</option>{distribution.map((x) => <option key={x.label}>{x.label}</option>)}</select></Toolbar>
+      {loading && <Notice>快篩結果載入中...</Notice>}{error && <Notice type="error">{error}</Notice>}
+      <AdminTable data={filtered} columns={[{ key: "inflammation_level", label: "發炎等級", render: (v) => <LevelBadge level={v} /> }, { key: "total_score", label: "總分", render: (v) => `${v ?? "-"}/30` }, { key: "gender", label: "性別" }, { key: "age_group", label: "年齡區間" }, { key: "bmi", label: "BMI" }, { key: "recommended_products", label: "推薦飲品", render: (v) => Array.isArray(v) ? v[0] : "-" }, { key: "has_joined_line", label: "加入 LINE", render: (v) => v ? "已加入" : "未加入" }, { key: "created_at", label: "評估時間", render: formatDate }]} actions={(row) => [<button key="view" className={ghostClass} onClick={() => setDetail(row)}><Eye className="h-4 w-4" />查看報告</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}><Trash2 className="h-4 w-4" />刪除</button>]} />
+      <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title="快篩詳細報告" width="max-w-4xl">{detail && <pre className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-7 text-[#49675A]">{JSON.stringify(detail, null, 2)}</pre>}</Modal>
+    </section>
+  );
+}
+
+function ContactAdmin({ session }) {
+  const { items, loading, error, refresh } = useAdminRecords("contact_submissions", session);
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState("unread");
+  const [detail, setDetail] = useState(null);
+  const filtered = items.filter((item) => (tab === "all" || item.status === tab) && matches(item, query, ["name", "email", "phone", "type", "message"]));
+  const patch = async (row, status) => { await updateRecord("contact_submissions", row.id, { status }, session); refresh(); };
+  const remove = async (row) => { if (window.confirm("確定刪除聯絡資料？")) { await deleteRecord("contact_submissions", row.id, session); refresh(); } };
+  return (
+    <section>
+      <Toolbar search={query} setSearch={setQuery} onExport={() => exportCSV("contact_submissions", filtered)}>{["unread", "read", "archived", "all"].map((s) => <button key={s} className={tab === s ? buttonClass : ghostClass} onClick={() => setTab(s)}>{s}</button>)}</Toolbar>
+      {loading && <Notice>聯絡表單載入中...</Notice>}{error && <Notice type="error">{error}</Notice>}
+      <AdminTable data={filtered} columns={[{ key: "status", label: "狀態", render: (v) => <StatusBadge status={v} /> }, { key: "name", label: "姓名" }, { key: "phone", label: "電話" }, { key: "email", label: "Email" }, { key: "type", label: "合作類型" }, { key: "message", label: "摘要", render: (v) => String(v || "").slice(0, 40) }, { key: "created_at", label: "提交時間", render: formatDate }]} actions={(row) => [<button key="view" className={ghostClass} onClick={() => setDetail(row)}>查看</button>, <button key="read" className={ghostClass} onClick={() => patch(row, "read")}>已讀</button>, <button key="arch" className={ghostClass} onClick={() => patch(row, "archived")}><Archive className="h-4 w-4" />封存</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}>刪除</button>]} />
+      <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title="聯絡表單內容">{detail && <pre className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-7 text-[#49675A]">{JSON.stringify(detail, null, 2)}</pre>}</Modal>
+    </section>
+  );
+}
+
+function SettingsAdmin({ session }) {
+  const fallback = isFallbackMode(session);
+  const [settings, setSettings] = useState(() => JSON.parse(window.localStorage.getItem("phytologic_admin_settings") || "{}"));
+  function save(next) { setSettings(next); window.localStorage.setItem("phytologic_admin_settings", JSON.stringify(next)); }
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
+        <h2 className="text-xl font-semibold">品牌資訊</h2>
+        <div className="mt-5 grid gap-4">
+          <Field label="品牌名稱"><input className={inputClass} value={settings.brandName || "植本邏輯 PHYTOLOGIC"} onChange={(e) => save({ ...settings, brandName: e.target.value })} /></Field>
+          <Field label="官方 LINE URL"><input className={inputClass} value={settings.lineUrl || ""} onChange={(e) => save({ ...settings, lineUrl: e.target.value })} placeholder="可覆蓋環境變數設定" /></Field>
+          <Field label="電話"><input className={inputClass} value={settings.phone || "07-223-2301"} onChange={(e) => save({ ...settings, phone: e.target.value })} /></Field>
+          <Field label="Email"><input className={inputClass} value={settings.email || "bryan@phytologic.tw"} onChange={(e) => save({ ...settings, email: e.target.value })} /></Field>
+        </div>
+      </section>
+      <section className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
+        <h2 className="text-xl font-semibold">後台安全</h2>
+        <div className="mt-4 grid gap-3 text-sm leading-7 text-[#49675A]">
+          <p>目前認證方式：{fallback ? "localStorage demo fallback" : "Supabase Auth + profiles.role=admin"}</p>
+          <p>Supabase service role key 不會放在前端。正式 CRUD 由 RLS 與 admin profile 控制。</p>
+          <p>VITE_ADMIN_PASSCODE：{import.meta.env.VITE_ADMIN_PASSCODE ? "已設定，僅供 demo fallback" : "未設定"}</p>
+        </div>
+      </section>
+      <section className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5 lg:col-span-2">
+        <h2 className="text-xl font-semibold">資料管理</h2>
+        <div className="mt-5 flex flex-wrap gap-2">{ADMIN_TABLES.filter((x) => x !== "profiles").map((table) => <button key={table} className={ghostClass} onClick={async () => exportJSON(table, await listRecords(table, session))}><Download className="h-4 w-4" />匯出 {table}</button>)}</div>
+        <div className="mt-5 flex flex-wrap gap-2">{ADMIN_TABLES.filter((x) => x !== "profiles").map((table) => <button key={table} className={dangerClass} onClick={() => window.confirm(`確定清除 local fallback 的 ${table}？`) && clearLocal(table)}><Trash2 className="h-4 w-4" />清除 {table}</button>)}</div>
+      </section>
+    </div>
+  );
+}
+
+function Shell({ route, go, session, setSession }) {
+  const currentPath = route === "/admin" ? "/admin/dashboard" : route;
+  const current = nav.find((item) => item.path === currentPath) || nav[0];
+  async function lock() {
+    await signOutAdmin();
+    setSession(null);
+    go("/admin");
+  }
+  const page = currentPath === "/admin/partners" ? <PartnersAdmin session={session} />
+    : currentPath === "/admin/news" ? <NewsAdmin session={session} />
+    : currentPath === "/admin/gallery" ? <GalleryAdmin session={session} />
+    : currentPath === "/admin/assessments" ? <AssessmentsAdmin session={session} />
+    : currentPath === "/admin/contact" ? <ContactAdmin session={session} />
+    : currentPath === "/admin/settings" ? <SettingsAdmin session={session} />
+    : <DashboardHome session={session} go={go} />;
+
+  return (
+    <div className="min-h-screen bg-[#F9F5EA] text-[#123828] lg:grid lg:grid-cols-[260px_1fr]">
+      <aside className="border-b border-[#E7DDBF] bg-[#123828] p-5 text-white lg:min-h-screen lg:border-b-0">
+        <div className="flex items-center gap-3"><img src={logo} alt="" className="h-10 w-10 rounded-lg bg-white object-contain" /><div><div className="font-semibold">植本邏輯</div><div className="text-xs tracking-[0.2em] text-white/55">ADMIN</div></div></div>
+        <nav className="mt-8 grid gap-2">{nav.map((item) => { const Icon = item.icon; const active = current.path === item.path; return <button key={item.path} type="button" onClick={() => go(item.path)} className={`flex items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition ${active ? "bg-white text-[#123828]" : "text-white/78 hover:bg-white/10"}`}><Icon className="h-4 w-4" />{item.label}</button>; })}</nav>
+      </aside>
+      <main className="min-w-0 p-5 md:p-8">
+        <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div><p className="text-sm uppercase tracking-[0.3em] text-[#B89B5E]">CMS Admin</p><h1 className="mt-2 text-3xl font-semibold">{current.title}</h1><p className="mt-2 text-sm text-[#49675A]">{isFallbackMode(session) ? "目前使用 localStorage demo fallback。" : `已登入：${session.profile?.email || session.user?.email || "admin"}`}</p></div>
+          <button className={ghostClass} onClick={lock}><Lock className="h-4 w-4" />鎖定後台</button>
+        </header>
+        {page}
+      </main>
     </div>
   );
 }
 
 export default function AdminDashboard({ route, go }) {
-  const [unlocked, setUnlocked] = useState(() => window.sessionStorage.getItem("phytologic_admin_unlocked") === "true");
-
-  if (!unlocked) return <PasscodeGate onUnlock={() => setUnlocked(true)} />;
-
-  const page = route === "/admin/news"
-    ? <AnnouncementsAdmin />
-    : route === "/admin/gallery"
-      ? <GalleryAdmin />
-      : route === "/admin/assessments"
-        ? <AssessmentsAdmin />
-        : <PartnersAdmin />;
-
-  return <AdminShell route={route === "/admin" ? "/admin/partners" : route} go={go}>{page}</AdminShell>;
+  const [session, setSession] = useState(() => getDemoSession());
+  const [checking, setChecking] = useState(!getDemoSession());
+  useEffect(() => {
+    if (session) return;
+    getAdminSession().then((next) => {
+      setSession(next.isAdmin ? next : null);
+      setChecking(false);
+    });
+  }, [session]);
+  useEffect(() => onAdminAuthChange(async (authSession) => {
+    if (!authSession) {
+      setSession(null);
+      setChecking(false);
+      return;
+    }
+    const next = await getAdminSession(authSession);
+    setSession(next.isAdmin ? next : null);
+    setChecking(false);
+  }), []);
+  if (checking) return <main className="flex min-h-screen items-center justify-center bg-[#F9F5EA] text-[#49675A]">後台權限確認中...</main>;
+  if (!session?.isAdmin) return <Login onReady={setSession} go={go} />;
+  return <Shell route={route} go={go} session={session} setSession={setSession} />;
 }

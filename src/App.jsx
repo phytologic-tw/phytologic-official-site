@@ -23,7 +23,7 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import FloatingLineButton from "./components/line/FloatingLineButton";
 import LineQRCode from "./components/line/LineQRCode";
 import { handleOpenLine } from "./components/line/lineConfig";
-import { isSupabaseConfigured, supabase, supabaseConfigMessage } from "./lib/supabase";
+import { listPublicRecords, submitPublicRecord } from "./lib/adminData";
 
 const logo = "/logo.png";
 const lineId = "@phytologic";
@@ -98,38 +98,26 @@ function useRoute() {
   return [route, go];
 }
 
-const publicSelectColumns = {
-  partners: "id, partner_name, city, category, contact_name, description, facebook_url, instagram_url, website_url, created_at",
-  announcements: "id, title, category, summary, content, cover_image_url, published_at, is_pinned, created_at",
-  gallery_items: "id, title, type, category, media_url, thumbnail_url, description, published_at, created_at",
-};
-
 function usePublished(table, order = "published_at") {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
-  const [error, setError] = useState(isSupabaseConfigured ? "" : supabaseConfigMessage);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   useEffect(() => {
     let ignore = false;
     async function load() {
-      if (!supabase) return;
       setLoading(true);
       setError("");
-      const status = table === "partners" ? "approved" : "published";
-      let query = supabase.from(table).select(publicSelectColumns[table] || "*").eq("status", status);
-      if (table === "announcements") {
-        query = query.order("is_pinned", { ascending: false }).order("published_at", { ascending: false, nullsFirst: false });
-      } else {
-        query = query.order(order, { ascending: false, nullsFirst: false });
+      try {
+        let data = await listPublicRecords(table, { order });
+        if (table === "announcements") data = [...data].sort((a, b) => Number(b.is_pinned) - Number(a.is_pinned));
+        if (!ignore) setItems(data || []);
+      } catch (requestError) {
+        if (!ignore) {
+          setError(`資料讀取失敗：${requestError.message}`);
+          setItems([]);
+        }
       }
-      const response = await query;
-      if (ignore) return;
-      if (response.error) {
-        setError(`Supabase 讀取失敗：${response.error.message}`);
-        setItems([]);
-      } else {
-        setItems(response.data || []);
-      }
-      setLoading(false);
+      if (!ignore) setLoading(false);
     }
     load();
     return () => {
@@ -185,9 +173,33 @@ function HomePage({ go }) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [infoModal, setInfoModal] = useState(null);
   const [formSent, setFormSent] = useState(false);
+  const [contactStatus, setContactStatus] = useState("idle");
+  const [contactNotice, setContactNotice] = useState("");
+  const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", type: "合作類型", message: "" });
   const ActiveIcon = activeProduct.icon;
   const gradient = useMemo(() => ({ background: `radial-gradient(circle at 72% 25%, ${activeProduct.accent} 0%, rgba(255,255,255,.88) 34%, #F9F5EA 78%)` }), [activeProduct]);
   const openPhysonIntro = () => setInfoModal({ eyebrow: "PHYSON SYSTEM", title: "派森｜AI健康系統", text: "派森不是單純的AI聊天工具，而是植本邏輯建立的健康陪伴系統。它會透過生活型態、身體反應、飲用紀錄與健康目標，建立個人化植物機能建議，並透過LINE每日陪伴、提醒與回訪，讓健康真正融入生活。" });
+  const updateContact = (field, value) => setContactForm((prev) => ({ ...prev, [field]: value }));
+  const submitContact = async (event) => {
+    event.preventDefault();
+    setContactNotice("");
+    if (!contactForm.name || !contactForm.phone || !contactForm.email || contactForm.type === "合作類型" || !contactForm.message) {
+      setContactStatus("error");
+      setContactNotice("請先完成姓名、電話、Email、合作類型與需求內容。");
+      return;
+    }
+    setContactStatus("loading");
+    try {
+      await submitPublicRecord("contact_submissions", { ...contactForm, status: "unread" });
+      setContactForm({ name: "", phone: "", email: "", type: "合作類型", message: "" });
+      setContactStatus("success");
+      setFormSent(true);
+      setContactNotice("感謝您的洽詢，品牌團隊將儘快與您聯繫。");
+    } catch (requestError) {
+      setContactStatus("error");
+      setContactNotice(`送出失敗：${requestError.message}`);
+    }
+  };
 
   return (
     <main>
@@ -358,11 +370,11 @@ function HomePage({ go }) {
             <p className="mt-4 leading-8 text-[#49675A]">重視生命。尊重自然。相信邏輯。</p>
             <div className="mt-8 space-y-4 text-[#355548]"><div className="flex items-center gap-3"><MapPin className="h-5 w-5 text-[#B89B5E]" /> Taiwan</div><div className="flex items-center gap-3"><Mail className="h-5 w-5 text-[#B89B5E]" /> bryan@phytologic.tw</div><div className="flex items-center gap-3"><Phone className="h-5 w-5 text-[#B89B5E]" /> 07-223-2301</div></div>
           </div>
-          <form className="rounded-[2rem] border border-[#E7DDBF] bg-white/80 p-8 shadow-sm">
-            <div className="grid gap-5 md:grid-cols-2"><input className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="姓名" /><input className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="電話" /><input className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="Email" /><select className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]"><option>合作類型</option><option>門市加盟</option><option>城市合作者</option><option>企業健康方案</option><option>試飲活動</option><option>媒體/其他</option></select></div>
-            <textarea className="mt-5 min-h-36 w-full rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="請留下您的需求與所在城市" />
-            <button type="button" onClick={() => setFormSent(true)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#123828] px-8 py-4 font-medium text-white shadow-xl shadow-[#123828]/15 transition hover:bg-[#1E6B43]">{formSent ? "已收到洽詢" : "送出洽詢"} <ArrowRight className="h-4 w-4" /></button>
-            {formSent && <p className="mt-4 rounded-2xl bg-[#DDEEDB] px-5 py-4 text-[#1E6B43]">感謝您的洽詢，品牌團隊將儘快與您聯繫。</p>}
+          <form onSubmit={submitContact} className="rounded-[2rem] border border-[#E7DDBF] bg-white/80 p-8 shadow-sm">
+            <div className="grid gap-5 md:grid-cols-2"><input value={contactForm.name} onChange={(e) => updateContact("name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="姓名" /><input value={contactForm.phone} onChange={(e) => updateContact("phone", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="電話" /><input value={contactForm.email} onChange={(e) => updateContact("email", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="Email" /><select value={contactForm.type} onChange={(e) => updateContact("type", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]"><option>合作類型</option><option>門市加盟</option><option>城市合作者</option><option>企業健康方案</option><option>試飲活動</option><option>媒體/其他</option></select></div>
+            <textarea value={contactForm.message} onChange={(e) => updateContact("message", e.target.value)} className="mt-5 min-h-36 w-full rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="請留下您的需求與所在城市" />
+            <button disabled={contactStatus === "loading"} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#123828] px-8 py-4 font-medium text-white shadow-xl shadow-[#123828]/15 transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#9FAEA5]">{contactStatus === "loading" ? "送出中..." : formSent ? "已收到洽詢" : "送出洽詢"} <ArrowRight className="h-4 w-4" /></button>
+            {contactNotice && <p className={`mt-4 rounded-2xl px-5 py-4 ${contactStatus === "error" ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-[#DDEEDB] text-[#1E6B43]"}`}>{contactNotice}</p>}
           </form>
         </div>
       </section>
@@ -409,14 +421,11 @@ function PartnersPage() {
       setNotice("請先完成必填欄位。");
       return;
     }
-    if (!supabase) {
-      setNotice(supabaseConfigMessage);
-      return;
-    }
     setSubmitStatus("loading");
     const { partner_logo: _partnerLogo, partner_type, ...formPayload } = form;
-    const { error: insertError } = await supabase.from("partners").insert({ ...formPayload, category: partner_type, status: "pending" });
-    if (insertError) {
+    try {
+      await submitPublicRecord("partners", { ...formPayload, category: partner_type, status: "pending" });
+    } catch (insertError) {
       setNotice(`送出失敗：${insertError.message}`);
       setSubmitStatus("error");
       return;
