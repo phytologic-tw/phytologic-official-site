@@ -99,7 +99,7 @@ function useRoute() {
 }
 
 const publicSelectColumns = {
-  partners: "id, partner_name, city, category, description, facebook_url, instagram_url, website_url, created_at",
+  partners: "id, partner_name, city, category, contact_name, description, facebook_url, instagram_url, website_url, created_at",
   announcements: "id, title, category, summary, content, cover_image_url, published_at, is_pinned, created_at",
   gallery_items: "id, title, type, category, media_url, thumbnail_url, description, published_at, created_at",
 };
@@ -375,10 +375,33 @@ function HomePage({ go }) {
 
 function PartnersPage() {
   const { items: partners, loading, error } = usePublished("partners", "created_at");
-  const [form, setForm] = useState({ partner_name: "", city: "", category: "門市", contact_name: "", phone: "", email: "", facebook_url: "", instagram_url: "", website_url: "", description: "" });
+  const initialPartnerForm = { partner_name: "", city: "", partner_type: "門市", contact_name: "", phone: "", email: "", description: "", partner_logo: null };
+  const samplePartner = {
+    partner_name: "植本邏輯 高雄健康據點",
+    city: "高雄市",
+    category: "健康顧問",
+    contact_name: "品牌顧問",
+    description: "提供植物機能飲品體驗、健康需求初談與派森 AI 快篩導入服務。",
+    isSample: true,
+  };
+  const [form, setForm] = useState(initialPartnerForm);
+  const [formOpen, setFormOpen] = useState(false);
+  const [logoPreview, setLogoPreview] = useState("");
   const [notice, setNotice] = useState("");
   const [submitStatus, setSubmitStatus] = useState("idle");
+  const displayPartners = partners.length ? partners : [samplePartner];
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+  const updateLogo = (event) => {
+    const file = event.target.files?.[0] || null;
+    update("partner_logo", file);
+    if (!file) {
+      setLogoPreview("");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setLogoPreview(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
   const submit = async (event) => {
     event.preventDefault();
     setNotice("");
@@ -391,54 +414,96 @@ function PartnersPage() {
       return;
     }
     setSubmitStatus("loading");
-    const { error: insertError } = await supabase.from("partners").insert({ ...form, status: "pending" });
+    const { partner_logo: _partnerLogo, partner_type, ...formPayload } = form;
+    const { error: insertError } = await supabase.from("partners").insert({ ...formPayload, category: partner_type, status: "pending" });
     if (insertError) {
       setNotice(`送出失敗：${insertError.message}`);
       setSubmitStatus("error");
       return;
     }
     setNotice("已送出合作申請，審核通過後會出現在展示牆。");
-    setForm({ partner_name: "", city: "", category: "門市", contact_name: "", phone: "", email: "", facebook_url: "", instagram_url: "", website_url: "", description: "" });
+    setForm(initialPartnerForm);
+    setLogoPreview("");
     setSubmitStatus("success");
   };
 
   return (
-    <main className="px-5 py-16 md:px-8">
-      <SectionTitle eyebrow="Partners" title="合作夥伴平台" text="展示已核准合作夥伴，並提供合作申請入口。" />
-      <DataState loading={loading} error={error} empty={!loading && !error && partners.length === 0}>目前尚無已核准合作夥伴。</DataState>
-      <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-3">
-        {partners.map((partner) => (
-          <article key={partner.id || partner.partner_name} className="rounded-2xl border border-[#E7DDBF] bg-white/75 p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-3 text-sm text-[#8B7A4C]"><span>{partner.city}</span><span>{partner.category}</span></div>
-            <h3 className="mt-4 text-2xl font-semibold">{partner.partner_name}</h3>
-            <p className="mt-4 min-h-20 leading-7 text-[#49675A]">{partner.description}</p>
-            <div className="mt-6 flex flex-wrap gap-2 text-sm">
-              {partner.facebook_url && <a className="rounded-full border border-[#D8C99C] px-4 py-2" href={partner.facebook_url}>FB</a>}
-              {partner.instagram_url && <a className="rounded-full border border-[#D8C99C] px-4 py-2" href={partner.instagram_url}>IG</a>}
-              {partner.website_url && <a className="rounded-full border border-[#D8C99C] px-4 py-2" href={partner.website_url}>Website</a>}
-            </div>
-          </article>
-        ))}
-      </div>
-      <form onSubmit={submit} className="mx-auto mt-12 max-w-5xl rounded-2xl border border-[#E7DDBF] bg-white/80 p-7 shadow-sm">
-        <h3 className="text-3xl font-semibold">合作申請表單</h3>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <input value={form.partner_name} onChange={(e) => update("partner_name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="partner_name 合作夥伴名稱 *" />
-          <input value={form.city} onChange={(e) => update("city", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="city 城市 *" />
-          <select value={form.category} onChange={(e) => update("category", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]">
-            {["門市", "健身房", "美容", "醫療保健", "社群合作", "其他"].map((item) => <option key={item}>{item}</option>)}
-          </select>
-          <input value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="contact_name 聯絡人 *" />
-          <input value={form.phone} onChange={(e) => update("phone", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="phone 電話 *" />
-          <input value={form.email} onChange={(e) => update("email", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="email *" />
-          <input value={form.facebook_url} onChange={(e) => update("facebook_url", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="facebook_url" />
-          <input value={form.instagram_url} onChange={(e) => update("instagram_url", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="instagram_url" />
-          <input value={form.website_url} onChange={(e) => update("website_url", e.target.value)} className="rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E] md:col-span-2" placeholder="website_url" />
-          <textarea value={form.description} onChange={(e) => update("description", e.target.value)} className="min-h-32 rounded-2xl border border-[#E2D5B5] px-5 py-4 outline-none focus:border-[#B89B5E] md:col-span-2" placeholder="description 合作簡介" />
+    <main className="bg-[#F9F5EA] px-5 py-16 md:px-8">
+      <section className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#B89B5E]">Partners</p>
+            <h1 className="text-4xl font-semibold tracking-tight text-[#123828] md:text-6xl">合作夥伴平台</h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#49675A]">展示已核准合作夥伴，提供合作申請入口。</p>
+          </div>
+          <button type="button" onClick={() => setFormOpen((open) => !open)} className="inline-flex w-fit items-center gap-2 rounded-full bg-[#123828] px-7 py-4 font-semibold text-white shadow-xl shadow-[#123828]/15 transition hover:bg-[#1E6B43]">
+            申請成為合作夥伴 <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
-        <button disabled={submitStatus === "loading"} className="mt-5 rounded-full bg-[#123828] px-8 py-4 font-medium text-white transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#9FAEA5]">{submitStatus === "loading" ? "送出中..." : "送出合作申請"}</button>
-        {notice && <p className={`mt-4 rounded-2xl px-5 py-4 ${submitStatus === "error" || notice.includes("失敗") || notice.includes("尚未設定") ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-[#DDEEDB] text-[#1E6B43]"}`}>{notice}</p>}
-      </form>
+
+        {loading && <div className="mt-10 rounded-2xl border border-[#E7DDBF] bg-white/75 p-7 text-center text-[#49675A]">資料載入中...</div>}
+        {error && <div className="mt-10 rounded-2xl border border-[#E8B4A8] bg-[#FFF7F5] p-7 text-center text-[#9A3C2D]">{error}</div>}
+        {!loading && !error && partners.length === 0 && <div className="mt-10 rounded-2xl border border-[#E7DDBF] bg-white/75 p-7 text-center text-[#49675A]">目前尚無已核准合作夥伴</div>}
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {displayPartners.map((partner) => (
+            <article key={partner.id || partner.partner_name} className="rounded-2xl border border-[#E2D5B5] bg-white/85 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-[#123828]/8">
+              <div className="flex items-start gap-4">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-[#D8C99C] bg-[#F5F2EB] text-2xl font-semibold text-[#B89B5E]">
+                  {partner.partner_name?.slice(0, 1) || "植"}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-2xl font-semibold text-[#123828]">{partner.partner_name}</h2>
+                  <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                    <span className="rounded-full bg-[#F5F2EB] px-3 py-1 text-[#6C5A2F]">{partner.city}</span>
+                    <span className="rounded-full bg-[#DDEEDB] px-3 py-1 text-[#1E6B43]">類型：{partner.category}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 border-t border-[#E7DDBF] pt-5">
+                <div className="text-sm text-[#8B7A4C]">聯絡人</div>
+                <div className="mt-1 font-semibold text-[#123828]">{partner.contact_name || "合作窗口"}</div>
+                <p className="mt-4 min-h-20 leading-8 text-[#49675A]">{partner.description}</p>
+              </div>
+              <div className="mt-6 flex flex-wrap gap-2 text-sm">
+                <a className="rounded-full border border-[#D8C99C] bg-white px-4 py-2 font-medium text-[#123828] transition hover:border-[#B89B5E]" href={partner.website_url || "#合作申請"}>查看據點</a>
+                <a className="rounded-full bg-[#123828] px-4 py-2 font-medium text-white transition hover:bg-[#1E6B43]" href={partner.instagram_url || partner.facebook_url || "#合作申請"}>聯繫合作夥伴</a>
+                {partner.isSample && <span className="rounded-full bg-[#F5F2EB] px-4 py-2 text-[#8B7A4C]">範例卡片</span>}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {formOpen && (
+          <form id="合作申請" onSubmit={submit} className="mx-auto mt-12 max-w-5xl rounded-2xl border border-[#D8C99C] bg-white/90 p-7 shadow-xl shadow-[#123828]/8">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#B89B5E]">Application</p>
+                <h2 className="mt-2 text-3xl font-semibold text-[#123828]">合作申請表單</h2>
+              </div>
+              <button type="button" onClick={() => setFormOpen(false)} className="w-fit rounded-full border border-[#D8C99C] px-5 py-2 text-sm font-medium text-[#123828] transition hover:bg-[#F5F2EB]">收起表單</button>
+            </div>
+            <div className="mt-7 grid gap-4 md:grid-cols-2">
+              <label className="rounded-2xl border border-dashed border-[#D8C99C] bg-[#FDFBF6] p-5 md:col-span-2">
+                <span className="block text-sm font-medium text-[#8B7A4C]">上傳品牌 Logo 或大頭貼</span>
+                <input name="partner_logo" type="file" accept="image/*" onChange={updateLogo} className="mt-3 block w-full text-sm text-[#49675A] file:mr-4 file:rounded-full file:border-0 file:bg-[#123828] file:px-5 file:py-2 file:font-semibold file:text-white" />
+                {logoPreview && <img src={logoPreview} alt="合作夥伴 Logo 預覽" className="mt-4 h-24 w-24 rounded-2xl border border-[#E2D5B5] object-cover" />}
+              </label>
+              <input value={form.partner_name} onChange={(e) => update("partner_name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="合作夥伴名稱 *" />
+              <input value={form.city} onChange={(e) => update("city", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="城市 *" />
+              <select value={form.partner_type} onChange={(e) => update("partner_type", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]">
+                {["門市", "工作室", "健康顧問", "活動據點"].map((item) => <option key={item}>{item}</option>)}
+              </select>
+              <input value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="聯絡人 *" />
+              <input value={form.phone} onChange={(e) => update("phone", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="電話 *" />
+              <input value={form.email} onChange={(e) => update("email", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="Email *" />
+              <textarea value={form.description} onChange={(e) => update("description", e.target.value)} className="min-h-32 rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E] md:col-span-2" placeholder="簡短介紹" />
+            </div>
+            <button disabled={submitStatus === "loading"} className="mt-5 rounded-full bg-[#123828] px-8 py-4 font-medium text-white transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#9FAEA5]">{submitStatus === "loading" ? "送出中..." : "送出合作申請"}</button>
+            {notice && <p className={`mt-4 rounded-2xl px-5 py-4 ${submitStatus === "error" || notice.includes("失敗") || notice.includes("尚未設定") ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-[#DDEEDB] text-[#1E6B43]"}`}>{notice}</p>}
+          </form>
+        )}
+      </section>
     </main>
   );
 }
