@@ -13,10 +13,10 @@ export default function UnlockFullReportCard() {
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-[#D8C99C]">
             <Lock className="h-4 w-4" /> 完整報告已鎖定
           </div>
-          <h4 className="text-2xl font-semibold">加入官方LINE解鎖完整AI健康分析報告</h4>
+          <h4 className="text-2xl font-semibold">加入官方 LINE 解鎖完整 AI 健康報告</h4>
           <p className="mt-3 leading-7 text-white/70">七大系統分析、完整生活建議、飲品推薦與 AI 個人化分析會在 LINE 會員體驗中開放。</p>
           <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#06C755] px-6 py-3 font-semibold text-white transition hover:bg-[#05B64D]">
-            <MessageCircle className="h-4 w-4" /> 立即加入LINE
+            <MessageCircle className="h-4 w-4" /> 立即加入 LINE
           </a>
         </div>
         <LineQRCode className="mx-auto w-28" />

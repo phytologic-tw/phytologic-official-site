@@ -14,6 +14,26 @@ const AGE_GROUPS = [
   { label: "銀髮樂齡", range: "65-75 歲" },
 ];
 
+const WORK_TYPES = ["久坐辦公", "外勤走動", "體力勞動", "學生", "輪班工作", "自由業 / 居家工作", "其他"];
+const SLEEP_HOURS = ["少於 5 小時", "5-6 小時", "6-7 小時", "7-8 小時", "8 小時以上"];
+const SLEEP_QUALITY = ["良好", "普通", "淺眠 / 多夢", "常醒 / 早醒", "入睡困難"];
+const EXERCISE_HABITS = ["幾乎沒有", "每週 1-2 次", "每週 3-4 次", "每週 5 次以上", "高強度訓練"];
+const DIET_PATTERNS = ["均衡飲食", "外食為主", "高油 / 高糖", "低醣 / 控糖", "素食 / 植物性飲食", "常跳餐"];
+const STRESS_LEVELS = ["低", "中", "偏高", "高", "非常高"];
+
+const initialProfile = {
+  gender: "",
+  ageGroup: "",
+  heightCm: "",
+  weightKg: "",
+  workType: "",
+  sleepHours: "",
+  sleepQuality: "",
+  exerciseHabit: "",
+  dietPattern: "",
+  stressLevel: "",
+};
+
 const PRODUCTS = [
   { id: "snow", name: "雪山植萃", color: "#C8DFC6", desc: "抗發炎修復｜腸胃舒緩", focus: "疲勞、腦霧、睡眠品質、腸胃敏感與修復需求" },
   { id: "lime", name: "青檸植萃", color: "#C2DBA0", desc: "代謝排毒｜體內環保", focus: "排便、腹脹、水腫、血糖波動、甜食渴望與代謝負擔" },
@@ -129,7 +149,26 @@ function parseAiResult(text, fallback) {
   }
 }
 
-function buildPrompt({ ageLabel, total, levelLabel, categorySummary, answerSummary }) {
+function getBmi(profile) {
+  const height = Number(profile.heightCm);
+  const weight = Number(profile.weightKg);
+  if (!height || !weight) return null;
+  return Number((weight / ((height / 100) ** 2)).toFixed(1));
+}
+
+function buildProfileSummary(profile, bmi) {
+  return {
+    ageLabel: profile.ageGroup,
+    bmi: bmi ? String(bmi) : "未提供",
+    workType: profile.workType,
+    sleep: `${profile.sleepHours}，睡眠品質：${profile.sleepQuality}`,
+    exercise: profile.exerciseHabit,
+    diet: profile.dietPattern,
+    stress: profile.stressLevel,
+  };
+}
+
+function buildPrompt({ profileSummary, total, levelLabel, categorySummary, answerSummary }) {
   const productSummary = PRODUCTS.map((product) => `${product.id}｜${product.name}｜${product.desc}｜適合：${product.focus}`).join("\n");
 
   return `你是植本邏輯（PHYTOLOGIC）的健康顧問，精通功能醫學、慢性發炎評估與植物機能飲料。
@@ -137,7 +176,13 @@ function buildPrompt({ ageLabel, total, levelLabel, categorySummary, answerSumma
 請根據以下「發炎指數短版問卷」結果，分析使用者目前最可能的發炎壓力來源，並推薦最適合的一款植本邏輯飲品與一個具體生活改變方式。
 
 用戶資料：
-- 年齡層：${ageLabel}
+- 年齡：${profileSummary.ageLabel}
+- BMI：${profileSummary.bmi}
+- 職業型態：${profileSummary.workType}
+- 睡眠：${profileSummary.sleep}
+- 運動：${profileSummary.exercise}
+- 飲食：${profileSummary.diet}
+- 壓力：${profileSummary.stress}
 - 發炎指數短版總分：${total} / 30（${levelLabel}）
 - 分類線索：${categorySummary}
 - 15 題作答結果：
@@ -157,8 +202,7 @@ ${productSummary}
 
 export default function HealthAssessment() {
   const [step, setStep] = useState(0);
-  const [profile, setProfile] = useState({ gender: "", age: "", workType: "", height: "", weight: "" });
-  const [ageGroup, setAgeGroup] = useState(null);
+  const [profile, setProfile] = useState(initialProfile);
   const [questions, setQuestions] = useState(() => shuffleQuestions());
   const [answers, setAnswers] = useState({});
   const [aiResult, setAiResult] = useState(null);
@@ -169,10 +213,12 @@ export default function HealthAssessment() {
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / QUESTION_COUNT) * 100);
   const completed = answeredCount === QUESTION_COUNT;
-  const profileCompleted = profile.gender && profile.age && profile.workType && profile.height && profile.weight && ageGroup;
+  const bmi = getBmi(profile);
+  const profileCompleted = Object.values(profile).every(Boolean) && bmi;
+  const profileSummary = buildProfileSummary(profile, bmi);
 
   const result = useMemo(() => {
-    if (!ageGroup) return null;
+    if (!profile.ageGroup) return null;
     const total = Object.values(answers).reduce((sum, score) => sum + score, 0);
     const levelLabel = getLevel(total);
     const categoryScores = buildCategoryScores(questions, answers);
@@ -192,12 +238,11 @@ export default function HealthAssessment() {
       categorySummary: topSignals.length ? topSignals.join("；") : "目前沒有明顯集中線索",
       answerSummary: questions.map((question, index) => `${index + 1}. ${question.text} 回答：${ANSWER_OPTIONS.find((option) => option.score === answers[question.id])?.label ?? "未作答"}`).join("\n"),
     };
-  }, [ageGroup, answers, questions]);
+  }, [profile.ageGroup, answers, questions]);
 
   const resetAssessment = () => {
     setStep(0);
-    setProfile({ gender: "", age: "", workType: "", height: "", weight: "" });
-    setAgeGroup(null);
+    setProfile(initialProfile);
     setQuestions(shuffleQuestions());
     setAnswers({});
     setAiResult(null);
@@ -229,7 +274,7 @@ export default function HealthAssessment() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: buildPrompt({
-            ageLabel: `${ageGroup.label}（${ageGroup.range}）`,
+            profileSummary,
             total: result.total,
             levelLabel: result.levelLabel,
             categorySummary: result.categorySummary,
@@ -254,15 +299,35 @@ export default function HealthAssessment() {
 
     setAiResult(finalResult);
 
+    const answerRows = questions.map((question) => ({
+      id: question.id,
+      category: question.category,
+      text: question.text,
+      score: answers[question.id] ?? null,
+      label: ANSWER_OPTIONS.find((option) => option.score === answers[question.id])?.label ?? null,
+    }));
+    const createdAt = new Date().toISOString();
     const reportPayload = {
       name: null,
       gender: profile.gender,
-      age: Number(profile.age),
+      age_group: profile.ageGroup,
+      height_cm: Number(profile.heightCm),
+      weight_kg: Number(profile.weightKg),
+      bmi,
       work_type: profile.workType,
+      sleep_hours: profile.sleepHours,
+      sleep_quality: profile.sleepQuality,
+      exercise_habit: profile.exerciseHabit,
+      diet_pattern: profile.dietPattern,
+      stress_level: profile.stressLevel,
+      answers: answerRows,
       total_score: result.total,
       inflammation_level: result.levelLabel,
+      system_scores: result.categoryScores,
       primary_systems: result.categoryScores,
       recommended_products: [selectedProduct.name],
+      ai_analysis: finalResult.analysis,
+      lifestyle_advice: finalResult.lifestyleChange,
       partial_report: {
         analysis: finalResult.analysis,
         lifestyleChange: finalResult.lifestyleChange,
@@ -270,18 +335,14 @@ export default function HealthAssessment() {
         recommendedProductName: selectedProduct.name,
       },
       full_report: {
-        ageGroup: ageGroup.label,
+        profile: profileSummary,
         systemScores: result.categoryScores,
         topSignals: result.topSignals,
         answerSummary: result.answerSummary,
-        questions: questions.map((question) => ({
-          id: question.id,
-          category: question.category,
-          text: question.text,
-          score: answers[question.id] ?? null,
-        })),
+        questions: answerRows,
       },
       has_joined_line: hasJoinedLine,
+      created_at: createdAt,
     };
 
     if (supabase) {
@@ -330,44 +391,66 @@ export default function HealthAssessment() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">年齡</span>
-              <input type="number" min="1" value={profile.age} onChange={(event) => setProfile((prev) => ({ ...prev, age: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="例如 35" />
+              <span className="mb-2 block text-sm text-[#8B7A4C]">年齡區間</span>
+              <select value={profile.ageGroup} onChange={(event) => setProfile((prev) => ({ ...prev, ageGroup: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                {AGE_GROUPS.map((group) => <option key={group.label} value={`${group.label}（${group.range}）`}>{group.label}（{group.range}）</option>)}
+              </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">工作類型</span>
+              <span className="mb-2 block text-sm text-[#8B7A4C]">職業 / 工作型態</span>
               <select value={profile.workType} onChange={(event) => setProfile((prev) => ({ ...prev, workType: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
                 <option value="">請選擇</option>
-                <option>久坐辦公</option>
-                <option>外勤走動</option>
-                <option>體力勞動</option>
-                <option>學生</option>
-                <option>自由業</option>
-                <option>其他</option>
+                {WORK_TYPES.map((item) => <option key={item}>{item}</option>)}
               </select>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="mb-2 block text-sm text-[#8B7A4C]">身高 cm</span>
-                <input type="number" min="1" value={profile.height} onChange={(event) => setProfile((prev) => ({ ...prev, height: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="170" />
+                <input type="number" min="1" value={profile.heightCm} onChange={(event) => setProfile((prev) => ({ ...prev, heightCm: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="170" />
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm text-[#8B7A4C]">體重 kg</span>
-                <input type="number" min="1" value={profile.weight} onChange={(event) => setProfile((prev) => ({ ...prev, weight: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="65" />
+                <input type="number" min="1" value={profile.weightKg} onChange={(event) => setProfile((prev) => ({ ...prev, weightKg: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="65" />
               </label>
             </div>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">睡眠時間</span>
+              <select value={profile.sleepHours} onChange={(event) => setProfile((prev) => ({ ...prev, sleepHours: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                {SLEEP_HOURS.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">睡眠品質</span>
+              <select value={profile.sleepQuality} onChange={(event) => setProfile((prev) => ({ ...prev, sleepQuality: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                {SLEEP_QUALITY.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">運動習慣</span>
+              <select value={profile.exerciseHabit} onChange={(event) => setProfile((prev) => ({ ...prev, exerciseHabit: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                {EXERCISE_HABITS.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">飲食型態</span>
+              <select value={profile.dietPattern} onChange={(event) => setProfile((prev) => ({ ...prev, dietPattern: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                {DIET_PATTERNS.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
+            <label className="block md:col-span-2">
+              <span className="mb-2 block text-sm text-[#8B7A4C]">壓力程度</span>
+              <select value={profile.stressLevel} onChange={(event) => setProfile((prev) => ({ ...prev, stressLevel: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
+                <option value="">請選擇</option>
+                {STRESS_LEVELS.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
           </div>
-          <h5 className="mb-4 text-lg font-semibold">依年齡切換題庫</h5>
-          <div className="grid gap-4 md:grid-cols-5">
-            {AGE_GROUPS.map((group) => {
-              const active = ageGroup?.label === group.label;
-              return (
-                <button key={group.label} type="button" onClick={() => setAgeGroup(group)} className={`rounded-2xl border p-5 text-left transition ${active ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white hover:border-[#C8A96E]"}`}>
-                  <span className="block text-lg font-semibold">{group.label}</span>
-                  <span className={`mt-2 block text-sm ${active ? "text-white/70" : "text-[#49675A]"}`}>{group.range}</span>
-                </button>
-              );
-            })}
-          </div>
+          {bmi && <p className="mb-2 text-sm text-[#49675A]">BMI 將納入 AI 分析：<span className="font-semibold text-[#1C3D2B]">{bmi}</span></p>}
           <button type="button" disabled={!profileCompleted} onClick={() => setStep(1)} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
             開始 15 題快篩 <ArrowRight className="h-4 w-4" />
           </button>
@@ -430,11 +513,21 @@ export default function HealthAssessment() {
               <p className="text-sm tracking-[0.24em] text-[#C8A96E]">INFLAMMATION SCORE</p>
               <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/50">/30</span></div>
               <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1C3D2B]">{result.levelLabel}</div>
-              <p className="mt-5 leading-8 text-white/70">{ageGroup.label}（{ageGroup.range}）｜15 題發炎指數快篩</p>
+              <p className="mt-5 leading-8 text-white/70">{profile.ageGroup}｜15 題發炎指數快篩</p>
             </div>
             <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7">
               <h4 className="text-2xl font-semibold">AI 判讀重點</h4>
               <p className="mt-4 text-lg leading-9 text-[#49675A]">{aiResult.analysis}</p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7">
+            <h4 className="text-2xl font-semibold">基本資料摘要</h4>
+            <div className="mt-5 grid gap-3 text-sm text-[#49675A] md:grid-cols-5">
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">年齡區間</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.ageLabel}</strong></div>
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">BMI</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.bmi}</strong></div>
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">工作型態</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.workType}</strong></div>
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">睡眠狀態</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.sleep}</strong></div>
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">運動頻率</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.exercise}</strong></div>
             </div>
           </div>
           <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">

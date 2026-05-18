@@ -12,10 +12,10 @@ function getAdminClient() {
 }
 
 function requireAdmin(req, res) {
-  const expected = process.env.ADMIN_PASSCODE || process.env.VITE_ADMIN_PASSCODE;
+  const expected = process.env.ADMIN_PASSCODE;
   const provided = req.headers["x-admin-passcode"];
   if (!expected) {
-    res.status(500).json({ error: "Missing ADMIN_PASSCODE or VITE_ADMIN_PASSCODE on server." });
+    res.status(500).json({ error: "Missing ADMIN_PASSCODE on server." });
     return false;
   }
   if (!provided || provided !== expected) {

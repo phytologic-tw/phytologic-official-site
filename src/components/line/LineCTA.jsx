@@ -12,8 +12,8 @@ export default function LineCTA({ compact = false }) {
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#06C755]/10 px-4 py-2 text-sm font-semibold text-[#087E3A]">
             <MessageCircle className="h-4 w-4" /> LINE 官方會員
           </div>
-          <h3 className={`${compact ? "text-2xl" : "text-3xl md:text-4xl"} font-semibold text-[#123828]`}>加入植本邏輯官方LINE</h3>
-          <p className="mt-3 text-lg font-medium text-[#1E6B43]">立即解鎖完整AI健康分析報告</p>
+          <h3 className={`${compact ? "text-2xl" : "text-3xl md:text-4xl"} font-semibold text-[#123828]`}>加入植本邏輯官方 LINE</h3>
+          <p className="mt-3 text-lg font-medium text-[#1E6B43]">解鎖完整 AI 健康分析報告</p>
           <div className="mt-5 grid gap-2 text-sm leading-6 text-[#49675A] sm:grid-cols-2">
             <span>✓ 個人化發炎分析</span>
             <span>✓ 專屬植物機能飲推薦</span>
@@ -21,7 +21,7 @@ export default function LineCTA({ compact = false }) {
             <span>✓ 最新活動與健康資訊</span>
           </div>
           <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#06C755] px-7 py-3.5 font-semibold text-white shadow-lg shadow-[#06C755]/20 transition hover:-translate-y-0.5 hover:bg-[#05B64D]">
-            立即加入LINE <ArrowRight className="h-4 w-4" />
+            立即加入 LINE <ArrowRight className="h-4 w-4" />
           </a>
         </div>
         <LineQRCode className="mx-auto w-32 md:w-full" />

@@ -370,7 +370,7 @@ function GalleryPage() {
   );
 }
 
-function Footer() {
+function Footer({ go }) {
   return (
     <footer className="border-t border-[#E7DDBF] px-5 py-10 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_auto] md:items-center">
@@ -383,9 +383,12 @@ function Footer() {
           <div>
             <div className="text-sm text-[#8B7A4C]">官方 LINE</div>
             <div className="mt-1 font-semibold text-[#123828]">{lineId}</div>
-            <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white">加入LINE</a>
+            <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white">立即加入 LINE</a>
           </div>
         </div>
+      </div>
+      <div className="mx-auto mt-8 max-w-7xl border-t border-[#E7DDBF]/70 pt-5 text-right">
+        <button type="button" onClick={() => go("/admin")} className="text-xs text-[#9A8C68] transition hover:text-[#123828]">管理入口</button>
       </div>
     </footer>
   );
@@ -399,7 +402,7 @@ export default function PhytologicWebsite() {
     <div className="min-h-screen bg-[#F9F5EA] text-[#123828]">
       {!isAdminRoute && <Header route={route} go={go} />}
       {page}
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <Footer go={go} />}
       {!isAdminRoute && <FloatingLineButton />}
     </div>
   );

@@ -47,16 +47,44 @@ create table if not exists public.assessment_reports (
   name text,
   gender text,
   age int,
+  age_group text,
+  height_cm numeric,
+  weight_kg numeric,
+  bmi numeric,
   work_type text,
+  sleep_hours text,
+  sleep_quality text,
+  exercise_habit text,
+  diet_pattern text,
+  stress_level text,
+  answers jsonb not null default '[]'::jsonb,
   total_score int not null,
   inflammation_level text not null,
+  system_scores jsonb not null default '{}'::jsonb,
   primary_systems jsonb not null default '{}'::jsonb,
   recommended_products jsonb not null default '[]'::jsonb,
+  ai_analysis text,
+  lifestyle_advice text,
   partial_report jsonb not null default '{}'::jsonb,
   full_report jsonb not null default '{}'::jsonb,
   has_joined_line boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+alter table public.assessment_reports
+  add column if not exists age_group text,
+  add column if not exists height_cm numeric,
+  add column if not exists weight_kg numeric,
+  add column if not exists bmi numeric,
+  add column if not exists sleep_hours text,
+  add column if not exists sleep_quality text,
+  add column if not exists exercise_habit text,
+  add column if not exists diet_pattern text,
+  add column if not exists stress_level text,
+  add column if not exists answers jsonb not null default '[]'::jsonb,
+  add column if not exists system_scores jsonb not null default '{}'::jsonb,
+  add column if not exists ai_analysis text,
+  add column if not exists lifestyle_advice text;
 
 create index if not exists partners_status_created_at_idx on public.partners (status, created_at desc);
 create index if not exists announcements_public_order_idx on public.announcements (status, is_pinned desc, published_at desc);
@@ -137,15 +165,28 @@ grant select (
 grant insert (
   name,
   gender,
-  age,
+  age_group,
+  height_cm,
+  weight_kg,
+  bmi,
   work_type,
+  sleep_hours,
+  sleep_quality,
+  exercise_habit,
+  diet_pattern,
+  stress_level,
+  answers,
   total_score,
   inflammation_level,
+  system_scores,
   primary_systems,
   recommended_products,
+  ai_analysis,
+  lifestyle_advice,
   partial_report,
   full_report,
-  has_joined_line
+  has_joined_line,
+  created_at
 ) on public.assessment_reports to anon, authenticated;
 
 drop policy if exists "Public can submit partner applications" on public.partners;

@@ -1,10 +1,23 @@
 create table if not exists assessments (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz default now(),
+  gender text,
   age_group text not null,
+  height_cm numeric,
+  weight_kg numeric,
+  bmi numeric,
+  work_type text,
+  sleep_hours text,
+  sleep_quality text,
+  exercise_habit text,
+  diet_pattern text,
+  stress_level text,
+  answers jsonb default '[]'::jsonb,
   total_score integer not null,
   level text not null,
+  inflammation_level text,
   system_scores jsonb not null,
   recommended_products text[] not null,
-  ai_analysis text
+  ai_analysis text,
+  lifestyle_advice text
 );
