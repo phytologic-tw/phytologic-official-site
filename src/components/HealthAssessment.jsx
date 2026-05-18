@@ -200,6 +200,31 @@ ${productSummary}
 }`;
 }
 
+function getMissingColumn(message = "") {
+  return message.match(/Could not find the '([^']+)' column/)?.[1] || null;
+}
+
+async function insertAssessmentReport(reportPayload) {
+  const payload = { ...reportPayload };
+  const removedColumns = [];
+
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const { error } = await supabase.from("assessment_reports").insert(payload);
+    if (!error) return { error: null, removedColumns };
+
+    const missingColumn = getMissingColumn(error.message);
+    if (!missingColumn || !(missingColumn in payload)) return { error, removedColumns };
+
+    delete payload[missingColumn];
+    removedColumns.push(missingColumn);
+  }
+
+  return {
+    error: new Error("assessment_reports schema cache 缺少多個欄位，請執行 Supabase migration 後再試。"),
+    removedColumns,
+  };
+}
+
 export default function HealthAssessment() {
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState(initialProfile);
@@ -352,14 +377,14 @@ export default function HealthAssessment() {
 
     if (supabase) {
       setSaveStatus("loading");
-      const { error } = await supabase.from("assessment_reports").insert(reportPayload);
+      const { error, removedColumns } = await insertAssessmentReport(reportPayload);
       if (error) {
         setSaveStatus("error");
         setSaveNotice(`測驗結果儲存失敗：${error.message}`);
       } else {
         setAssessmentId(clientGeneratedId);
         setSaveStatus("success");
-        setSaveNotice("本次評估已建立，請至下方取得報告編號。");
+        setSaveNotice(removedColumns.length ? "本次評估已建立，請至下方取得報告編號。部分完整欄位待資料庫更新後啟用。" : "本次評估已建立，請至下方取得報告編號。");
       }
     } else {
       setSaveStatus("error");

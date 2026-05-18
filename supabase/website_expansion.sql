@@ -296,8 +296,25 @@ using (bucket_id = 'announcements');
 -- Phase 1: LINE full report delivery
 -- ============================================================
 
--- full_report 欄位確認存在（原 schema 已有，此為保護性 migration）
+-- assessment_reports 欄位確認存在（原 schema 已有，此為保護性 migration）
 alter table public.assessment_reports
+  add column if not exists age_group text,
+  add column if not exists height_cm numeric,
+  add column if not exists weight_kg numeric,
+  add column if not exists bmi numeric,
+  add column if not exists work_type text,
+  add column if not exists sleep_hours text,
+  add column if not exists sleep_quality text,
+  add column if not exists exercise_habit text,
+  add column if not exists diet_pattern text,
+  add column if not exists stress_level text,
+  add column if not exists answers jsonb not null default '[]'::jsonb,
+  add column if not exists system_scores jsonb not null default '{}'::jsonb,
+  add column if not exists primary_systems jsonb not null default '{}'::jsonb,
+  add column if not exists recommended_products jsonb not null default '[]'::jsonb,
+  add column if not exists ai_analysis text,
+  add column if not exists lifestyle_advice text,
+  add column if not exists partial_report jsonb not null default '{}'::jsonb,
   add column if not exists full_report jsonb not null default '{}'::jsonb;
 
 -- 後台讀取 assessment_reports 使用 service role，不需要額外 RLS policy
