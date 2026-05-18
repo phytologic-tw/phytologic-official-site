@@ -163,6 +163,7 @@ grant select (
 ) on public.gallery_items to anon, authenticated;
 
 grant insert (
+  id,
   name,
   gender,
   age_group,
@@ -290,3 +291,35 @@ create policy "Authenticated can delete announcement files"
 on storage.objects for delete
 to authenticated
 using (bucket_id = 'announcements');
+
+-- ============================================================
+-- Phase 1: LINE full report delivery
+-- ============================================================
+
+-- full_report 欄位確認存在（原 schema 已有，此為保護性 migration）
+alter table public.assessment_reports
+  add column if not exists full_report jsonb not null default '{}'::jsonb;
+
+-- 後台讀取 assessment_reports 使用 service role，不需要額外 RLS policy
+-- 前台 anon 無法讀取 assessment_reports（沿用現有設定）
+
+-- ============================================================
+-- TODO Phase 2: LINE Messaging API 整合
+-- ============================================================
+-- 1. 新增 line_user_id 欄位，綁定 LINE userId 與 assessment_id
+-- alter table public.assessment_reports
+--   add column if not exists line_user_id text;
+-- create index if not exists assessment_reports_line_user_id_idx
+--   on public.assessment_reports (line_user_id);
+
+-- 2. 新增 line_sent_at 欄位，記錄完整報告推送時間
+-- alter table public.assessment_reports
+--   add column if not exists line_sent_at timestamptz;
+
+-- 3. 建立 line_members 資料表（LINE userId 與報告對應）
+-- create table if not exists public.line_members (
+--   id uuid primary key default gen_random_uuid(),
+--   line_user_id text not null unique,
+--   assessment_id uuid references public.assessment_reports(id),
+--   created_at timestamptz not null default now()
+-- );

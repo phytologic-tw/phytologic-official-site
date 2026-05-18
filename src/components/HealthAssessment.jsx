@@ -209,6 +209,7 @@ export default function HealthAssessment() {
   const [statusText, setStatusText] = useState("");
   const [saveNotice, setSaveNotice] = useState("");
   const [saveStatus, setSaveStatus] = useState("idle");
+  const [assessmentId, setAssessmentId] = useState(null);
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / QUESTION_COUNT) * 100);
@@ -249,6 +250,7 @@ export default function HealthAssessment() {
     setStatusText("");
     setSaveNotice("");
     setSaveStatus("idle");
+    setAssessmentId(null);
   };
 
   const runAnalysis = async () => {
@@ -307,7 +309,9 @@ export default function HealthAssessment() {
       label: ANSWER_OPTIONS.find((option) => option.score === answers[question.id])?.label ?? null,
     }));
     const createdAt = new Date().toISOString();
+    const clientGeneratedId = crypto.randomUUID();
     const reportPayload = {
+      id: clientGeneratedId,
       name: null,
       gender: profile.gender,
       age_group: profile.ageGroup,
@@ -334,6 +338,7 @@ export default function HealthAssessment() {
         level: result.levelLabel,
         recommendedProductName: selectedProduct.name,
       },
+      // full_report: 完整報告欄位，前端不渲染，供後台查詢與未來 LINE Bot 推送使用
       full_report: {
         profile: profileSummary,
         systemScores: result.categoryScores,
@@ -352,8 +357,9 @@ export default function HealthAssessment() {
         setSaveStatus("error");
         setSaveNotice(`測驗結果儲存失敗：${error.message}`);
       } else {
+        setAssessmentId(clientGeneratedId);
         setSaveStatus("success");
-        setSaveNotice("本次評估已儲存到 Supabase assessment_reports。");
+        setSaveNotice("本次評估已建立，請至下方取得報告編號。");
       }
     } else {
       setSaveStatus("error");
@@ -543,7 +549,7 @@ export default function HealthAssessment() {
               {saveNotice && <p className={`mt-5 rounded-2xl px-5 py-4 text-sm ${saveStatus === "error" ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-white text-[#8B7A4C]"}`}>{saveStatus === "loading" ? "測驗結果儲存中..." : saveNotice}</p>}
             </div>
           </div>
-          {!hasJoinedLine && <UnlockFullReportCard />}
+          {!hasJoinedLine && <UnlockFullReportCard assessmentId={assessmentId} />}
           <div className={`${hasJoinedLine ? "" : "pointer-events-none select-none blur-sm"} grid gap-5 md:grid-cols-2`}>
             {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
               <div key={key} className="rounded-2xl border border-[#E5E0D5] bg-white p-5">

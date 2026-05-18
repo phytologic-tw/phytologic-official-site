@@ -1,8 +1,7 @@
 import React from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import LineQRCode from "./LineQRCode";
-
-const lineUrl = import.meta.env.VITE_LINE_OA_URL || import.meta.env.VITE_LINE_OFFICIAL_URL || import.meta.env.VITE_LINE_CTA_URL || "https://lin.ee/YpVA4C8";
+import { handleOpenLine } from "./lineConfig";
 
 export default function LineCTA({ compact = false }) {
   return (
@@ -20,9 +19,9 @@ export default function LineCTA({ compact = false }) {
             <span>✓ 每日健康建議</span>
             <span>✓ 最新活動與健康資訊</span>
           </div>
-          <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#06C755] px-7 py-3.5 font-semibold text-white shadow-lg shadow-[#06C755]/20 transition hover:-translate-y-0.5 hover:bg-[#05B64D]">
+          <button type="button" onClick={handleOpenLine} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#06C755] px-7 py-3.5 font-semibold text-white shadow-lg shadow-[#06C755]/20 transition hover:-translate-y-0.5 hover:bg-[#05B64D]">
             立即加入 LINE <ArrowRight className="h-4 w-4" />
-          </a>
+          </button>
         </div>
         <LineQRCode className="mx-auto w-32 md:w-full" />
       </div>

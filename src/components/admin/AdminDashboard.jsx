@@ -134,6 +134,7 @@ function AdminShell({ route, go, children }) {
     { path: "/admin/partners", label: "合作夥伴" },
     { path: "/admin/news", label: "公告" },
     { path: "/admin/gallery", label: "精彩剪影" },
+    { path: "/admin/assessments", label: "評估報告" },
   ];
   return (
     <main className="px-5 py-10 md:px-8">
@@ -438,6 +439,112 @@ function GalleryAdmin() {
   );
 }
 
+function AssessmentsAdmin() {
+  const { items, loading, error } = useAdminTable("assessment_reports");
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return items;
+    const q = search.trim().toLowerCase();
+    return items.filter(
+      (item) =>
+        item.id?.toLowerCase().startsWith(q) ||
+        item.id?.toLowerCase().includes(q)
+    );
+  }, [items, search]);
+
+  return (
+    <div className="grid gap-5">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-[#123828]">派森評估報告</h2>
+          <p className="mt-1 text-sm text-[#8B7A4C]">顯示最新 50 筆，可依報告編號搜尋。此頁面唯讀，不提供刪除與修改。</p>
+        </div>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="輸入報告編號搜尋..."
+          className={inputClass + " max-w-xs"}
+        />
+      </div>
+
+      {loading && <AdminNotice>評估報告載入中...</AdminNotice>}
+      {error && <AdminNotice type="error">評估報告讀取失敗：{error}</AdminNotice>}
+
+      {!loading && !error && (
+        <div className="overflow-x-auto rounded-2xl border border-[#E7DDBF] bg-white/80">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#E7DDBF] text-left text-[#8B7A4C]">
+                <th className="px-5 py-4 font-semibold">報告編號</th>
+                <th className="px-5 py-4 font-semibold">建立時間</th>
+                <th className="px-5 py-4 font-semibold">年齡 / 性別</th>
+                <th className="px-5 py-4 font-semibold">發炎等級</th>
+                <th className="px-5 py-4 font-semibold">總分</th>
+                <th className="px-5 py-4 font-semibold">推薦飲品</th>
+                <th className="px-5 py-4 font-semibold">已加入 LINE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-5 py-8 text-center text-[#8B7A4C]">
+                    {search ? "找不到符合的報告。" : "目前沒有評估報告。"}
+                  </td>
+                </tr>
+              )}
+              {filtered.map((item) => (
+                <tr key={item.id} className="border-b border-[#F0EDE5] transition hover:bg-[#FDFBF6]">
+                  <td className="px-5 py-4">
+                    <span className="font-mono font-semibold text-[#123828]">
+                      {item.id?.slice(0, 8).toUpperCase()}
+                    </span>
+                    <span className="ml-2 text-xs text-[#8B7A4C]">{item.id?.slice(8, 16)}</span>
+                  </td>
+                  <td className="px-5 py-4 text-[#49675A]">
+                    {item.created_at
+                      ? new Date(item.created_at).toLocaleString("zh-TW", {
+                          month: "2-digit", day: "2-digit",
+                          hour: "2-digit", minute: "2-digit",
+                        })
+                      : "—"}
+                  </td>
+                  <td className="px-5 py-4 text-[#49675A]">
+                    {item.age_group || "—"}／{item.gender || "—"}
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      item.inflammation_level === "健康綠燈" ? "bg-[#DDEEDB] text-[#1E6B43]"
+                      : item.inflammation_level === "輕度發炎" ? "bg-[#F8E6AD] text-[#7B6229]"
+                      : item.inflammation_level === "中度發炎" ? "bg-[#F5DDE2] text-[#AA3F57]"
+                      : "bg-[#E7DDF6] text-[#65439A]"
+                    }`}>
+                      {item.inflammation_level || "—"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 font-semibold text-[#123828]">{item.total_score ?? "—"}</td>
+                  <td className="px-5 py-4 text-[#49675A]">
+                    {Array.isArray(item.recommended_products)
+                      ? item.recommended_products.join("、")
+                      : "—"}
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      item.has_joined_line ? "bg-[#DDEEDB] text-[#1E6B43]" : "bg-[#F0EDE5] text-[#8B7A4C]"
+                    }`}>
+                      {item.has_joined_line ? "已加入" : "未加入"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard({ route, go }) {
   const [unlocked, setUnlocked] = useState(() => window.sessionStorage.getItem("phytologic_admin_unlocked") === "true");
 
@@ -447,7 +554,9 @@ export default function AdminDashboard({ route, go }) {
     ? <AnnouncementsAdmin />
     : route === "/admin/gallery"
       ? <GalleryAdmin />
-      : <PartnersAdmin />;
+      : route === "/admin/assessments"
+        ? <AssessmentsAdmin />
+        : <PartnersAdmin />;
 
   return <AdminShell route={route === "/admin" ? "/admin/partners" : route} go={go}>{page}</AdminShell>;
 }

@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const allowedTables = new Set(["partners", "announcements", "gallery_items"]);
+const allowedTables = new Set(["partners", "announcements", "gallery_items", "assessment_reports"]);
 
 function getAdminClient() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -42,14 +42,20 @@ export default async function handler(req, res) {
   try {
     if (action === "list") {
       const target = sanitizeTable(table);
-      const order = target === "partners" ? "created_at" : "created_at";
-      const { data, error } = await supabase.from(target).select("*").order(order, { ascending: false, nullsFirst: false });
+      const { data, error } = await supabase
+        .from(target)
+        .select("*")
+        .order("created_at", { ascending: false, nullsFirst: false })
+        .limit(target === "assessment_reports" ? 50 : 500);
       if (error) throw error;
       return res.status(200).json({ data });
     }
 
     if (action === "insert") {
       const target = sanitizeTable(table);
+      if (target === "assessment_reports") {
+        return res.status(403).json({ error: "assessment_reports 不允許從後台寫入或刪除。" });
+      }
       const { data, error } = await supabase.from(target).insert(payload).select("*").single();
       if (error) throw error;
       return res.status(200).json({ data });
@@ -57,6 +63,9 @@ export default async function handler(req, res) {
 
     if (action === "update") {
       const target = sanitizeTable(table);
+      if (target === "assessment_reports") {
+        return res.status(403).json({ error: "assessment_reports 不允許從後台寫入或刪除。" });
+      }
       const { data, error } = await supabase.from(target).update(payload).eq("id", id).select("*").single();
       if (error) throw error;
       return res.status(200).json({ data });
@@ -64,6 +73,9 @@ export default async function handler(req, res) {
 
     if (action === "delete") {
       const target = sanitizeTable(table);
+      if (target === "assessment_reports") {
+        return res.status(403).json({ error: "assessment_reports 不允許從後台寫入或刪除。" });
+      }
       const { error } = await supabase.from(target).delete().eq("id", id);
       if (error) throw error;
       return res.status(200).json({ data: { id } });

@@ -22,10 +22,10 @@ import HealthAssessment from "./components/HealthAssessment";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import FloatingLineButton from "./components/line/FloatingLineButton";
 import LineQRCode from "./components/line/LineQRCode";
+import { handleOpenLine } from "./components/line/lineConfig";
 import { isSupabaseConfigured, supabase, supabaseConfigMessage } from "./lib/supabase";
 
 const logo = "/logo.png";
-const lineUrl = import.meta.env.VITE_LINE_OA_URL || import.meta.env.VITE_LINE_OFFICIAL_URL || import.meta.env.VITE_LINE_CTA_URL || "https://lin.ee/YpVA4C8";
 const lineId = "@phytologic";
 
 const products = [
@@ -172,7 +172,7 @@ function Header({ route, go }) {
         <nav className="hidden items-center gap-7 text-sm text-[#355548] lg:flex">
           {nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className={`transition hover:text-[#B89B5E] ${route === item.path ? "text-[#B89B5E]" : ""}`}>{item.label}</button>)}
         </nav>
-        <a href={lineUrl} target="_blank" rel="noreferrer" className="hidden rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#06C755]/15 transition hover:bg-[#05B64D] md:block">加入 LINE</a>
+        <button type="button" onClick={handleOpenLine} className="hidden rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#06C755]/15 transition hover:bg-[#05B64D] md:block">加入 LINE</button>
         <button type="button" className="lg:hidden" onClick={() => setMenuOpen((v) => !v)}>{menuOpen ? <X /> : <Menu />}</button>
       </div>
       {menuOpen && <div className="border-t border-[#E7DDBF] px-5 py-5 lg:hidden"><div className="grid gap-4">{nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className="text-left">{item.label}</button>)}</div></div>}
@@ -200,7 +200,7 @@ function HomePage({ go }) {
             <div className="mt-9 flex flex-wrap gap-4">
               <a href="#產品系列" className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white shadow-xl shadow-[#123828]/20 transition hover:bg-[#1E6B43]">探索產品系列</a>
               <button type="button" onClick={openPhysonIntro} className="rounded-full border border-[#B89B5E] bg-white/70 px-7 py-4 font-medium text-[#123828] transition hover:bg-white">了解派森</button>
-              <a href={lineUrl} target="_blank" rel="noreferrer" className="rounded-full border border-[#06C755] bg-white/75 px-7 py-4 font-semibold text-[#087E3A] transition hover:bg-white">立即加入 LINE</a>
+              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#06C755] bg-white/75 px-7 py-4 font-semibold text-[#087E3A] transition hover:bg-white">立即加入 LINE</button>
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.1 }} className="relative">
@@ -569,7 +569,7 @@ function Footer({ go }) {
           <div>
             <div className="text-sm text-[#8B7A4C]">官方 LINE</div>
             <div className="mt-1 font-semibold text-[#123828]">{lineId}</div>
-            <a href={lineUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white">立即加入 LINE</a>
+            <button type="button" onClick={handleOpenLine} className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white">立即加入 LINE</button>
           </div>
         </div>
       </div>
