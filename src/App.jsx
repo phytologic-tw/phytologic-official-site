@@ -143,6 +143,119 @@ const products = [
   },
 ];
 
+const productCards = [
+  {
+    id: "white",
+    name: "雪山植萃",
+    english: "Pearl White",
+    colorName: "珍珠白",
+    theme: "修復、滋養、抗發炎",
+    icon: Sparkles,
+    accent: "#EEE6D8",
+    deep: "#9D8360",
+    formula: "山藥、蘋果、白木耳、生核桃等天然蔬果穀物組成。",
+    desc: "熬夜疲勞、腸胃敏感與身體修復時的溫和滋養。",
+    tags: ["熬夜疲勞", "腸胃敏感", "身體修復"],
+    aiHint: "派森 AI 會在睡眠、壓力、腸胃敏感與修復需求偏高時，優先把雪山植萃列為溫和支持選項。",
+    sections: [
+      { title: "適合族群", text: "適合熬夜族、壓力疲勞明顯、腸胃容易敏感，或希望用低刺激植物配方照顧日常狀態的人。" },
+      { title: "核心食材", text: "以山藥、蘋果、白木耳、生核桃等天然蔬果穀物建立溫潤基底，提供植物多醣、纖維與堅果油脂線索。" },
+      { title: "機能說明", text: "重點放在抗發炎支持、腸胃修復與溫和滋養，讓身體在疲勞與敏感狀態下回到穩定節奏。" },
+      { title: "飲用情境", text: "適合早晨狀態不穩、熬夜隔天、壓力後恢復，或想用一杯溫和植物飲作為日常保養時飲用。" },
+      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到睡眠、壓力、免疫或消化訊號較高時，會將此配方作為修復與穩定的推薦方向。" },
+      { title: "研究資料入口", text: "完整營養學、植化素與相關科學邏輯，請由研究資料入口集中閱讀，不在首頁一次鋪陳。" },
+    ],
+  },
+  {
+    id: "green",
+    name: "青檸植萃",
+    english: "Emerald Green",
+    colorName: "翡翠綠",
+    theme: "代謝、循環、體內環保",
+    icon: Leaf,
+    accent: "#DDE8D5",
+    deep: "#2F6E4E",
+    formula: "地瓜葉、青江菜、黑木耳、芭樂、檸檬等天然蔬果組成。",
+    desc: "代謝卡卡、外食負擔與排除需求的清爽植物支持。",
+    tags: ["代謝卡卡", "外食族", "排除負擔"],
+    aiHint: "派森 AI 會在腸胃、代謝、外食頻率與身體沉重感訊號偏高時，優先考慮青檸植萃。",
+    sections: [
+      { title: "適合族群", text: "適合外食族、久坐上班族、排便節奏不固定、常覺得身體沉重，或想建立每日體內環保習慣的人。" },
+      { title: "核心食材", text: "以地瓜葉、青江菜、黑木耳、芭樂、檸檬等天然蔬果組成，補上深綠植萃與膳食纖維線索。" },
+      { title: "機能說明", text: "重點放在膳食纖維、促進腸胃蠕動與代謝排除，支持高油、高鹽與外食生活後的清爽感。" },
+      { title: "飲用情境", text: "適合外食隔天、久坐後、身體覺得悶重，或需要讓消化節奏回到輕盈狀態時飲用。" },
+      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到消化、代謝、水腫或外食相關訊號較高時，會推薦此配方作為清理型支持。" },
+      { title: "研究資料入口", text: "膳食纖維、植化素、SGS 模擬與更完整科學邏輯，統一收進研究資料入口。" },
+    ],
+  },
+  {
+    id: "rose",
+    name: "玫瑰植萃",
+    english: "Rose Red",
+    colorName: "玫瑰紅",
+    theme: "氣色、膠原、女性保養",
+    icon: Heart,
+    accent: "#EAD4D8",
+    deep: "#A64F61",
+    formula: "甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等天然蔬果組成。",
+    desc: "好氣色、抗氧化與肌膚彈性的女性日常保養。",
+    tags: ["好氣色", "抗氧化", "肌膚彈性"],
+    aiHint: "派森 AI 會在氣色、抗氧化、女性保養與膠原生成支持需求出現時，推薦玫瑰植萃。",
+    sections: [
+      { title: "適合族群", text: "適合重視氣色管理、女性保養、肌膚光澤、日常抗氧化與外在狀態的人。" },
+      { title: "核心食材", text: "以甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等天然蔬果組成，提供紅紫色植化素與維生素 C 線索。" },
+      { title: "機能說明", text: "重點放在維生素 C、膠原蛋白生成支持與紅潤氣色，讓保養更接近日常飲食。" },
+      { title: "飲用情境", text: "適合重要場合前、忙碌工作日、肌膚狀態需要維持，或想把保養變成每日儀式時飲用。" },
+      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到氣色、女性保養、抗氧化或美感機能需求時，會把此配方列為推薦。" },
+      { title: "研究資料入口", text: "維生素 C、花青素與膠原生成相關科學資料，集中於研究資料入口閱讀。" },
+    ],
+  },
+  {
+    id: "gold",
+    name: "桂香植萃",
+    english: "Golden Osmanthus",
+    colorName: "金鑽黃",
+    theme: "力量、運動、增肌修復",
+    icon: Dumbbell,
+    accent: "#EDE0B4",
+    deep: "#A57921",
+    formula: "甜玉米、香蕉、紅蘿蔔、百香果、新鮮薑黃等天然蔬果組成。",
+    desc: "運動恢復、肌肉修復與能量補給的金色植物系統。",
+    tags: ["運動恢復", "肌肉修復", "能量補給"],
+    aiHint: "派森 AI 會在肌肉、運動恢復、能量代謝與體能消耗訊號偏高時，推薦桂香植萃。",
+    sections: [
+      { title: "適合族群", text: "適合規律運動者、訓練後需要補給的人、體能消耗大、久站外勤，或想兼顧增肌修復與能量管理的人。" },
+      { title: "核心食材", text: "以甜玉米、香蕉、紅蘿蔔、百香果、新鮮薑黃等天然蔬果組成，建立金色能量與抗氧化線索。" },
+      { title: "機能說明", text: "重點放在運動修復、蛋白質利用與抗氧化支持，讓訓練後補給更乾淨、日常化。" },
+      { title: "飲用情境", text: "適合運動後、久站外勤後、體能消耗大的一天，或需要溫和能量補給時飲用。" },
+      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到肌肉緊繃、運動恢復、體力消耗或能量代謝訊號時，會推薦此配方。" },
+      { title: "研究資料入口", text: "薑黃、抗氧化與運動修復相關研究資料，集中於研究資料入口閱讀。" },
+    ],
+  },
+  {
+    id: "purple",
+    name: "紫莓植萃",
+    english: "Crystal Purple",
+    colorName: "水晶紫",
+    theme: "護眼、專注、抗氧化",
+    icon: Eye,
+    accent: "#DED6E9",
+    deep: "#69528E",
+    formula: "木鱉果、紫薯、藍莓、桑椹、紫色高麗菜等天然蔬果組成。",
+    desc: "3C 用眼、眼睛疲勞與視覺保養的紫色抗氧化支持。",
+    tags: ["3C 用眼", "眼睛疲勞", "視覺保養"],
+    aiHint: "派森 AI 會在眼睛疲勞、長時間螢幕使用與抗氧化需求偏高時，推薦紫莓植萃。",
+    sections: [
+      { title: "適合族群", text: "適合 3C 族群、長時間盯螢幕、夜間工作、閱讀量大、眼睛容易乾澀疲勞，或希望維持視覺節奏的人。" },
+      { title: "核心食材", text: "以木鱉果、紫薯、藍莓、桑椹、紫色高麗菜等天然蔬果組成，結合紫色植萃與類胡蘿蔔素線索。" },
+      { title: "機能說明", text: "重點放在花青素、類胡蘿蔔素與護眼抗氧化，支持長時間用眼後的日常保養。" },
+      { title: "飲用情境", text: "適合長時間使用手機與電腦後、閱讀或工作量大的一天，或需要專注與視覺保養時飲用。" },
+      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到眼睛疲勞、螢幕使用、睡眠不足或抗氧化需求時，會推薦此配方。" },
+      { title: "研究資料入口", text: "花青素、類胡蘿蔔素與視覺保養相關科學資料，集中於研究資料入口閱讀。" },
+    ],
+  },
+];
+
 const colorStories = [
   { color: "珍珠白", title: "保持清楚與清醒", text: "希望未來有一天，還能把自己這一輩子學到的東西，好好地分享給孩子。", card: "#F7F1E7", border: "#FFFFFF", textColor: "#2C4739", muted: "#61756A", number: "#A98E61" },
   { color: "翡翠綠", title: "吃得下，才活得好", text: "代謝與腸胃，是一切修復真正的起點。", card: "#DDEEDB", border: "#BFDABC", textColor: "#123828", muted: "#3E6350", number: "#1E6B43" },
@@ -235,45 +348,36 @@ function ProductSections({ product, compact = false }) {
   );
 }
 
-function ProductSystemCard({ product }) {
+function ProductSystemCard({ product, onMore }) {
   const Icon = product.icon;
   return (
-    <article className="overflow-hidden rounded-[2rem] border border-white/75 bg-white/60 shadow-xl shadow-[#123828]/8 backdrop-blur" style={{ background: `linear-gradient(145deg, rgba(255,255,255,.78), ${product.accent}CC)` }}>
-      <div className="p-6 md:p-7">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg" style={{ backgroundColor: product.deep }}>
-              <Icon className="h-7 w-7" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8B7A4C]">{product.colorName}｜{product.english}</div>
-              <h3 className="mt-2 text-3xl font-semibold text-[#123828]">{product.name}</h3>
-              <p className="mt-2 text-sm font-medium text-[#49675A]">{product.theme}</p>
-            </div>
-          </div>
-          <ProductMetric product={product} />
+    <article className="group flex min-h-[460px] flex-col rounded-[1.5rem] border border-white/80 bg-white/72 p-6 shadow-sm shadow-[#123828]/5 backdrop-blur transition hover:-translate-y-1 hover:shadow-xl hover:shadow-[#123828]/10 md:p-7" style={{ background: `linear-gradient(145deg, rgba(255,255,255,.86), ${product.accent}88)` }}>
+      <div className="flex items-start justify-between gap-5">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8B7A4C]">{product.colorName}｜{product.english}</div>
+          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#123828]">{product.name}</h3>
         </div>
-
-        <div className="mt-6 rounded-2xl border border-white/70 bg-[#123828]/90 p-5 text-white shadow-lg">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#D8C99C]"><FlaskConical className="h-4 w-4" /> AI FUNCTION MAP</div>
-          <p className="mt-3 text-sm leading-7 text-white/82">{product.formula}</p>
-        </div>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {product.tags.map((tag) => <span key={tag} className="rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#355548] shadow-sm">{tag}</span>)}
-        </div>
-
-        <div className="mt-5 hidden md:block">
-          <ProductSections product={product} />
-        </div>
-        <div className="mt-5 md:hidden">
-          <ProductSections product={product} compact />
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-[#D8C99C]/70 bg-white/70 p-4 text-sm leading-7 text-[#49675A]">
-          <span className="font-semibold text-[#123828]">AI 推薦提示：</span>{product.aiHint}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg" style={{ backgroundColor: product.deep }}>
+          <Icon className="h-6 w-6" />
         </div>
       </div>
+
+      <p className="mt-6 text-lg font-medium leading-8 text-[#123828]">{product.theme}</p>
+      <p className="mt-3 text-sm leading-7 text-[#49675A]">{product.desc}</p>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        {product.tags.map((tag) => <span key={tag} className="rounded-full border border-white/90 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#355548] shadow-sm">{tag}</span>)}
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-white/80 bg-white/72 p-4">
+        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B7A4C]">核心食材</div>
+        <p className="mt-2 text-sm leading-7 text-[#49675A]">{product.formula}</p>
+      </div>
+
+      <button type="button" onClick={() => onMore(product)} className="mt-auto inline-flex w-full items-center justify-between rounded-full bg-[#123828] px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#123828]/12 transition hover:bg-[#1E6B43]">
+        了解更多
+        <ArrowRight className="h-4 w-4" />
+      </button>
     </article>
   );
 }
@@ -326,11 +430,11 @@ function Header({ route, go }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const nav = [
     { label: "首頁", path: "/" },
-    { label: "品牌理念", path: "/#品牌理念" },
-    { label: "產品系列", path: "/#產品系列" },
-    { label: "派森", path: "/#physon" },
+    { label: "品牌理念", path: "/#brand" },
+    { label: "產品系列", path: "/#products" },
+    { label: "派森", path: "/#assessment" },
     { label: "最新消息", path: "/#最新消息" },
-    { label: "合作加盟", path: "/#合作加盟" },
+    { label: "合作加盟", path: "/#partner" },
     { label: "合作夥伴", path: "/partners" },
   ];
   const handleNav = (item) => {
@@ -364,15 +468,19 @@ function Header({ route, go }) {
 }
 
 function HomePage({ go }) {
-  const [activeProduct, setActiveProduct] = useState(products[1]);
-  const [detailOpen, setDetailOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState(null);
   const [infoModal, setInfoModal] = useState(null);
   const [formSent, setFormSent] = useState(false);
   const [contactStatus, setContactStatus] = useState("idle");
   const [contactNotice, setContactNotice] = useState("");
   const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", type: "合作類型", message: "" });
-  const ActiveIcon = activeProduct.icon;
-  const gradient = useMemo(() => ({ background: `radial-gradient(circle at 72% 25%, ${activeProduct.accent} 0%, rgba(255,255,255,.88) 34%, #F9F5EA 78%)` }), [activeProduct]);
+  const heroLinks = [
+    { label: "品牌精神", target: "brand" },
+    { label: "全植物機能飲", target: "products" },
+    { label: "派森健康分析", target: "assessment" },
+    { label: "合作募集", target: "partner" },
+  ];
+  const scrollToSection = (target) => document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const openPhysonIntro = () => setInfoModal({ eyebrow: "PHYSON SYSTEM", title: "派森｜AI健康系統", text: "派森不是單純的AI聊天工具，而是植本邏輯建立的健康陪伴系統。它會透過生活型態、身體反應、飲用紀錄與健康目標，建立個人化植物機能建議，並透過LINE每日陪伴、提醒與回訪，讓健康真正融入生活。" });
   const updateContact = (field, value) => setContactForm((prev) => ({ ...prev, [field]: value }));
   const submitContact = async (event) => {
@@ -398,34 +506,34 @@ function HomePage({ go }) {
 
   return (
     <main>
-      <section className="relative overflow-hidden px-5 py-20 md:px-8 md:py-28" style={gradient}>
-        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.08fr_.92fr]">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#D8C99C] bg-white/70 px-4 py-2 text-sm text-[#6C5A2F] shadow-sm"><ShieldCheck className="h-4 w-4" /> 熱愛・尊重・相信</div>
-            <h1 className="text-5xl font-semibold leading-tight tracking-tight md:text-7xl">全植物機能飲<br />× AI健康系統</h1>
-            <p className="mt-7 max-w-2xl text-xl leading-9 text-[#49675A]">我們不是在販售飲料，而是用自然、科學與愛，守護人生裡真正重要的人。</p>
-            <div className="mt-9 flex flex-wrap gap-4">
-              <a href="#產品系列" className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white shadow-xl shadow-[#123828]/20 transition hover:bg-[#1E6B43]">探索產品系列</a>
-              <button type="button" onClick={openPhysonIntro} className="rounded-full border border-[#B89B5E] bg-white/70 px-7 py-4 font-medium text-[#123828] transition hover:bg-white">了解派森</button>
-              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#06C755] bg-white/75 px-7 py-4 font-semibold text-[#087E3A] transition hover:bg-white">立即加入 LINE</button>
-            </div>
+      <section className="relative overflow-hidden bg-[#F8F3E8] px-5 py-16 md:px-8 md:py-24">
+        <div className="mx-auto flex min-h-[calc(100svh-88px)] max-w-4xl flex-col justify-center">
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
+            <img src={logo} alt="植本邏輯 Logo" className="mx-auto h-16 w-16 object-contain" />
+            <p className="mt-7 text-xs font-semibold uppercase tracking-[0.34em] text-[#B89B5E]">PHYTOLOGIC</p>
+            <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-[#123828] md:text-6xl">
+              讓每一個人活得久，<br />還要活得好精彩。
+            </h1>
+            <p className="mt-6 text-base font-medium tracking-[0.08em] text-[#49675A] md:text-xl">全植物機能飲 × 派森健康分析</p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.1 }} className="relative">
-            <div className="absolute -inset-8 rounded-[3rem] bg-white/35 blur-2xl" />
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/55 p-7 shadow-2xl shadow-[#123828]/10 backdrop-blur">
-              <div className="flex items-center justify-between"><img src={logo} alt="植本邏輯 Logo" className="h-16 w-16 object-contain" /><div className="text-right text-sm tracking-[0.3em] text-[#B89B5E]">PHYTOLOGIC</div></div>
-              <div className="mt-16 grid grid-cols-5 gap-3">{products.map((p) => <button key={p.id} type="button" onClick={() => setActiveProduct(p)} className="h-32 rounded-full border border-white/70 shadow-lg transition hover:-translate-y-1" style={{ background: `linear-gradient(180deg, ${p.accent}, ${p.deep})` }} title={p.name} />)}</div>
-              <button type="button" onClick={() => setDetailOpen(true)} className="mt-10 w-full rounded-[2rem] bg-[#123828] p-7 text-left text-white shadow-xl shadow-[#123828]/15 transition hover:-translate-y-1">
-                <div className="flex items-center gap-4"><div className="rounded-2xl bg-white/10 p-3"><ActiveIcon /></div><div><div className="text-2xl font-semibold">{activeProduct.name}</div><div className="text-sm text-white/60">{activeProduct.theme}</div></div></div>
-                <p className="mt-5 leading-7 text-white/80">{activeProduct.desc}</p>
-                <div className="mt-5 inline-flex items-center gap-2 text-sm text-[#D8C99C]">點擊查看完整機能內容 <ArrowRight className="h-4 w-4" /></div>
+
+          <div className="mx-auto mt-12 grid w-full max-w-md gap-3 md:max-w-3xl md:grid-cols-4">
+            {heroLinks.map((item) => (
+              <button key={item.target} type="button" onClick={() => scrollToSection(item.target)} className="group flex min-h-14 items-center justify-between rounded-full border border-[#D8C99C] bg-white/70 px-5 py-3 text-left text-sm font-semibold text-[#123828] shadow-sm transition hover:border-[#B89B5E] hover:bg-white md:min-h-20 md:flex-col md:items-start md:justify-center md:rounded-2xl">
+                {item.label}
+                <ArrowRight className="h-4 w-4 text-[#B89B5E] transition group-hover:translate-x-1 md:mt-3" />
               </button>
-            </div>
-          </motion.div>
+            ))}
+          </div>
+
+          <div className="mx-auto mt-8 flex flex-wrap justify-center gap-3">
+            <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#06C755] bg-white/75 px-6 py-3 text-sm font-semibold text-[#087E3A] transition hover:bg-white">加入 LINE</button>
+            <button type="button" onClick={openPhysonIntro} className="rounded-full border border-[#D8C99C] bg-white/60 px-6 py-3 text-sm font-semibold text-[#123828] transition hover:bg-white">了解派森</button>
+          </div>
         </div>
       </section>
 
-      <section id="品牌理念" className="px-5 py-20 md:px-8">
+      <section id="brand" className="px-5 py-20 md:px-8">
         <SectionTitle eyebrow="Brand Philosophy" title="六個家庭，重新理解健康之後的人生答案" text="植本邏輯不是從商業開始，而是從家庭、陪伴與健康開始。" />
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[3rem] border border-[#E7DDBF] bg-white/70 shadow-xl shadow-[#123828]/5">
           <div className="grid lg:grid-cols-[1.05fr_.95fr]">
@@ -487,24 +595,24 @@ function HomePage({ go }) {
         </div>
       </section>
 
-      <section id="產品系列" className="bg-white/45 px-5 py-20 md:px-8">
-        <SectionTitle eyebrow="Product System" title="植物機能系統展示" text="不是果汁，而是以代表植物、植化素、感官層次與派森 AI 推薦邏輯共同建立的高級機能飲品系統。" />
+      <section id="products" className="bg-white/45 px-5 py-20 md:px-8">
+        <SectionTitle eyebrow="Product System" title="全植物機能飲" text="先看見每一款配方的定位、關鍵字與核心食材；完整機能邏輯點開後再閱讀。" />
         <div className="mx-auto mb-10 grid max-w-7xl gap-4 rounded-[2rem] border border-[#E7DDBF] bg-[#123828] p-5 text-white shadow-xl shadow-[#123828]/10 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D8C99C]">PLANT FUNCTION DASHBOARD</div>
-            <p className="mt-3 max-w-3xl leading-8 text-white/75">五款配方皆以「代表植物＋總植物數量」呈現，讓消費者清楚理解每一杯都是植物機能系統，不是單純調味果汁。</p>
+            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D8C99C]">PLANT MENU</div>
+            <p className="mt-3 max-w-3xl leading-8 text-white/75">五款配方以高端品牌選單呈現，首頁保留產品介紹，但將長篇營養學與研究資料收進展開內容。</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Pill>純天然無化學添加</Pill>
             <Pill>AI 推薦線索</Pill>
           </div>
         </div>
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
-          {products.map((product) => <ProductSystemCard key={product.id} product={product} />)}
+        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-5">
+          {productCards.map((product) => <ProductSystemCard key={product.id} product={product} onMore={setActiveProduct} />)}
         </div>
       </section>
 
-      <section id="physon" className="bg-[#F5F2EB] px-5 py-20 md:px-8">
+      <section id="assessment" className="bg-[#F5F2EB] px-5 py-20 md:px-8">
         <HealthAssessment />
       </section>
 
@@ -526,7 +634,7 @@ function HomePage({ go }) {
         </div>
       </section>
 
-      <section id="合作加盟" className="px-5 py-20 md:px-8">
+      <section id="partner" className="px-5 py-20 md:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 rounded-[3rem] bg-[#123828] p-8 text-white md:p-12 lg:grid-cols-[1fr_.9fr] lg:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.35em] text-[#D8C99C]">Partnership</p>
@@ -562,7 +670,7 @@ function HomePage({ go }) {
       </section>
 
       {infoModal && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setInfoModal(null)}><div onClick={(event) => event.stopPropagation()} className="w-full max-w-2xl rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-8 shadow-2xl"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.25em] text-[#B89B5E]">{infoModal.eyebrow}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{infoModal.title}</h3></div><button type="button" onClick={() => setInfoModal(null)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><p className="mt-8 rounded-[2rem] bg-white/70 p-7 text-lg leading-9 text-[#49675A]">{infoModal.text}</p><button type="button" onClick={() => setInfoModal(null)} className="mt-7 rounded-full bg-[#123828] px-7 py-4 font-medium text-white">我知道了</button></div></div>}
-      {detailOpen && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setDetailOpen(false)}><div onClick={(event) => event.stopPropagation()} className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-6 shadow-2xl md:p-8"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.32em] text-[#B89B5E]">{activeProduct.colorName}｜{activeProduct.english}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{activeProduct.name}</h3><p className="mt-3 text-lg text-[#49675A]">{activeProduct.theme}</p></div><button type="button" onClick={() => setDetailOpen(false)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><div className="mt-6"><ProductSystemCard product={activeProduct} /></div><div className="mt-8 flex flex-wrap gap-3"><a href="#聯絡我們" onClick={() => setDetailOpen(false)} className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white">預約試飲 / 洽詢</a><button type="button" onClick={() => setDetailOpen(false)} className="rounded-full border border-[#B89B5E] px-7 py-4 font-medium text-[#123828]">關閉</button></div></div></div>}
+      {activeProduct && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setActiveProduct(null)}><div onClick={(event) => event.stopPropagation()} className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-6 shadow-2xl md:p-8"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.32em] text-[#B89B5E]">{activeProduct.colorName}｜{activeProduct.english}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{activeProduct.name}</h3><p className="mt-3 text-lg text-[#49675A]">{activeProduct.theme}</p></div><button type="button" onClick={() => setActiveProduct(null)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><div className="mt-7 grid gap-4 md:grid-cols-2">{activeProduct.sections.map((section) => <section key={section.title} className="rounded-2xl border border-white/80 bg-white/70 p-5 shadow-sm"><h4 className="text-base font-semibold text-[#123828]">{section.title}</h4><p className="mt-3 text-sm leading-7 text-[#49675A]">{section.text}</p></section>)}</div><div className="mt-6 rounded-2xl border border-[#D8C99C]/70 bg-white/70 p-5 text-sm leading-7 text-[#49675A]"><span className="font-semibold text-[#123828]">AI 推薦提示：</span>{activeProduct.aiHint}</div><div className="mt-8 flex flex-wrap gap-3"><a href="#聯絡我們" onClick={() => setActiveProduct(null)} className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white">預約試飲 / 洽詢</a><button type="button" onClick={() => setInfoModal({ eyebrow: "Science Logic", title: "更多科學邏輯", text: "首頁已將長篇營養學、SGS 模擬、植化素與醫學機制收斂為研究資料入口。後續可在專文或資料頁中完整補上研究脈絡。" })} className="rounded-full border border-[#B89B5E] bg-white/70 px-7 py-4 font-medium text-[#123828]">更多科學邏輯</button><button type="button" onClick={() => setActiveProduct(null)} className="rounded-full border border-[#B89B5E] px-7 py-4 font-medium text-[#123828]">關閉</button></div></div></div>}
     </main>
   );
 }
