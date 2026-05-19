@@ -382,6 +382,42 @@ function ProductSystemCard({ product, onMore }) {
   );
 }
 
+const productSlugs = {
+  white: "snow",
+  green: "lime",
+  rose: "rose",
+  gold: "gold",
+  purple: "purple",
+};
+
+const productBySlug = productCards.reduce((items, product) => ({
+  ...items,
+  [productSlugs[product.id]]: product,
+}), {});
+
+function ProductOverviewCard({ product, go }) {
+  const Icon = product.icon;
+  return (
+    <article className="flex min-h-[360px] flex-col rounded-[1.5rem] border border-white/80 bg-white/75 p-6 shadow-sm shadow-[#123828]/5 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-[#123828]/10" style={{ background: `linear-gradient(145deg, rgba(255,255,255,.9), ${product.accent}8C)` }}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8B7A4C]">{product.colorName}</p>
+          <h3 className="mt-3 text-3xl font-semibold text-[#123828]">{product.name}</h3>
+        </div>
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white" style={{ backgroundColor: product.deep }}>
+          <Icon className="h-6 w-6" />
+        </div>
+      </div>
+      <p className="mt-6 text-lg font-medium leading-8 text-[#123828]">{product.theme}</p>
+      <p className="mt-4 text-sm leading-7 text-[#49675A]">{product.formula}</p>
+      <button type="button" onClick={() => go(`/products/${productSlugs[product.id]}`)} className="mt-auto inline-flex items-center justify-between rounded-full bg-[#123828] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1E6B43]">
+        了解更多
+        <ArrowRight className="h-4 w-4" />
+      </button>
+    </article>
+  );
+}
+
 function useRoute() {
   const [route, setRoute] = useState(window.location.pathname);
   useEffect(() => {
@@ -429,21 +465,15 @@ function usePublished(table, order = "published_at") {
 function Header({ route, go }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const nav = [
-    { label: "首頁", path: "/" },
-    { label: "品牌理念", path: "/#brand" },
-    { label: "產品系列", path: "/#products" },
-    { label: "派森", path: "/#assessment" },
-    { label: "最新消息", path: "/#最新消息" },
-    { label: "合作加盟", path: "/#partner" },
-    { label: "合作夥伴", path: "/partners" },
+    { label: "品牌精神", path: "/about" },
+    { label: "全植物機能飲", path: "/products" },
+    { label: "派森健康分析", path: "/assessment" },
+    { label: "合作募集", path: "/join" },
+    { label: "最新消息", path: "/news" },
+    { label: "精彩剪影", path: "/gallery" },
   ];
   const handleNav = (item) => {
     setMenuOpen(false);
-    if (item.path.includes("#")) {
-      go("/");
-      window.setTimeout(() => document.querySelector(item.path.slice(1))?.scrollIntoView({ behavior: "smooth" }), 80);
-      return;
-    }
     go(item.path);
   };
   return (
@@ -468,20 +498,159 @@ function Header({ route, go }) {
 }
 
 function HomePage({ go }) {
-  const [activeProduct, setActiveProduct] = useState(null);
-  const [infoModal, setInfoModal] = useState(null);
+  const entries = [
+    { label: "品牌精神", path: "/about", text: "六個家庭、創辦故事與三好三無的品牌底層。" },
+    { label: "全植物機能飲", path: "/products", text: "五款全植物配方，以身體狀態作為選擇邏輯。" },
+    { label: "派森健康分析", path: "/assessment", text: "用 7 題快篩理解目前最需要被支持的狀態。" },
+    { label: "合作募集", path: "/join", text: "城市合作者、門市加盟、衛星據點與企業方案。" },
+  ];
+  return (
+    <main>
+      <section className="relative overflow-hidden bg-[#F8F3E8] px-5 py-16 md:px-8 md:py-24">
+        <div className="mx-auto flex min-h-[calc(100svh-88px)] max-w-5xl flex-col justify-center">
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
+            <img src={logo} alt="植本邏輯 Logo" className="mx-auto h-20 w-20 object-contain" />
+            <p className="mt-7 text-xs font-semibold uppercase tracking-[0.34em] text-[#B89B5E]">PHYTOLOGIC</p>
+            <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-[#123828] md:text-6xl">全植物機能飲 × 派森健康系統</h1>
+            <p className="mt-6 text-lg leading-8 text-[#49675A] md:text-2xl">讓每一個人活得久，還要活得好精彩。</p>
+          </motion.div>
+          <div className="mt-12 grid gap-4 md:grid-cols-4">
+            {entries.map((entry) => (
+              <button key={entry.path} type="button" onClick={() => go(entry.path)} className="group rounded-2xl border border-[#D8C99C] bg-white/72 p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-[#B89B5E] hover:bg-white hover:shadow-xl hover:shadow-[#123828]/8">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl font-semibold text-[#123828]">{entry.label}</h2>
+                  <ArrowRight className="h-5 w-5 text-[#B89B5E] transition group-hover:translate-x-1" />
+                </div>
+                <p className="mt-4 text-sm leading-7 text-[#49675A]">{entry.text}</p>
+              </button>
+            ))}
+          </div>
+          <div className="mx-auto mt-10 max-w-2xl text-center">
+            <p className="text-sm leading-7 text-[#49675A]">植本邏輯以植物、營養與生活型態資料，建立一套能被日常持續的健康入口。</p>
+            <button type="button" onClick={handleOpenLine} className="mt-6 rounded-full bg-[#06C755] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-[#06C755]/15 transition hover:bg-[#05B64D]">加入官方 LINE</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function AboutPage() {
+  return (
+    <main className="px-5 py-16 md:px-8">
+      <SectionTitle eyebrow="Brand Philosophy" title="品牌精神" text="六個家庭，是植本邏輯重新理解健康之後的起點。" />
+      <section className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.05fr_.95fr]">
+        <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/75 p-8 shadow-sm md:p-12">
+          <p className="text-sm font-semibold tracking-[0.28em] text-[#B89B5E]">FOUNDER STORY</p>
+          <h2 className="mt-5 text-4xl font-semibold leading-tight text-[#123828]">從國際品牌經理人，到一位父親。</h2>
+          <div className="mt-7 space-y-5 text-base leading-8 text-[#49675A]">
+            <p>年輕時，我們總以為人生最重要的是成功、速度與規模。直到創辦人成為父親，健康才從抽象概念變成能不能陪孩子長大、陪家人旅行、陪愛的人慢慢變老的人生問題。</p>
+            <p>植本邏輯因此從六個家庭的真實願望出發，重新研究植物、營養、人體修復、東方藥食智慧與西方營養學。</p>
+            <p>真正重要的問題不是能不能賣，而是如果這是每天要給家人吃的東西，它應該長成什麼樣子。</p>
+          </div>
+        </div>
+        <div className="rounded-[2rem] bg-[#123828] p-8 text-white shadow-xl shadow-[#123828]/10 md:p-12">
+          <p className="text-sm font-semibold tracking-[0.28em] text-[#D8C99C]">CORE BELIEF</p>
+          <h2 className="mt-5 text-4xl font-semibold leading-tight">重視生命、尊重自然、相信邏輯。</h2>
+          <p className="mt-7 text-base leading-8 text-white/75">我們不是在販售飲料，而是在建立每天會進入身體、長期影響未來十年與二十年的食物系統。</p>
+          <div className="mt-8 flex flex-wrap gap-3"><Pill>重視生命</Pill><Pill>尊重自然</Pill><Pill>相信邏輯</Pill></div>
+        </div>
+      </section>
+      <section className="mx-auto mt-10 grid max-w-7xl gap-6 md:grid-cols-3">
+        {philosophyCards.map((card) => (
+          <article key={card.title} className="rounded-[1.5rem] border border-[#E2D5B5] bg-white/70 p-7 shadow-sm">
+            <h3 className="text-2xl font-semibold text-[#123828]">{card.title}</h3>
+            <p className="mt-4 leading-8 text-[#49675A]">{card.detail}</p>
+          </article>
+        ))}
+      </section>
+      <section className="mx-auto mt-10 grid max-w-7xl gap-6 lg:grid-cols-[.8fr_1.2fr]">
+        <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/75 p-8">
+          <img src={logo} alt="植本邏輯 Logo" className="h-24 w-24 object-contain" />
+          <h2 className="mt-6 text-3xl font-semibold text-[#123828]">品牌 LOGO 意義</h2>
+          <p className="mt-4 leading-8 text-[#49675A]">以植物為根、以邏輯為形，象徵自然食材、科學判斷與長期陪伴的交會。</p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {colorStories.slice(0, 3).map((story) => (
+            <article key={story.color} className="rounded-[1.5rem] border p-6" style={{ backgroundColor: story.card, borderColor: story.border, color: story.textColor }}>
+              <h3 className="text-2xl font-semibold">{story.color}</h3>
+              <p className="mt-3 font-medium">{story.title}</p>
+              <p className="mt-4 leading-7" style={{ color: story.muted }}>{story.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function ProductsPage({ go }) {
+  return (
+    <main className="px-5 py-16 md:px-8">
+      <SectionTitle eyebrow="Product System" title="全植物機能飲" text="先選擇產品，再進入完整介紹。產品總覽只保留核心定位與食材摘要。" />
+      <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-5">
+        {productCards.map((product) => <ProductOverviewCard key={product.id} product={product} go={go} />)}
+      </div>
+    </main>
+  );
+}
+
+function ProductDetailPage({ slug, go }) {
+  const product = productBySlug[slug];
+  if (!product) {
+    return (
+      <main className="px-5 py-20 text-center md:px-8">
+        <SectionTitle eyebrow="Product" title="找不到這款產品" text="請回到產品總覽重新選擇。" />
+        <button type="button" onClick={() => go("/products")} className="rounded-full bg-[#123828] px-7 py-4 font-semibold text-white">回產品總覽</button>
+      </main>
+    );
+  }
+  const Icon = product.icon;
+  return (
+    <main className="px-5 py-16 md:px-8">
+      <section className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.8fr_1.2fr]">
+        <div className="rounded-[2rem] border border-white/80 bg-white/75 p-8 shadow-sm" style={{ background: `linear-gradient(145deg, rgba(255,255,255,.9), ${product.accent}99)` }}>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl text-white" style={{ backgroundColor: product.deep }}><Icon className="h-8 w-8" /></div>
+          <p className="mt-7 text-sm font-semibold tracking-[0.28em] text-[#8B7A4C]">{product.colorName}｜{product.english}</p>
+          <h1 className="mt-3 text-5xl font-semibold text-[#123828]">{product.name}</h1>
+          <p className="mt-5 text-xl leading-9 text-[#49675A]">{product.theme}</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button type="button" onClick={() => go("/assessment")} className="rounded-full bg-[#123828] px-7 py-4 font-semibold text-white">開始派森分析</button>
+            <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#06C755] bg-white/75 px-7 py-4 font-semibold text-[#087E3A]">加入官方 LINE</button>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            ["核心定位", product.desc],
+            ["主要食材", product.formula],
+            ["適合族群", product.sections.find((section) => section.title === "適合族群")?.text],
+            ["營養邏輯", product.sections.find((section) => section.title === "機能說明")?.text],
+          ].map(([title, text]) => (
+            <article key={title} className="rounded-[1.5rem] border border-[#E7DDBF] bg-white/75 p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-[#123828]">{title}</h2>
+              <p className="mt-4 leading-8 text-[#49675A]">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function AssessmentPage() {
+  return (
+    <main className="bg-[#F5F2EB] px-5 py-16 md:px-8">
+      <HealthAssessment />
+    </main>
+  );
+}
+
+function JoinPage({ go }) {
+  const [formOpen, setFormOpen] = useState(false);
   const [formSent, setFormSent] = useState(false);
   const [contactStatus, setContactStatus] = useState("idle");
   const [contactNotice, setContactNotice] = useState("");
   const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", type: "合作類型", message: "" });
-  const heroLinks = [
-    { label: "品牌精神", target: "brand" },
-    { label: "全植物機能飲", target: "products" },
-    { label: "派森健康分析", target: "assessment" },
-    { label: "合作募集", target: "partner" },
-  ];
-  const scrollToSection = (target) => document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const openPhysonIntro = () => setInfoModal({ eyebrow: "PHYSON SYSTEM", title: "派森｜AI健康系統", text: "派森不是單純的AI聊天工具，而是植本邏輯建立的健康陪伴系統。它會透過生活型態、身體反應、飲用紀錄與健康目標，建立個人化植物機能建議，並透過LINE每日陪伴、提醒與回訪，讓健康真正融入生活。" });
   const updateContact = (field, value) => setContactForm((prev) => ({ ...prev, [field]: value }));
   const submitContact = async (event) => {
     event.preventDefault();
@@ -503,174 +672,44 @@ function HomePage({ go }) {
       setContactNotice(`送出失敗：${requestError.message}`);
     }
   };
-
   return (
-    <main>
-      <section className="relative overflow-hidden bg-[#F8F3E8] px-5 py-16 md:px-8 md:py-24">
-        <div className="mx-auto flex min-h-[calc(100svh-88px)] max-w-4xl flex-col justify-center">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
-            <img src={logo} alt="植本邏輯 Logo" className="mx-auto h-16 w-16 object-contain" />
-            <p className="mt-7 text-xs font-semibold uppercase tracking-[0.34em] text-[#B89B5E]">PHYTOLOGIC</p>
-            <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-[#123828] md:text-6xl">
-              讓每一個人活得久，<br />還要活得好精彩。
-            </h1>
-            <p className="mt-6 text-base font-medium tracking-[0.08em] text-[#49675A] md:text-xl">全植物機能飲 × 派森健康分析</p>
-          </motion.div>
-
-          <div className="mx-auto mt-12 grid w-full max-w-md gap-3 md:max-w-3xl md:grid-cols-4">
-            {heroLinks.map((item) => (
-              <button key={item.target} type="button" onClick={() => scrollToSection(item.target)} className="group flex min-h-14 items-center justify-between rounded-full border border-[#D8C99C] bg-white/70 px-5 py-3 text-left text-sm font-semibold text-[#123828] shadow-sm transition hover:border-[#B89B5E] hover:bg-white md:min-h-20 md:flex-col md:items-start md:justify-center md:rounded-2xl">
-                {item.label}
-                <ArrowRight className="h-4 w-4 text-[#B89B5E] transition group-hover:translate-x-1 md:mt-3" />
-              </button>
+    <main className="px-5 py-16 md:px-8">
+      <SectionTitle eyebrow="Partnership" title="合作募集" text="一起把全植物機能飲與派森健康分析帶進更多城市與日常生活。" />
+      <section className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_.9fr]">
+        <div className="rounded-[2rem] bg-[#123828] p-8 text-white md:p-12">
+          <h2 className="text-4xl font-semibold leading-tight">合作理念</h2>
+          <p className="mt-6 text-lg leading-9 text-white/75">我們尋找的不是只想賣產品的人，而是願意一起推動植物機能、健康教育與長期會員陪伴的城市夥伴。</p>
+          <div className="mt-8 flex flex-wrap gap-3"><Pill>城市合作者</Pill><Pill>門市加盟</Pill><Pill>衛星據點</Pill><Pill>企業健康方案</Pill></div>
+        </div>
+        <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/75 p-8 shadow-sm">
+          <h2 className="text-3xl font-semibold text-[#123828]">合作流程</h2>
+          <ol className="mt-6 grid gap-4 text-[#49675A]">
+            {["提交合作需求", "品牌團隊初步洽談", "確認合作模式與城市條件", "導入產品、LINE 與派森服務", "展開試飲與會員經營"].map((item, index) => (
+              <li key={item} className="rounded-2xl bg-[#F9F5EA] p-4"><span className="font-semibold text-[#B89B5E]">0{index + 1}</span> {item}</li>
             ))}
-          </div>
-
-          <div className="mx-auto mt-8 flex flex-wrap justify-center gap-3">
-            <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#06C755] bg-white/75 px-6 py-3 text-sm font-semibold text-[#087E3A] transition hover:bg-white">加入 LINE</button>
-            <button type="button" onClick={openPhysonIntro} className="rounded-full border border-[#D8C99C] bg-white/60 px-6 py-3 text-sm font-semibold text-[#123828] transition hover:bg-white">了解派森</button>
-          </div>
+          </ol>
         </div>
       </section>
-
-      <section id="brand" className="px-5 py-20 md:px-8">
-        <SectionTitle eyebrow="Brand Philosophy" title="六個家庭，重新理解健康之後的人生答案" text="植本邏輯不是從商業開始，而是從家庭、陪伴與健康開始。" />
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-[3rem] border border-[#E7DDBF] bg-white/70 shadow-xl shadow-[#123828]/5">
-          <div className="grid lg:grid-cols-[1.05fr_.95fr]">
-            <div className="p-8 md:p-14">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#D8C99C] bg-[#F9F5EA] px-4 py-2 text-sm text-[#8B7A4C]">從國際品牌經理人，到一位父親</div>
-              <h3 className="mt-8 text-4xl font-semibold leading-tight text-[#123828] md:text-5xl">有些事情，年輕時不會明白。</h3>
-              <div className="mt-8 space-y-6 text-lg leading-9 text-[#49675A]">
-                <p>年輕的時候，我們總以為人生最重要的是成功、速度、成績與規模。我們熬夜、應酬、壓力、失眠，把青春與身體投入高速運轉的世界。</p>
-                <p>科技讓文明進步了，但人類卻離健康越來越遠。每天長時間盯著螢幕、吃著方便卻失去溫度的食物、過著快速卻疲憊的人生。很多人不是突然病倒，而是慢慢失去了健康。</p>
-                <p>五十歲那年，創辦人成為了一位父親。當孩子出生的那一刻，第一次真正思考：「我還有多久能陪他？」</p>
-                <p>那一刻開始，健康不再只是身體問題。而是能不能陪孩子長大、陪家人旅行、陪伴愛的人慢慢變老的人生問題。</p>
-              </div>
-            </div>
-            <div className="relative overflow-hidden bg-[#123828] p-8 text-white md:p-14">
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at top right, #ffffff 0%, transparent 55%)" }} />
-              <div className="relative z-10">
-                <div className="text-sm tracking-[0.35em] text-[#D8C99C]">PHYTOLOGIC</div>
-                <h3 className="mt-6 text-4xl font-semibold leading-tight">不是能不能賣，<br />而是敢不敢每天給家人吃。</h3>
-                <div className="mt-10 space-y-6 text-lg leading-9 text-white/78">
-                  <p>植本邏輯開始重新研究植物、營養、人體修復、東方藥食智慧與西方營養學。因為真正重要的問題只有一個：「如果這是我要給家人每天吃的東西，它到底應該長成什麼樣子？」</p>
-                  <p>所以我們堅持：無人工、無化學、無合成。真正從土地裡長出來的植物，才有資格成為身體長期吸收的根本。</p>
-                  <p>我們不是在販售飲料。我們做的，其實是真正每天會進入人體、長期影響未來十年與二十年的食物。</p>
-                </div>
-                <div className="mt-10 flex flex-wrap gap-3"><Pill>重視生命</Pill><Pill>尊重自然</Pill><Pill>相信邏輯</Pill></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mx-auto mt-10 grid max-w-7xl gap-6 md:grid-cols-3">
-          {philosophyCards.map((card) => (
-            <button key={card.title} type="button" onClick={() => setInfoModal({ eyebrow: "Brand Philosophy", title: card.title, text: card.detail })} className="rounded-[2rem] border border-[#E2D5B5] bg-white/60 p-8 text-left shadow-sm transition hover:-translate-y-1 hover:border-[#B89B5E] hover:bg-white">
-              <h3 className="text-2xl font-semibold">{card.title}</h3>
-              <p className="mt-4 leading-8 text-[#49675A]">{card.text}</p>
-              <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#1E6B43]">查看理念 <ArrowRight className="h-4 w-4" /></div>
-            </button>
-          ))}
-        </div>
+      <section className="mx-auto mt-10 grid max-w-7xl gap-5 md:grid-cols-3">
+        {["品牌與產品教育完整建置", "試飲活動與加盟展轉換流程", "LINE 會員與派森健康分析導入"].map((item) => (
+          <article key={item} className="rounded-[1.5rem] border border-[#E7DDBF] bg-white/75 p-7 shadow-sm">
+            <h3 className="text-xl font-semibold text-[#123828]">{item}</h3>
+            <p className="mt-4 leading-7 text-[#49675A]">總部提供可複製的營運內容與品牌支持，讓合作夥伴能更快進入市場。</p>
+          </article>
+        ))}
       </section>
-
-      <section className="px-5 py-8 md:px-8 md:py-14">
-        <div className="mx-auto max-w-7xl rounded-[3rem] border border-[#E7DDBF] bg-[#123828] p-8 text-white md:p-12">
-          <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <div className="text-sm tracking-[0.35em] text-[#D8C99C]">LIFE COLORS</div>
-              <h2 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">植本邏輯的每一種顏色，<br />都是一種人生願望。</h2>
-            </div>
-            <p className="max-w-xl text-lg leading-9 text-white/75">我們的產品不是冰冷的商品名稱，而是一位父親、一位丈夫，以及六個家庭對人生最真實的願望。</p>
-          </div>
-          <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-            {colorStories.map((story, index) => (
-              <div key={story.color} className="min-h-[300px] rounded-[2rem] border p-6 shadow-sm transition hover:-translate-y-2" style={{ backgroundColor: story.card, borderColor: story.border, color: story.textColor }}>
-                <div className="text-sm font-semibold tracking-[0.25em]" style={{ color: story.number }}>0{index + 1}</div>
-                <h3 className="mt-4 text-2xl font-semibold">{story.color}</h3>
-                <div className="mt-2 text-lg font-medium" style={{ color: story.textColor }}>{story.title}</div>
-                <p className="mt-5 leading-8" style={{ color: story.muted }}>{story.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="products" className="bg-white/45 px-5 py-20 md:px-8">
-        <SectionTitle eyebrow="Product System" title="全植物機能飲" text="先看見每一款配方的定位、關鍵字與核心食材；完整機能邏輯點開後再閱讀。" />
-        <div className="mx-auto mb-10 grid max-w-7xl gap-4 rounded-[2rem] border border-[#E7DDBF] bg-[#123828] p-5 text-white shadow-xl shadow-[#123828]/10 md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D8C99C]">PLANT MENU</div>
-            <p className="mt-3 max-w-3xl leading-8 text-white/75">五款配方以高端品牌選單呈現，首頁保留產品介紹，但將長篇營養學與研究資料收進展開內容。</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Pill>純天然無化學添加</Pill>
-            <Pill>AI 推薦線索</Pill>
-          </div>
-        </div>
-        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-5">
-          {productCards.map((product) => <ProductSystemCard key={product.id} product={product} onMore={setActiveProduct} />)}
-        </div>
-      </section>
-
-      <section id="assessment" className="bg-[#F5F2EB] px-5 py-20 md:px-8">
-        <HealthAssessment />
-      </section>
-
-      <section id="最新消息" className="bg-white/45 px-5 py-20 md:px-8">
-        <SectionTitle eyebrow="News" title="最新消息" text="品牌公告、試飲活動、加盟展消息與健康專欄。" />
-        <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-3">
-          {homeNews.map((item) => (
-            <button key={item.title} type="button" onClick={() => setInfoModal({ eyebrow: `${item.category}｜${item.date}`, title: item.title, text: item.detail })} className="rounded-[2rem] border border-[#E7DDBF] bg-white/70 p-7 text-left shadow-sm transition hover:-translate-y-1 hover:border-[#B89B5E] hover:bg-white">
-              <div className="flex items-center justify-between text-sm text-[#8B7A4C]"><span>{item.category}</span><span>{item.date}</span></div>
-              <h3 className="mt-5 text-2xl font-semibold">{item.title}</h3>
-              <p className="mt-4 leading-7 text-[#49675A]">{item.text}</p>
-              <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#1E6B43]">閱讀更多 <ArrowRight className="h-4 w-4" /></div>
-            </button>
-          ))}
-        </div>
-        <div className="mx-auto mt-8 flex max-w-7xl flex-wrap gap-3">
-          <button type="button" onClick={() => go("/news")} className="rounded-full bg-[#123828] px-7 py-3 font-medium text-white transition hover:bg-[#1E6B43]">前往植本公布欄</button>
-          <button type="button" onClick={() => go("/gallery")} className="rounded-full border border-[#B89B5E] bg-white/70 px-7 py-3 font-medium text-[#123828] transition hover:bg-white">查看精彩剪影</button>
-        </div>
-      </section>
-
-      <section id="partner" className="px-5 py-20 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 rounded-[3rem] bg-[#123828] p-8 text-white md:p-12 lg:grid-cols-[1fr_.9fr] lg:items-center">
-          <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-[#D8C99C]">Partnership</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">讓每一個人活得久，還要活得好精彩。</h2>
-            <p className="mt-6 max-w-2xl text-lg leading-9 text-white/75">開放城市合作者、門市加盟、衛星據點、企業健康方案與試飲活動合作。總部提供產品系統、品牌內容、會員系統與營運支持。</p>
-            <div className="mt-8 flex flex-wrap gap-3"><Pill>城市合作者</Pill><Pill>門市加盟</Pill><Pill>衛星據點</Pill><Pill>企業方案</Pill></div>
-            <button type="button" onClick={() => go("/partners")} className="mt-8 rounded-full bg-white px-7 py-4 font-semibold text-[#123828] transition hover:bg-[#D8C99C]">前往合作夥伴平台</button>
-          </div>
-          <div className="rounded-[2rem] bg-white/10 p-7">
-            <Newspaper className="mb-6 text-[#D8C99C]" />
-            <h3 className="text-2xl font-semibold">合作洽談重點</h3>
-            <ul className="mt-5 space-y-4 text-white/78"><li>・品牌與產品教育完整建置</li><li>・試飲活動與加盟展轉換流程</li><li>・LINE會員與派森導入</li><li>・產品供應、物流與營運SOP支持</li></ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="聯絡我們" className="bg-white/45 px-5 py-20 md:px-8">
-        <SectionTitle eyebrow="Contact" title="聯絡我們" text="歡迎洽詢品牌合作、門市加盟、城市合作者、企業健康方案與試飲活動。" />
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.85fr_1.15fr]">
-          <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/70 p-8 shadow-sm">
-            <img src={logo} alt="植本邏輯 Logo" className="h-20 w-20 object-contain" />
-            <h3 className="mt-6 text-3xl font-semibold">植本邏輯｜PHYTOLOGIC</h3>
-            <p className="mt-4 leading-8 text-[#49675A]">重視生命。尊重自然。相信邏輯。</p>
-            <div className="mt-8 space-y-4 text-[#355548]"><div className="flex items-center gap-3"><MapPin className="h-5 w-5 text-[#B89B5E]" /> Taiwan</div><div className="flex items-center gap-3"><Mail className="h-5 w-5 text-[#B89B5E]" /> bryan@phytologic.tw</div><div className="flex items-center gap-3"><Phone className="h-5 w-5 text-[#B89B5E]" /> 07-223-2301</div></div>
-          </div>
-          <form onSubmit={submitContact} className="rounded-[2rem] border border-[#E7DDBF] bg-white/80 p-8 shadow-sm">
-            <div className="grid gap-5 md:grid-cols-2"><input value={contactForm.name} onChange={(e) => updateContact("name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="姓名" /><input value={contactForm.phone} onChange={(e) => updateContact("phone", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="電話" /><input value={contactForm.email} onChange={(e) => updateContact("email", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="Email" /><select value={contactForm.type} onChange={(e) => updateContact("type", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]"><option>合作類型</option><option>門市加盟</option><option>城市合作者</option><option>企業健康方案</option><option>試飲活動</option><option>媒體/其他</option></select></div>
-            <textarea value={contactForm.message} onChange={(e) => updateContact("message", e.target.value)} className="mt-5 min-h-36 w-full rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="請留下您的需求與所在城市" />
-            <button disabled={contactStatus === "loading"} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#123828] px-8 py-4 font-medium text-white shadow-xl shadow-[#123828]/15 transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#9FAEA5]">{contactStatus === "loading" ? "送出中..." : formSent ? "已收到洽詢" : "送出洽詢"} <ArrowRight className="h-4 w-4" /></button>
-            {contactNotice && <p className={`mt-4 rounded-2xl px-5 py-4 ${contactStatus === "error" ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-[#DDEEDB] text-[#1E6B43]"}`}>{contactNotice}</p>}
-          </form>
-        </div>
-      </section>
-
-      {infoModal && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setInfoModal(null)}><div onClick={(event) => event.stopPropagation()} className="w-full max-w-2xl rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-8 shadow-2xl"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.25em] text-[#B89B5E]">{infoModal.eyebrow}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{infoModal.title}</h3></div><button type="button" onClick={() => setInfoModal(null)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><p className="mt-8 rounded-[2rem] bg-white/70 p-7 text-lg leading-9 text-[#49675A]">{infoModal.text}</p><button type="button" onClick={() => setInfoModal(null)} className="mt-7 rounded-full bg-[#123828] px-7 py-4 font-medium text-white">我知道了</button></div></div>}
-      {activeProduct && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setActiveProduct(null)}><div onClick={(event) => event.stopPropagation()} className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-6 shadow-2xl md:p-8"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.32em] text-[#B89B5E]">{activeProduct.colorName}｜{activeProduct.english}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{activeProduct.name}</h3><p className="mt-3 text-lg text-[#49675A]">{activeProduct.theme}</p></div><button type="button" onClick={() => setActiveProduct(null)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><div className="mt-7 grid gap-4 md:grid-cols-2">{activeProduct.sections.map((section) => <section key={section.title} className="rounded-2xl border border-white/80 bg-white/70 p-5 shadow-sm"><h4 className="text-base font-semibold text-[#123828]">{section.title}</h4><p className="mt-3 text-sm leading-7 text-[#49675A]">{section.text}</p></section>)}</div><div className="mt-6 rounded-2xl border border-[#D8C99C]/70 bg-white/70 p-5 text-sm leading-7 text-[#49675A]"><span className="font-semibold text-[#123828]">AI 推薦提示：</span>{activeProduct.aiHint}</div><div className="mt-8 flex flex-wrap gap-3"><a href="#聯絡我們" onClick={() => setActiveProduct(null)} className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white">預約試飲 / 洽詢</a><button type="button" onClick={() => setInfoModal({ eyebrow: "Science Logic", title: "更多科學邏輯", text: "首頁已將長篇營養學、SGS 模擬、植化素與醫學機制收斂為研究資料入口。後續可在專文或資料頁中完整補上研究脈絡。" })} className="rounded-full border border-[#B89B5E] bg-white/70 px-7 py-4 font-medium text-[#123828]">更多科學邏輯</button><button type="button" onClick={() => setActiveProduct(null)} className="rounded-full border border-[#B89B5E] px-7 py-4 font-medium text-[#123828]">關閉</button></div></div></div>}
+      <div className="mx-auto mt-10 flex max-w-7xl flex-wrap gap-3">
+        <button type="button" onClick={() => setFormOpen((open) => !open)} className="rounded-full bg-[#123828] px-8 py-4 font-semibold text-white">{formOpen ? "收起合作表單" : "我要合作"}</button>
+        <button type="button" onClick={() => go("/partners")} className="rounded-full border border-[#B89B5E] bg-white/70 px-8 py-4 font-semibold text-[#123828]">合作據點入口</button>
+      </div>
+      {formOpen && (
+        <form onSubmit={submitContact} className="mx-auto mt-8 max-w-5xl rounded-[2rem] border border-[#E7DDBF] bg-white/80 p-8 shadow-sm">
+          <div className="grid gap-5 md:grid-cols-2"><input value={contactForm.name} onChange={(e) => updateContact("name", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="姓名" /><input value={contactForm.phone} onChange={(e) => updateContact("phone", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="電話" /><input value={contactForm.email} onChange={(e) => updateContact("email", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="Email" /><select value={contactForm.type} onChange={(e) => updateContact("type", e.target.value)} className="rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]"><option>合作類型</option><option>門市加盟</option><option>城市合作者</option><option>企業健康方案</option><option>試飲活動</option><option>媒體/其他</option></select></div>
+          <textarea value={contactForm.message} onChange={(e) => updateContact("message", e.target.value)} className="mt-5 min-h-36 w-full rounded-2xl border border-[#E2D5B5] bg-white px-5 py-4 outline-none focus:border-[#B89B5E]" placeholder="請留下您的需求與所在城市" />
+          <button disabled={contactStatus === "loading"} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#123828] px-8 py-4 font-medium text-white shadow-xl shadow-[#123828]/15 transition hover:bg-[#1E6B43] disabled:cursor-not-allowed disabled:bg-[#9FAEA5]">{contactStatus === "loading" ? "送出中..." : formSent ? "已收到洽詢" : "送出洽詢"} <ArrowRight className="h-4 w-4" /></button>
+          {contactNotice && <p className={`mt-4 rounded-2xl px-5 py-4 ${contactStatus === "error" ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-[#DDEEDB] text-[#1E6B43]"}`}>{contactNotice}</p>}
+        </form>
+      )}
     </main>
   );
 }
@@ -882,7 +921,26 @@ function Footer({ go }) {
 export default function PhytologicWebsite() {
   const [route, go] = useRoute();
   const isAdminRoute = route === "/admin" || route.startsWith("/admin/");
-  const page = isAdminRoute ? <AdminDashboard route={route} go={go} /> : route === "/partners" ? <PartnersPage /> : route === "/news" ? <NewsPage /> : route === "/gallery" ? <GalleryPage /> : <HomePage go={go} />;
+  const productMatch = route.match(/^\/products\/([^/]+)$/);
+  const page = isAdminRoute
+    ? <AdminDashboard route={route} go={go} />
+    : route === "/about"
+      ? <AboutPage />
+      : route === "/products"
+        ? <ProductsPage go={go} />
+        : productMatch
+          ? <ProductDetailPage slug={productMatch[1]} go={go} />
+          : route === "/assessment"
+            ? <AssessmentPage />
+            : route === "/join"
+              ? <JoinPage go={go} />
+              : route === "/partners"
+                ? <PartnersPage />
+                : route === "/news"
+                  ? <NewsPage />
+                  : route === "/gallery"
+                    ? <GalleryPage />
+                    : <HomePage go={go} />;
   return (
     <div className="min-h-screen bg-[#F9F5EA] text-[#123828]">
       {!isAdminRoute && <Header route={route} go={go} />}

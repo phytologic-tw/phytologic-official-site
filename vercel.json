@@ -1,5 +1,10 @@
 {
   "rewrites": [
+    { "source": "/about", "destination": "/" },
+    { "source": "/products", "destination": "/" },
+    { "source": "/products/:path*", "destination": "/" },
+    { "source": "/assessment", "destination": "/" },
+    { "source": "/join", "destination": "/" },
     { "source": "/partners", "destination": "/" },
     { "source": "/news", "destination": "/" },
     { "source": "/gallery", "destination": "/" },
