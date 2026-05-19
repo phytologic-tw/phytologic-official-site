@@ -96,12 +96,12 @@ function StatusBadge({ status }) {
 
 function LevelBadge({ level }) {
   const tones = {
-    健康綠燈: "bg-[#DDEEDB] text-[#1E6B43]",
-    輕度發炎: "bg-[#F8E6AD] text-[#7B6229]",
-    中度發炎: "bg-[#FAEEDA] text-[#854F0B]",
-    重度發炎: "bg-[#FCEBEB] text-[#A32D2D]",
+    狀態穩定: "bg-[#DDEEDB] text-[#1E6B43]",
+    輕度失衡: "bg-[#F8E6AD] text-[#7B6229]",
+    中度警訊: "bg-[#FAEEDA] text-[#854F0B]",
+    高度警訊: "bg-[#FCEBEB] text-[#A32D2D]",
   };
-  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tones[level] || tones["輕度發炎"]}`}>{level || "-"}</span>;
+  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tones[level] || tones["輕度失衡"]}`}>{level || "-"}</span>;
 }
 
 function Modal({ open, onClose, title, children, width = "max-w-2xl" }) {
@@ -298,7 +298,7 @@ function DashboardHome({ session, go }) {
         </section>
         <section className="rounded-lg border border-[#E7DDBF] bg-white/85 p-5">
           <h2 className="text-xl font-semibold">快篩結果近況</h2>
-          <div className="mt-4 grid gap-3">{reports.map((item) => <div key={item.id} className="flex items-center justify-between rounded-lg bg-[#FDFBF6] p-4 text-sm"><LevelBadge level={item.inflammation_level} /><span>{item.total_score}/30 · {item.age_group || "-"}</span><span>{formatDate(item.created_at)}</span></div>)}{reports.length === 0 && <p className="text-sm text-[#8B7A4C]">目前沒有快篩結果。</p>}</div>
+          <div className="mt-4 grid gap-3">{reports.map((item) => <div key={item.id} className="flex items-center justify-between rounded-lg bg-[#FDFBF6] p-4 text-sm"><LevelBadge level={item.inflammation_level} /><span>{item.total_score}/35 · {item.age_group || "-"}</span><span>{formatDate(item.created_at)}</span></div>)}{reports.length === 0 && <p className="text-sm text-[#8B7A4C]">目前沒有快篩結果。</p>}</div>
         </section>
       </div>
     </div>
@@ -402,13 +402,13 @@ function AssessmentsAdmin({ session }) {
   const [detail, setDetail] = useState(null);
   const filtered = items.filter((item) => (!level || item.inflammation_level === level) && matches(item, query, ["age_group", "gender", "inflammation_level"]));
   const remove = async (row) => { if (window.confirm("確定刪除這筆快篩結果？")) { await deleteRecord("assessment_reports", row.id, session); refresh(); } };
-  const distribution = ["健康綠燈", "輕度發炎", "中度發炎", "重度發炎"].map((x) => ({ label: x, count: items.filter((item) => item.inflammation_level === x).length }));
+  const distribution = ["狀態穩定", "輕度失衡", "中度警訊", "高度警訊"].map((x) => ({ label: x, count: items.filter((item) => item.inflammation_level === x).length }));
   return (
     <section>
       <div className="mb-5 grid gap-3 rounded-lg border border-[#E7DDBF] bg-white/85 p-4 md:grid-cols-4">{distribution.map((item) => <div key={item.label}><LevelBadge level={item.label} /><div className="mt-2 h-2 rounded-full bg-[#F0EDE5]"><div className="h-2 rounded-full bg-[#B89B5E]" style={{ width: `${items.length ? (item.count / items.length) * 100 : 0}%` }} /></div><div className="mt-1 text-sm text-[#49675A]">{item.count} 筆</div></div>)}</div>
       <Toolbar search={query} setSearch={setQuery} onExport={() => exportCSV("assessment_reports", filtered)}><select className={inputClass} value={level} onChange={(e) => setLevel(e.target.value)}><option value="">全部等級</option>{distribution.map((x) => <option key={x.label}>{x.label}</option>)}</select></Toolbar>
       {loading && <Notice>快篩結果載入中...</Notice>}{error && <Notice type="error">{error}</Notice>}
-      <AdminTable data={filtered} columns={[{ key: "inflammation_level", label: "發炎等級", render: (v) => <LevelBadge level={v} /> }, { key: "total_score", label: "總分", render: (v) => `${v ?? "-"}/30` }, { key: "gender", label: "性別" }, { key: "age_group", label: "年齡區間" }, { key: "bmi", label: "BMI" }, { key: "recommended_products", label: "推薦飲品", render: (v) => Array.isArray(v) ? v[0] : "-" }, { key: "has_joined_line", label: "加入 LINE", render: (v) => v ? "已加入" : "未加入" }, { key: "created_at", label: "評估時間", render: formatDate }]} actions={(row) => [<button key="view" className={ghostClass} onClick={() => setDetail(row)}><Eye className="h-4 w-4" />查看報告</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}><Trash2 className="h-4 w-4" />刪除</button>]} />
+      <AdminTable data={filtered} columns={[{ key: "inflammation_level", label: "狀態等級", render: (v) => <LevelBadge level={v} /> }, { key: "total_score", label: "總分", render: (v) => `${v ?? "-"}/35` }, { key: "gender", label: "性別" }, { key: "age_group", label: "年齡區間" }, { key: "bmi", label: "BMI" }, { key: "recommended_products", label: "推薦飲品", render: (v) => Array.isArray(v) ? v[0] : "-" }, { key: "has_joined_line", label: "加入 LINE", render: (v) => v ? "已加入" : "未加入" }, { key: "created_at", label: "評估時間", render: formatDate }]} actions={(row) => [<button key="view" className={ghostClass} onClick={() => setDetail(row)}><Eye className="h-4 w-4" />查看報告</button>, <button key="del" className={dangerClass} onClick={() => remove(row)}><Trash2 className="h-4 w-4" />刪除</button>]} />
       <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title="快篩詳細報告" width="max-w-4xl">{detail && <pre className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-7 text-[#49675A]">{JSON.stringify(detail, null, 2)}</pre>}</Modal>
     </section>
   );

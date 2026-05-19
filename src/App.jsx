@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 import {
   Activity,
   ArrowRight,
+  ChevronDown,
   Dumbbell,
   Eye,
+  FlaskConical,
   Heart,
   Leaf,
   Mail,
@@ -29,11 +31,116 @@ const logo = "/logo.png";
 const lineId = "@phytologic";
 
 const products = [
-  { id: "white", name: "雪山植萃", english: "Pearl White", colorName: "珍珠白", theme: "修復・抗發炎・溫和滋補", icon: Sparkles, accent: "#F5EFE4", deep: "#A98E61", desc: "鉑金基底液結合蘋果、山藥、銀耳與核桃，為高壓、熬夜、腸胃敏感族群提供溫和植物修復支持。", tags: ["細胞修復", "腸胃支持", "抗氧化", "低負擔"] },
-  { id: "green", name: "青檸植萃", english: "Emerald Green", colorName: "翡翠綠", theme: "代謝・腸道促排・體內環保", icon: Leaf, accent: "#DDEEDB", deep: "#1E6B43", desc: "深綠蔬菜、芭樂、檸檬與黑木耳，建構高纖維、天然維生素 C 與微量營養素的代謝促排配方。", tags: ["腸道促排", "代謝支持", "高纖維", "低糖"] },
-  { id: "rose", name: "玫瑰植萃", english: "Rose Red", colorName: "玫瑰紅", theme: "女性保養・氣色・抗氧化", icon: Heart, accent: "#F5DDE2", deep: "#AA3F57", desc: "甜菜根、紫甘藍、銀耳、芭樂、百香果、檸檬與玫瑰花瓣，打造女性日常保養與紅潤氣色配方。", tags: ["膠原支持", "紅潤氣色", "保水滋潤", "抗氧化"] },
-  { id: "gold", name: "桂香植萃", english: "Golden Yellow", colorName: "金鑽黃", theme: "運動修復・增肌減脂・代謝引擎", icon: Dumbbell, accent: "#F8E6AD", deep: "#B8871B", desc: "甜玉米、香蕉、百香果、薑黃與桂香精釀液，提供運動後能量回補、肌肉修復與抗氧化支持。", tags: ["運動修復", "蛋白質利用", "電解質", "體態管理"] },
-  { id: "purple", name: "紫莓植萃", english: "Crystal Purple", colorName: "水晶紫", theme: "護眼・抗氧化・3C族保養", icon: Eye, accent: "#E7DDF6", deep: "#65439A", desc: "藍莓、桑椹、紫薯、紫高麗菜、木鱉果與紅蘿蔔，建構水脂雙溶的護眼抗氧化網路。", tags: ["3C護眼", "花青素", "維生素A先質", "高吸收"] },
+  {
+    id: "green",
+    name: "青檸植萃",
+    english: "Emerald Green",
+    colorName: "翡翠綠",
+    theme: "代謝循環・腸道順暢・體內環保",
+    icon: Leaf,
+    accent: "#DDE8D5",
+    deep: "#2F6E4E",
+    plantCount: 12,
+    formula: "由地瓜葉、青江菜、黑木耳、芭樂、檸檬等共 12 項蔬果穀植物所組成，建立以代謝循環與體內環保為核心的植物機能系統。",
+    desc: "以深綠植萃、膳食纖維與清爽青檸酸香，支持外食族的日常代謝循環與排便順暢。",
+    tags: ["代謝循環", "腸道順暢", "膳食纖維", "外食族"],
+    aiHint: "派森 AI 可能會在你的快篩出現腸胃與代謝警訊時推薦此產品。",
+    sections: [
+      { title: "核心成分｜純天然無化學添加", text: "由地瓜葉、青江菜、黑木耳、芭樂、檸檬等共 12 項蔬果穀植物所組成，搭配鉑金基底液，保留葉綠素、膳食纖維與維生素 C 的自然機能。" },
+      { title: "植物機能與身體影響", text: "深綠蔬菜提供葉綠素與植化素，黑木耳與芭樂補上纖維與清爽感，有助於維持消化節奏、支持代謝循環，讓身體在高油、高鹽與外食頻率高的生活中回到輕盈狀態。" },
+      { title: "最適合的目標族群", text: "適合外食族、久坐上班族、排便節奏不固定、常覺得身體沉重，或希望以更自然方式建立每日體內環保習慣的人。" },
+      { title: "產品獨家特色", text: "不是單一果汁邏輯，而是以綠色蔬果、木耳纖維與堅果基底組成的植物機能系統，同時兼顧清爽入口與飽足感。" },
+      { title: "具備層次的感官味道", text: "前段是清爽青檸香氣，中段帶出綠色蔬果清甜，尾韻由鉑金基底液的堅果感收束，乾淨、有層次、不厚重。" },
+    ],
+  },
+  {
+    id: "white",
+    name: "雪山植萃",
+    english: "Pearl White",
+    colorName: "珍珠白",
+    theme: "溫和修復・抗發炎支持・腸胃滋養",
+    icon: Sparkles,
+    accent: "#EEE6D8",
+    deep: "#9D8360",
+    plantCount: 11,
+    formula: "由山藥、銀耳、生核桃、蘋果、紅棗等共 11 項蔬果穀植物所組成，建立溫和修復與抗發炎支持的植物機能系統。",
+    desc: "以山藥、銀耳與核桃建立溫潤基底，支持熬夜、壓力疲勞與腸胃敏感時的日常穩定。",
+    tags: ["溫和修復", "植物多醣", "熬夜族", "壓力疲勞"],
+    aiHint: "派森 AI 可能會在你的快篩出現睡眠、壓力或免疫警訊時推薦此產品。",
+    sections: [
+      { title: "核心成分｜純天然無化學添加", text: "由山藥、銀耳、生核桃、蘋果、紅棗等共 11 項蔬果穀植物所組成，以植物多醣、水溶性膳食纖維與 Omega-3 形成溫和機能基底。" },
+      { title: "植物機能與身體影響", text: "山藥與銀耳提供細緻滑順的植物多醣，核桃帶來植物性脂肪酸，老薑提供溫熱感，有助於支持壓力疲勞後的平衡感與腸胃滋養。" },
+      { title: "最適合的目標族群", text: "適合熬夜族、壓力疲勞明顯、腸胃容易敏感、早晨精神不穩，或希望用溫和植物配方照顧日常狀態的人。" },
+      { title: "產品獨家特色", text: "以白色與溫潤食材建立低刺激、柔順、可長期飲用的機能層次，讓植物支持不尖銳、不沉重。" },
+      { title: "具備層次的感官味道", text: "入口有蘋果與紅棗果香，中段是溫潤堅果奶香，尾段帶出老薑溫熱尾韻，像一杯清醒而安定的植物飲。" },
+    ],
+  },
+  {
+    id: "rose",
+    name: "玫瑰植萃",
+    english: "Ruby Rose",
+    colorName: "寶石紅",
+    theme: "女性保養・氣色循環・抗氧化支持",
+    icon: Heart,
+    accent: "#EAD4D8",
+    deep: "#A64F61",
+    plantCount: 12,
+    formula: "由甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等共 12 項蔬果穀植物所組成，建立女性保養與抗氧化支持的植物機能系統。",
+    desc: "以紅紫色植化素、維生素 C 與玫瑰尾韻，支持氣色循環、女性保養與膠原蛋白生成。",
+    tags: ["女性保養", "氣色循環", "花青素", "維生素 C"],
+    aiHint: "派森 AI 可能會在你的快篩出現女性保養、氣色或抗氧化需求時推薦此產品。",
+    sections: [
+      { title: "核心成分｜純天然無化學添加", text: "由甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等共 12 項蔬果穀植物所組成，提供花青素、維生素 C 與紅紫色植化素。" },
+      { title: "植物機能與身體影響", text: "甜菜根與紫甘藍支持紅潤氣色與循環感，芭樂與百香果補充維生素 C，有助於膠原蛋白生成支持與日常抗氧化防護。" },
+      { title: "最適合的目標族群", text: "適合重視女性保養、氣色管理、肌膚光澤、外在狀態與日常抗氧化支持的人，也適合作為忙碌生活中的美感機能飲。" },
+      { title: "產品獨家特色", text: "以紅紫植萃搭配玫瑰花瓣，讓女性保養不只停留在甜美風味，而是具備可感知的植物機能架構。" },
+      { title: "具備層次的感官味道", text: "前段是酸甜莓果香，中段有百香果的明亮感，尾韻延伸玫瑰花香與紅棗溫潤感，細緻而不膩。" },
+    ],
+  },
+  {
+    id: "gold",
+    name: "桂香植萃",
+    english: "Golden Osmanthus",
+    colorName: "金鑽黃",
+    theme: "運動恢復・能量代謝・增肌支持",
+    icon: Dumbbell,
+    accent: "#EDE0B4",
+    deep: "#A57921",
+    plantCount: 12,
+    formula: "由甜玉米、香蕉、新鮮薑黃、黃甜椒、桂花等共 12 項蔬果穀植物所組成，建立運動恢復與能量代謝支持的植物機能系統。",
+    desc: "以甜玉米、香蕉與新鮮薑黃組成金色能量系統，支持訓練後恢復、代謝能量與體能續航。",
+    tags: ["運動恢復", "薑黃素", "鉀離子", "維生素 B6"],
+    aiHint: "派森 AI 可能會在你的快篩出現肌肉、運動恢復或能量代謝警訊時推薦此產品。",
+    sections: [
+      { title: "核心成分｜純天然無化學添加", text: "由甜玉米、香蕉、新鮮薑黃、黃甜椒、桂花等共 12 項蔬果穀植物所組成，含薑黃素、鉀離子與維生素 B6 等營養線索。" },
+      { title: "植物機能與身體影響", text: "香蕉與甜玉米提供訓練後需要的溫和能量，黃甜椒與薑黃支持抗氧化防護與代謝循環，有助於運動恢復與日常體能管理。" },
+      { title: "最適合的目標族群", text: "適合規律運動者、訓練後需要補給的人、體能消耗大、久站外勤，或希望兼顧增肌支持與代謝能量的人。" },
+      { title: "產品獨家特色", text: "把運動飲品從單純甜味補給升級成植物機能系統，用金色蔬果、薑黃與桂花建立乾淨又有辨識度的恢復感。" },
+      { title: "具備層次的感官味道", text: "前味是百香果與桂花香，中味有玉米香蕉的柔和甜感，最後以堅果基底尾韻收束，飽滿但不負擔。" },
+    ],
+  },
+  {
+    id: "purple",
+    name: "紫莓植萃",
+    english: "Tourmaline Purple",
+    colorName: "碧璽紫",
+    theme: "護眼抗氧化・3C族群・長時間用眼",
+    icon: Eye,
+    accent: "#DED6E9",
+    deep: "#69528E",
+    plantCount: 13,
+    formula: "由藍莓、桑椹、紫薯、木鱉果、紫色高麗菜等共 13 項蔬果穀植物所組成，建立護眼抗氧化與長時間用眼支持的植物機能系統。",
+    desc: "以紫色植萃與類胡蘿蔔素建立視覺支持網，為長時間用眼與 3C 族群提供日常抗氧化防護。",
+    tags: ["長時間用眼", "3C族群", "花青素", "類胡蘿蔔素"],
+    aiHint: "派森 AI 可能會在你的快篩出現眼睛疲勞、螢幕使用或抗氧化需求時推薦此產品。",
+    sections: [
+      { title: "核心成分｜純天然無化學添加", text: "由藍莓、桑椹、紫薯、木鱉果、紫色高麗菜等共 13 項蔬果穀植物所組成，結合花青素與類胡蘿蔔素的紫色機能矩陣。" },
+      { title: "植物機能與身體影響", text: "藍莓、桑椹與紫色高麗菜提供花青素，木鱉果帶來類胡蘿蔔素線索，有助於支持長時間用眼、暗處視覺適應與日常抗氧化防護。" },
+      { title: "最適合的目標族群", text: "適合 3C 族群、長時間盯螢幕、夜間工作、閱讀量大、眼睛容易乾澀疲勞，或希望維持清晰視覺節奏的人。" },
+      { title: "產品獨家特色", text: "以紫色蔬果與木鱉果建立水脂雙向的植化素配置，讓護眼不只是補充單一成分，而是完整植物機能系統。" },
+      { title: "具備層次的感官味道", text: "前段是莓果酸香，中段有紫薯甘甜，尾韻由堅果基底帶出圓潤感，酸、甜、厚度平衡清楚。" },
+    ],
+  },
 ];
 
 const colorStories = [
@@ -81,6 +188,94 @@ function SectionTitle({ eyebrow, title, text }) {
 
 function Pill({ children }) {
   return <span className="rounded-full border border-[#D8C99C]/70 bg-white/70 px-4 py-2 text-sm text-[#355548] shadow-sm">{children}</span>;
+}
+
+function ProductMetric({ product }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/65 px-4 py-3 shadow-sm backdrop-blur">
+      <div className="text-4xl font-semibold leading-none" style={{ color: product.deep }}>{product.plantCount}</div>
+      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#49675A]">
+        種植物機能
+        <span className="mt-1 block text-[10px] tracking-[0.16em] text-[#8B7A4C]">PLANT SYSTEM</span>
+      </div>
+    </div>
+  );
+}
+
+function ProductSections({ product, compact = false }) {
+  const defaultOpen = new Set(["植物機能與身體影響", "最適合的目標族群"]);
+  if (compact) {
+    return (
+      <div className="space-y-3">
+        {product.sections.map((section) => (
+          <details key={section.title} open={defaultOpen.has(section.title)} className="group rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#123828]">
+              {section.title}
+              <ChevronDown className="h-4 w-4 shrink-0 text-[#8B7A4C] transition group-open:rotate-180" />
+            </summary>
+            <p className="mt-3 text-sm leading-7 text-[#49675A]">{section.text}</p>
+          </details>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-3">
+      {product.sections.map((section, index) => (
+        <div key={section.title} className="rounded-2xl border border-white/70 bg-white/65 p-5 shadow-sm backdrop-blur">
+          <div className="flex items-center gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white" style={{ backgroundColor: product.deep }}>0{index + 1}</span>
+            <h4 className="text-base font-semibold text-[#123828]">{section.title}</h4>
+          </div>
+          <p className="mt-3 text-sm leading-7 text-[#49675A]">{section.text}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProductSystemCard({ product }) {
+  const Icon = product.icon;
+  return (
+    <article className="overflow-hidden rounded-[2rem] border border-white/75 bg-white/60 shadow-xl shadow-[#123828]/8 backdrop-blur" style={{ background: `linear-gradient(145deg, rgba(255,255,255,.78), ${product.accent}CC)` }}>
+      <div className="p-6 md:p-7">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg" style={{ backgroundColor: product.deep }}>
+              <Icon className="h-7 w-7" />
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8B7A4C]">{product.colorName}｜{product.english}</div>
+              <h3 className="mt-2 text-3xl font-semibold text-[#123828]">{product.name}</h3>
+              <p className="mt-2 text-sm font-medium text-[#49675A]">{product.theme}</p>
+            </div>
+          </div>
+          <ProductMetric product={product} />
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-white/70 bg-[#123828]/90 p-5 text-white shadow-lg">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#D8C99C]"><FlaskConical className="h-4 w-4" /> AI FUNCTION MAP</div>
+          <p className="mt-3 text-sm leading-7 text-white/82">{product.formula}</p>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {product.tags.map((tag) => <span key={tag} className="rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#355548] shadow-sm">{tag}</span>)}
+        </div>
+
+        <div className="mt-5 hidden md:block">
+          <ProductSections product={product} />
+        </div>
+        <div className="mt-5 md:hidden">
+          <ProductSections product={product} compact />
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-[#D8C99C]/70 bg-white/70 p-4 text-sm leading-7 text-[#49675A]">
+          <span className="font-semibold text-[#123828]">AI 推薦提示：</span>{product.aiHint}
+        </div>
+      </div>
+    </article>
+  );
 }
 
 function useRoute() {
@@ -293,33 +488,20 @@ function HomePage({ go }) {
       </section>
 
       <section id="產品系列" className="bg-white/45 px-5 py-20 md:px-8">
-        <SectionTitle eyebrow="Product System" title="五色植物機能系統" text="每一種顏色，都是一種人生願望；每一款配方，對應一種現代人的身體需求。" />
-        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-5">
-          {products.map((p) => {
-            const Icon = p.icon;
-            return (
-              <button key={p.id} type="button" onClick={() => setActiveProduct(p)} className={`rounded-[2rem] border p-6 text-left shadow-sm transition hover:-translate-y-1 ${activeProduct.id === p.id ? "border-[#B89B5E] bg-white" : "border-[#E7DDBF] bg-white/65"}`}>
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: p.accent, color: p.deep }}><Icon /></div>
-                <div className="text-xl font-semibold">{p.name}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[#8B7A4C]">{p.english}</div>
-                <p className="mt-4 min-h-[84px] text-sm leading-7 text-[#49675A]">{p.desc}</p>
-              </button>
-            );
-          })}
-        </div>
-        <button type="button" onClick={() => setDetailOpen(true)} className="mx-auto mt-8 block w-full max-w-7xl rounded-[2.5rem] border border-[#E7DDBF] bg-[#123828] p-8 text-left text-white transition hover:-translate-y-1 hover:shadow-2xl md:p-10">
-          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
-            <div>
-              <div className="text-sm tracking-[0.32em] text-[#D8C99C]">{activeProduct.colorName}</div>
-              <h3 className="mt-3 text-4xl font-semibold">{activeProduct.name}</h3>
-              <p className="mt-4 text-lg text-white/75">{activeProduct.theme}</p>
-            </div>
-            <div>
-              <p className="leading-8 text-white/78">{activeProduct.desc}</p>
-              <div className="mt-6 flex flex-wrap gap-3">{activeProduct.tags.map((tag) => <span key={tag} className="rounded-full bg-white/10 px-4 py-2 text-sm text-white/85">{tag}</span>)}</div>
-            </div>
+        <SectionTitle eyebrow="Product System" title="植物機能系統展示" text="不是果汁，而是以代表植物、植化素、感官層次與派森 AI 推薦邏輯共同建立的高級機能飲品系統。" />
+        <div className="mx-auto mb-10 grid max-w-7xl gap-4 rounded-[2rem] border border-[#E7DDBF] bg-[#123828] p-5 text-white shadow-xl shadow-[#123828]/10 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#D8C99C]">PLANT FUNCTION DASHBOARD</div>
+            <p className="mt-3 max-w-3xl leading-8 text-white/75">五款配方皆以「代表植物＋總植物數量」呈現，讓消費者清楚理解每一杯都是植物機能系統，不是單純調味果汁。</p>
           </div>
-        </button>
+          <div className="flex flex-wrap gap-3">
+            <Pill>純天然無化學添加</Pill>
+            <Pill>AI 推薦線索</Pill>
+          </div>
+        </div>
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
+          {products.map((product) => <ProductSystemCard key={product.id} product={product} />)}
+        </div>
       </section>
 
       <section id="physon" className="bg-[#F5F2EB] px-5 py-20 md:px-8">
@@ -380,7 +562,7 @@ function HomePage({ go }) {
       </section>
 
       {infoModal && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setInfoModal(null)}><div onClick={(event) => event.stopPropagation()} className="w-full max-w-2xl rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-8 shadow-2xl"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.25em] text-[#B89B5E]">{infoModal.eyebrow}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{infoModal.title}</h3></div><button type="button" onClick={() => setInfoModal(null)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><p className="mt-8 rounded-[2rem] bg-white/70 p-7 text-lg leading-9 text-[#49675A]">{infoModal.text}</p><button type="button" onClick={() => setInfoModal(null)} className="mt-7 rounded-full bg-[#123828] px-7 py-4 font-medium text-white">我知道了</button></div></div>}
-      {detailOpen && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setDetailOpen(false)}><div onClick={(event) => event.stopPropagation()} className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-8 shadow-2xl"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.32em] text-[#B89B5E]">{activeProduct.colorName}｜{activeProduct.english}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{activeProduct.name}</h3><p className="mt-3 text-lg text-[#49675A]">{activeProduct.theme}</p></div><button type="button" onClick={() => setDetailOpen(false)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><div className="mt-8 rounded-[2rem] p-7" style={{ background: activeProduct.accent }}><p className="text-lg leading-9 text-[#355548]">{activeProduct.desc}</p></div><div className="mt-7 grid gap-4 md:grid-cols-2">{activeProduct.tags.map((tag, index) => <div key={tag} className="rounded-2xl border border-[#E2D5B5] bg-white/75 p-5"><div className="text-sm text-[#B89B5E]">機能重點 0{index + 1}</div><div className="mt-2 text-xl font-semibold text-[#123828]">{tag}</div></div>)}</div><div className="mt-8 flex flex-wrap gap-3"><a href="#聯絡我們" onClick={() => setDetailOpen(false)} className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white">預約試飲 / 洽詢</a><button type="button" onClick={() => setDetailOpen(false)} className="rounded-full border border-[#B89B5E] px-7 py-4 font-medium text-[#123828]">關閉</button></div></div></div>}
+      {detailOpen && <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#123828]/55 px-5 backdrop-blur-sm" onClick={() => setDetailOpen(false)}><div onClick={(event) => event.stopPropagation()} className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-[2.5rem] border border-white/70 bg-[#F9F5EA] p-6 shadow-2xl md:p-8"><div className="flex items-start justify-between gap-5"><div><div className="text-sm tracking-[0.32em] text-[#B89B5E]">{activeProduct.colorName}｜{activeProduct.english}</div><h3 className="mt-3 text-4xl font-semibold text-[#123828]">{activeProduct.name}</h3><p className="mt-3 text-lg text-[#49675A]">{activeProduct.theme}</p></div><button type="button" onClick={() => setDetailOpen(false)} className="rounded-full bg-white p-3 text-[#123828] shadow"><X /></button></div><div className="mt-6"><ProductSystemCard product={activeProduct} /></div><div className="mt-8 flex flex-wrap gap-3"><a href="#聯絡我們" onClick={() => setDetailOpen(false)} className="rounded-full bg-[#123828] px-7 py-4 font-medium text-white">預約試飲 / 洽詢</a><button type="button" onClick={() => setDetailOpen(false)} className="rounded-full border border-[#B89B5E] px-7 py-4 font-medium text-[#123828]">關閉</button></div></div></div>}
     </main>
   );
 }
