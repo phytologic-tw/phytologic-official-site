@@ -155,6 +155,7 @@ const productCards = [
     deep: "#9D8360",
     formula: "山藥、蘋果、白木耳、生核桃等天然蔬果穀物組成。",
     desc: "熬夜疲勞、腸胃敏感與身體修復時的溫和滋養。",
+    forWho: "久坐辦公室、腸胃敏感、熬夜族",
     tags: ["熬夜疲勞", "腸胃敏感", "身體修復"],
     aiHint: "Dr.Marvin 會在睡眠、壓力、腸胃敏感與修復需求偏高時，優先把雪山植萃列為溫和支持選項。",
     sections: [
@@ -177,6 +178,7 @@ const productCards = [
     deep: "#2F6E4E",
     formula: "地瓜葉、青江菜、黑木耳、芭樂、檸檬等天然蔬果組成。",
     desc: "代謝卡卡、外食負擔與排除需求的清爽植物支持。",
+    forWho: "水腫、代謝慢、想排清體內廢物的人",
     tags: ["代謝卡卡", "外食族", "排除負擔"],
     aiHint: "Dr.Marvin 會在腸胃、代謝、外食頻率與身體沉重感訊號偏高時，優先考慮青檸植萃。",
     sections: [
@@ -199,6 +201,7 @@ const productCards = [
     deep: "#A64F61",
     formula: "甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等天然蔬果組成。",
     desc: "好氣色、抗氧化與肌膚彈性的女性日常保養。",
+    forWho: "想維持好氣色、注重女性日常保養的人",
     tags: ["好氣色", "抗氧化", "肌膚彈性"],
     aiHint: "Dr.Marvin 會在氣色、抗氧化、女性保養與膠原生成支持需求出現時，推薦玫瑰植萃。",
     sections: [
@@ -221,6 +224,7 @@ const productCards = [
     deep: "#A57921",
     formula: "甜玉米、香蕉、紅蘿蔔、百香果、新鮮薑黃等天然蔬果組成。",
     desc: "運動恢復、肌肉修復與能量補給的金色植物系統。",
+    forWho: "有健身習慣、重視體態管理、想維持活力的人",
     tags: ["運動恢復", "肌肉修復", "能量補給"],
     aiHint: "Dr.Marvin 會在肌肉、運動恢復、能量代謝與體能消耗訊號偏高時，推薦桂香植萃。",
     sections: [
@@ -243,6 +247,7 @@ const productCards = [
     deep: "#69528E",
     formula: "木鱉果、紫薯、藍莓、桑椹、紫色高麗菜等天然蔬果組成。",
     desc: "3C 用眼、眼睛疲勞與視覺保養的紫色抗氧化支持。",
+    forWho: "長時間使用螢幕、眼睛疲勞、重視抗氧化的人",
     tags: ["3C 用眼", "眼睛疲勞", "視覺保養"],
     aiHint: "Dr.Marvin 會在眼睛疲勞、長時間螢幕使用與抗氧化需求偏高時，推薦紫莓植萃。",
     sections: [
@@ -409,6 +414,10 @@ function ProductOverviewCard({ product, go }) {
         </div>
       </div>
       <p className="mt-6 text-lg font-medium leading-8 text-[#123828]">{product.theme}</p>
+      <p className="mt-3 inline-flex items-start gap-2 rounded-full bg-white/55 px-4 py-1.5 text-sm leading-6 text-[#49675A]">
+        <span className="shrink-0 text-[#8B7A4C]">適合</span>
+        <span className="text-[#123828]">{product.forWho}</span>
+      </p>
       <p className="mt-4 text-sm leading-7 text-[#49675A]">{product.formula}</p>
       <button type="button" onClick={() => go(`/products/${productSlugs[product.id]}`)} className="mt-auto inline-flex items-center justify-between rounded-full bg-[#123828] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1E6B43]">
         了解更多
