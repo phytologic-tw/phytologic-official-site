@@ -1,40 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, Leaf, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowRight, Leaf, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { supabase, supabaseConfigMessage } from "../lib/supabase";
 import { submitPublicRecord } from "../lib/adminData";
 import UnlockFullReportCard from "./line/UnlockFullReportCard";
 
-const QUESTION_COUNT = 15;
+const QUESTION_COUNT = 7;
 const hasJoinedLine = false;
 
-const AGE_GROUPS = [
-  { label: "青少年", range: "12-16 歲" },
-  { label: "青年", range: "20-30 歲" },
-  { label: "中壯年", range: "35-45 歲" },
-  { label: "熟齡", range: "50-60 歲" },
-  { label: "銀髮樂齡", range: "65-75 歲" },
-];
-
-const WORK_TYPES = ["久坐辦公", "外勤走動", "體力勞動", "學生", "輪班工作", "自由業 / 居家工作", "其他"];
-const SLEEP_HOURS = ["少於 5 小時", "5-6 小時", "6-7 小時", "7-8 小時", "8 小時以上"];
-const SLEEP_QUALITY = ["良好", "普通", "淺眠 / 多夢", "常醒 / 早醒", "入睡困難"];
-const EXERCISE_HABITS = ["幾乎沒有", "每週 1-2 次", "每週 3-4 次", "每週 5 次以上", "高強度訓練"];
-const DIET_PATTERNS = ["均衡飲食", "外食為主", "高油 / 高糖", "低醣 / 控糖", "素食 / 植物性飲食", "常跳餐"];
-const STRESS_LEVELS = ["低", "中", "偏高", "高", "非常高"];
+const WORK_TYPES = ["智能型", "體能型", "創意型", "服務型", "統御型", "事務型"];
+const EXERCISE_HABITS = ["幾乎不動", "每週 1–2 次", "每週 3–4 次", "每天運動"];
 
 const CATEGORY_ORDER = ["sleep", "digestion", "stress", "metabolism", "immune", "muscle", "eye"];
 
 const initialProfile = {
   gender: "",
-  ageGroup: "",
+  age: "",
   heightCm: "",
   weightKg: "",
   workType: "",
-  sleepHours: "",
-  sleepQuality: "",
   exerciseHabit: "",
-  dietPattern: "",
-  stressLevel: "",
 };
 
 const PRODUCTS = [
@@ -63,13 +47,14 @@ const QUESTION_BANK = [
   { id: "eye-03", category: "eye", text: "用眼一整天後，容易覺得注意力下降，或需要更久才能恢復清晰感？", tags: ["久坐辦公", "學生", "自由業 / 居家工作", "輪班工作", "少於 5 小時"] },
 ];
 
-const ANSWER_OPTIONS = [
-  { label: "完全沒有", score: 1 },
-  { label: "很少發生", score: 2 },
-  { label: "偶爾發生", score: 3 },
-  { label: "經常發生", score: 4 },
-  { label: "非常明顯", score: 5 },
-];
+const ANSWER_OPTIONS = [1, 2, 3, 4, 5];
+const SCORE_STYLES = {
+  1: { backgroundColor: "#F8F5EC", borderColor: "#E5DDC8", color: "#68786D" },
+  2: { backgroundColor: "#EEF0E6", borderColor: "#D9DFC9", color: "#5F765F" },
+  3: { backgroundColor: "#DDE7D7", borderColor: "#C4D2BB", color: "#46664C" },
+  4: { backgroundColor: "#B9CBB2", borderColor: "#9EB294", color: "#254B34" },
+  5: { backgroundColor: "#1C3D2B", borderColor: "#1C3D2B", color: "#FFFFFF" },
+};
 
 const CATEGORY_LABELS = {
   sleep: "睡眠 / 疲勞",
@@ -95,10 +80,10 @@ function selectQuestions(profile) {
 }
 
 function getLevel(total) {
-  if (total <= 30) return "狀態穩定";
-  if (total <= 45) return "輕度失衡";
-  if (total <= 60) return "中度警訊";
-  return "高度警訊";
+  if (total <= 14) return "健康綠燈";
+  if (total <= 21) return "輕度發炎";
+  if (total <= 28) return "中度發炎";
+  return "重度發炎";
 }
 
 function buildCategoryScores(questions, answers) {
@@ -140,13 +125,10 @@ function getBmi(profile) {
 
 function buildProfileSummary(profile, bmi) {
   return {
-    ageLabel: profile.ageGroup,
+    ageLabel: profile.age ? `${profile.age} 歲` : "未提供",
     bmi: bmi ? String(bmi) : "未提供",
     workType: profile.workType,
-    sleep: `${profile.sleepHours}，睡眠品質：${profile.sleepQuality}`,
     exercise: profile.exerciseHabit,
-    diet: profile.dietPattern,
-    stress: profile.stressLevel,
   };
 }
 
@@ -155,21 +137,18 @@ function buildPrompt({ profileSummary, total, levelLabel, categorySummary, answe
 
   return `你是植本邏輯（PHYTOLOGIC）的 Dr.Marvin 健康系統顧問，擅長以生活型態與植物機能飲品做日常健康建議。
 
-請根據以下「15 題生理狀態快篩」結果，分析使用者目前最需要被支持的生活狀態，並推薦最適合的一款植本邏輯飲品與一個具體生活改變方式。請避免醫療宣稱，用支持、幫助、維持、有助於、調節等語氣。
+請根據以下「7 題生理狀態快篩」結果，分析使用者目前最需要被支持的生活狀態，並推薦最適合的一款植本邏輯飲品與一個具體生活改變方式。請避免醫療宣稱，用支持、幫助、維持、有助於、調節等語氣。
 
 用戶資料：
 - 年齡：${profileSummary.ageLabel}
 - BMI：${profileSummary.bmi}
 - 職業型態：${profileSummary.workType}
-- 睡眠：${profileSummary.sleep}
-- 運動：${profileSummary.exercise}
-- 飲食：${profileSummary.diet}
-- 壓力：${profileSummary.stress}
-- 快篩總分：${total} / ${QUESTION_COUNT * 5}（${levelLabel}）
+- 運動習慣：${profileSummary.exercise}
+- 發炎指數短版總分：${total} / 35（${levelLabel}）
 - 分類線索：${categorySummary}
 - 系統推薦主選：${primary.name}
 - 系統推薦輔助：${secondary?.name || "無"}
-- 15 題作答結果：
+- 7 題作答結果：
 ${answerSummary}
 
 可推薦飲品：
@@ -225,11 +204,18 @@ export default function HealthAssessment() {
   const progress = Math.round((answeredCount / QUESTION_COUNT) * 100);
   const completed = answeredCount === QUESTION_COUNT;
   const bmi = getBmi(profile);
-  const profileCompleted = Object.values(profile).every(Boolean) && bmi;
+  const profileCompleted =
+    profile.gender &&
+    profile.age && Number(profile.age) > 0 && Number(profile.age) < 120 &&
+    profile.heightCm && Number(profile.heightCm) > 0 &&
+    profile.weightKg && Number(profile.weightKg) > 0 &&
+    profile.workType &&
+    profile.exerciseHabit &&
+    bmi;
   const profileSummary = buildProfileSummary(profile, bmi);
 
   const result = useMemo(() => {
-    if (!profile.ageGroup || questions.length !== QUESTION_COUNT) return null;
+    if (!profile.age || questions.length !== QUESTION_COUNT) return null;
     const total = Object.values(answers).reduce((sum, score) => sum + score, 0);
     const levelLabel = getLevel(total);
     const categoryScores = buildCategoryScores(questions, answers);
@@ -247,7 +233,7 @@ export default function HealthAssessment() {
       topSignals,
       recommendations,
       categorySummary: topSignals.length ? topSignals.join("；") : "目前沒有明顯集中線索",
-      answerSummary: questions.map((question, index) => `${index + 1}. ${question.text} 回答：${ANSWER_OPTIONS.find((option) => option.score === answers[question.id])?.label ?? "未作答"}`).join("\n"),
+      answerSummary: questions.map((question, index) => `${index + 1}. ${question.text} 回答：${answers[question.id] != null ? `${answers[question.id]} 分` : "未作答"}`).join("\n"),
     };
   }, [profile, answers, questions]);
 
@@ -282,7 +268,7 @@ export default function HealthAssessment() {
     if (!result || !completed) return;
 
     setStep(2);
-    setStatusText("Dr.Marvin 正在分析 15 題生理狀態線索...");
+    setStatusText("Dr.Marvin 正在分析 7 題健康評估線索...");
     setSaveNotice("");
     setSaveStatus("idle");
 
@@ -336,7 +322,7 @@ export default function HealthAssessment() {
       categoryLabel: CATEGORY_LABELS[question.category],
       text: question.text,
       score: answers[question.id] ?? null,
-      label: ANSWER_OPTIONS.find((option) => option.score === answers[question.id])?.label ?? null,
+      label: answers[question.id] != null ? `${answers[question.id]} 分` : null,
     }));
     const createdAt = new Date().toISOString();
     const clientGeneratedId = crypto.randomUUID();
@@ -344,16 +330,16 @@ export default function HealthAssessment() {
       id: clientGeneratedId,
       name: null,
       gender: profile.gender,
-      age_group: profile.ageGroup,
+      age_group: profile.age ? `${profile.age} 歲` : null,
       height_cm: Number(profile.heightCm),
       weight_kg: Number(profile.weightKg),
       bmi,
       work_type: profile.workType,
-      sleep_hours: profile.sleepHours,
-      sleep_quality: profile.sleepQuality,
+      sleep_hours: null,
+      sleep_quality: null,
       exercise_habit: profile.exerciseHabit,
-      diet_pattern: profile.dietPattern,
-      stress_level: profile.stressLevel,
+      diet_pattern: null,
+      stress_level: null,
       answers: answerRows,
       total_score: result.total,
       inflammation_level: result.levelLabel,
@@ -414,11 +400,11 @@ export default function HealthAssessment() {
       <div className="mb-10 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-[0.32em] text-[#C8A96E]">DR.MARVIN HEALTH CHECK</p>
         <h3 className="text-3xl font-semibold md:text-5xl">Dr.Marvin 生理狀態快篩</h3>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#49675A]">依年齡、工作型態、睡眠、運動與壓力資料，完成 15 題快速評估，了解你目前的發炎風險與最適合的植物機能飲品。</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#49675A]">依您的基本資料，完成 7 題快速評估，了解目前的發炎風險與最適合的植物機能飲品。</p>
       </div>
 
       {step === 0 && (
-        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-6 shadow-xl shadow-[#123828]/5 md:p-8">
+        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-6 md:p-8">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C3D2B] text-white"><Leaf className="h-5 w-5" /></div>
             <div>
@@ -426,124 +412,141 @@ export default function HealthAssessment() {
               <h4 className="text-2xl font-semibold">輸入基本資料</h4>
             </div>
           </div>
-          <div className="mb-7 grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">性別</span>
-              <select value={profile.gender} onChange={(event) => setProfile((prev) => ({ ...prev, gender: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                <option>男</option>
-                <option>女</option>
-                <option>其他</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">年齡區間</span>
-              <select value={profile.ageGroup} onChange={(event) => setProfile((prev) => ({ ...prev, ageGroup: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {AGE_GROUPS.map((group) => <option key={group.label} value={`${group.label}（${group.range}）`}>{group.label}（{group.range}）</option>)}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">職業 / 工作型態</span>
-              <select value={profile.workType} onChange={(event) => setProfile((prev) => ({ ...prev, workType: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {WORK_TYPES.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="mb-2 block text-sm text-[#8B7A4C]">身高 cm</span>
-                <input type="number" min="1" value={profile.heightCm} onChange={(event) => setProfile((prev) => ({ ...prev, heightCm: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="170" />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm text-[#8B7A4C]">體重 kg</span>
-                <input type="number" min="1" value={profile.weightKg} onChange={(event) => setProfile((prev) => ({ ...prev, weightKg: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" placeholder="65" />
-              </label>
+
+          <div className="mb-7 space-y-6">
+            <div>
+              <span className="mb-3 block text-sm text-[#8B7A4C]">性別</span>
+              <div className="grid grid-cols-3 gap-3">
+                {["男", "女", "其他"].map((gender) => (
+                  <button key={gender} type="button" onClick={() => setProfile((prev) => ({ ...prev, gender }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.gender === gender ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                    {gender}
+                  </button>
+                ))}
+              </div>
             </div>
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">睡眠時間</span>
-              <select value={profile.sleepHours} onChange={(event) => setProfile((prev) => ({ ...prev, sleepHours: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {SLEEP_HOURS.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">睡眠品質</span>
-              <select value={profile.sleepQuality} onChange={(event) => setProfile((prev) => ({ ...prev, sleepQuality: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {SLEEP_QUALITY.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">運動習慣</span>
-              <select value={profile.exerciseHabit} onChange={(event) => setProfile((prev) => ({ ...prev, exerciseHabit: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {EXERCISE_HABITS.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">飲食型態</span>
-              <select value={profile.dietPattern} onChange={(event) => setProfile((prev) => ({ ...prev, dietPattern: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {DIET_PATTERNS.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
-            <label className="block md:col-span-2">
-              <span className="mb-2 block text-sm text-[#8B7A4C]">壓力程度</span>
-              <select value={profile.stressLevel} onChange={(event) => setProfile((prev) => ({ ...prev, stressLevel: event.target.value }))} className="w-full rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]">
-                <option value="">請選擇</option>
-                {STRESS_LEVELS.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </label>
+
+            <div>
+              <span className="mb-3 block text-sm text-[#8B7A4C]">年齡</span>
+              <div className="flex items-center gap-3">
+                <input type="number" min="1" max="119" value={profile.age} onChange={(event) => setProfile((prev) => ({ ...prev, age: event.target.value }))} placeholder="請輸入您的年齡" className="flex-1 rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" />
+                <span className="text-sm text-[#8B7A4C]">歲</span>
+              </div>
+            </div>
+
+            <div>
+              <span className="mb-3 block text-sm text-[#8B7A4C]">職業類型</span>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                {WORK_TYPES.map((workType) => (
+                  <button key={workType} type="button" onClick={() => setProfile((prev) => ({ ...prev, workType }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.workType === workType ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                    {workType}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="mb-3 block text-sm text-[#8B7A4C]">身高</span>
+                <div className="flex items-center gap-2">
+                  <input type="number" min="1" value={profile.heightCm} onChange={(event) => setProfile((prev) => ({ ...prev, heightCm: event.target.value }))} placeholder="170" className="flex-1 rounded-2xl border border-[#E5E0D5] bg-white px-4 py-4 outline-none focus:border-[#C8A96E]" />
+                  <span className="text-sm text-[#8B7A4C]">公分</span>
+                </div>
+              </div>
+              <div>
+                <span className="mb-3 block text-sm text-[#8B7A4C]">體重</span>
+                <div className="flex items-center gap-2">
+                  <input type="number" min="1" value={profile.weightKg} onChange={(event) => setProfile((prev) => ({ ...prev, weightKg: event.target.value }))} placeholder="65" className="flex-1 rounded-2xl border border-[#E5E0D5] bg-white px-4 py-4 outline-none focus:border-[#C8A96E]" />
+                  <span className="text-sm text-[#8B7A4C]">公斤</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <span className="mb-3 block text-sm text-[#8B7A4C]">運動習慣</span>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {EXERCISE_HABITS.map((exerciseHabit) => (
+                  <button key={exerciseHabit} type="button" onClick={() => setProfile((prev) => ({ ...prev, exerciseHabit }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.exerciseHabit === exerciseHabit ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                    {exerciseHabit}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          {bmi && <p className="mb-2 text-sm text-[#49675A]">BMI 將納入 AI 分析：<span className="font-semibold text-[#1C3D2B]">{bmi}</span></p>}
-          <button type="button" disabled={!profileCompleted} onClick={startAssessment} className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
-            開始 15 題快篩 <ArrowRight className="h-4 w-4" />
+
+          {bmi && <p className="mb-4 text-sm text-[#49675A]">BMI 將納入 AI 分析：<span className="font-semibold text-[#1C3D2B]">{bmi}</span></p>}
+
+          <button type="button" disabled={!profileCompleted} onClick={startAssessment} className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
+            下一步：開始健康分析 <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {step === 1 && (
-        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-5 shadow-xl shadow-[#123828]/5 md:p-8">
+        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-6 md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C3D2B] text-white"><Sparkles className="h-5 w-5" /></div>
               <div>
                 <p className="text-sm text-[#8B7A4C]">步驟 2 / 3</p>
-                <h4 className="text-2xl font-semibold">15 題生理狀態快篩</h4>
+                <h4 className="text-2xl font-semibold">健康評估 7 題</h4>
               </div>
             </div>
-            <div className="rounded-full bg-[#F5F2EB] px-4 py-2 text-sm font-semibold text-[#49675A]">{answeredCount} / {QUESTION_COUNT} 題完成</div>
+            <div className="text-sm text-[#49675A]">{answeredCount} / {QUESTION_COUNT} 題完成</div>
           </div>
           <div className="mt-6 h-3 overflow-hidden rounded-full bg-[#EFEAE0]">
             <div className="h-full rounded-full bg-[#C8A96E] transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
+          <div className="mt-6 rounded-2xl border border-[#DCD1B8] bg-[#F8F5EC] px-5 py-4 text-[#3F5B49] shadow-sm md:flex md:items-center md:justify-between md:gap-6">
+            <div>
+              <p className="text-base font-semibold">請依照您的身體狀況評分：</p>
+              <p className="mt-2 text-sm leading-7 md:text-base">1 分代表狀況最好／幾乎沒有</p>
+              <p className="text-sm leading-7 md:text-base">5 分代表狀況最明顯／最嚴重</p>
+            </div>
+            <div className="mt-4 flex items-center gap-2 md:mt-0">
+              {ANSWER_OPTIONS.map((score) => (
+                <span key={score} className="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold" style={SCORE_STYLES[score]}>
+                  {score}
+                </span>
+              ))}
+            </div>
+          </div>
           <div className="mt-8 space-y-5">
-            {questions.map((question, index) => (
-              <div key={question.id} className="rounded-2xl border border-[#E5E0D5] bg-[#FDFBF6] p-5">
-                <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#8B7A4C]">{CATEGORY_LABELS[question.category]}</div>
-                <p className="font-medium leading-7">{index + 1}. {question.text}</p>
-                <div className="mt-4 grid grid-cols-5 gap-2">
-                  {ANSWER_OPTIONS.map((option) => {
-                    const active = answers[question.id] === option.score;
-                    return (
-                      <button key={option.score} type="button" onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: option.score }))} className={`min-h-[62px] rounded-2xl border px-2 py-2 text-center text-xs font-semibold transition md:min-h-[72px] md:text-sm ${active ? "border-[#1C3D2B] bg-[#1C3D2B] text-white shadow-lg shadow-[#1C3D2B]/15" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`} aria-label={`${option.score} 分：${option.label}`}>
-                        <span className="block text-xl md:text-2xl">{option.score}</span>
-                        <span className="mt-1 block leading-tight">{option.label}</span>
-                        {active && <Check className="mx-auto mt-1 h-4 w-4" />}
-                      </button>
-                    );
-                  })}
+            {questions.map((question, index) => {
+              const currentScore = answers[question.id];
+              return (
+                <div key={question.id} className="rounded-2xl border border-[#E5E0D5] bg-[#FDFBF6] p-5">
+                  <p className="font-medium leading-7">{index + 1}. {question.text}</p>
+                  <div className="mt-4 flex gap-3">
+                    {ANSWER_OPTIONS.map((score) => {
+                      const active = currentScore === score;
+                      return (
+                        <button
+                          key={score}
+                          type="button"
+                          onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: score }))}
+                          className="h-11 w-11 rounded-full border text-sm font-semibold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#C8A96E]/50"
+                          style={{
+                            ...SCORE_STYLES[score],
+                            boxShadow: active ? "0 0 0 3px rgba(200, 169, 110, 0.32), 0 10px 24px rgba(28, 61, 43, 0.12)" : "none",
+                            transform: active ? "translateY(-1px)" : undefined,
+                          }}
+                          aria-label={`${score} 分`}
+                        >
+                          {score}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-3 text-right text-xs text-[#8B7A4C]">
+                    目前分數：{currentScore != null ? currentScore : "–"} / 5
+                  </div>
                 </div>
-                <div className="mt-3 text-right text-sm text-[#8B7A4C]">
-                  目前分數：<span className="font-semibold text-[#1C3D2B]">{answers[question.id] || "-"} / 5</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
-            <button type="button" onClick={resetAssessment} className="rounded-full border border-[#C8A96E] bg-white px-6 py-3 font-medium text-[#1C3D2B] transition hover:bg-[#F5F2EB]">重新填寫資料</button>
-            <button type="button" disabled={!completed} onClick={runAnalysis} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-3 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
+            <button type="button" onClick={resetAssessment} className="rounded-full border border-[#C8A96E] bg-white px-6 py-3 font-medium text-[#1C3D2B] transition hover:bg-[#F5F2EB]">重新抽題</button>
+            <button type="button" disabled={!completed} onClick={runAnalysis} className="inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-3 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
               交給 AI 分析 <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -565,7 +568,7 @@ export default function HealthAssessment() {
               <p className="text-sm tracking-[0.24em] text-[#C8A96E]">PHYSIOLOGIC SCORE</p>
               <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/50">/{QUESTION_COUNT * 5}</span></div>
               <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1C3D2B]">{result.levelLabel}</div>
-              <p className="mt-5 leading-8 text-white/70">{profile.ageGroup}｜15 題生理狀態快篩</p>
+              <p className="mt-5 leading-8 text-white/70">{profile.age} 歲｜{profile.gender}｜7 題健康評估</p>
             </div>
             <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7 shadow-xl shadow-[#123828]/5">
               <h4 className="text-2xl font-semibold">AI 判讀重點</h4>
@@ -574,12 +577,11 @@ export default function HealthAssessment() {
           </div>
           <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7">
             <h4 className="text-2xl font-semibold">基本資料摘要</h4>
-            <div className="mt-5 grid gap-3 text-sm text-[#49675A] md:grid-cols-5">
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">年齡區間</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.ageLabel}</strong></div>
+            <div className="mt-5 grid gap-3 text-sm text-[#49675A] md:grid-cols-4">
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">年齡</span><strong className="mt-2 block text-[#1C3D2B]">{profile.age} 歲</strong></div>
               <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">BMI</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.bmi}</strong></div>
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">工作型態</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.workType}</strong></div>
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">睡眠狀態</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.sleep}</strong></div>
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">運動頻率</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.exercise}</strong></div>
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">職業類型</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.workType}</strong></div>
+              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">運動習慣</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.exercise}</strong></div>
             </div>
           </div>
           <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
