@@ -917,23 +917,55 @@ function GalleryPage() {
 
 function Footer({ go }) {
   return (
-    <footer className="border-t border-[#E7DDBF] px-5 py-10 md:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_auto] md:items-center">
-        <div className="text-sm text-[#49675A]">
-          <div>© 2026 植本邏輯 PHYTOLOGIC. All rights reserved.</div>
-          <div className="mt-2 tracking-[0.28em]">熱愛・尊重・相信</div>
-        </div>
-        <div className="grid gap-4 rounded-2xl border border-[#E7DDBF] bg-white/70 p-4 md:grid-cols-[88px_1fr] md:items-center">
-          <LineQRCode className="w-24" />
+    <footer className="border-t border-[#E7DDBF] bg-[#F9F5EA] px-5 py-14 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1.2fr] md:gap-8">
           <div>
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="植本邏輯 Logo" className="h-10 w-10 object-contain" />
+              <div>
+                <div className="font-semibold tracking-[0.18em] text-[#123828]">植本邏輯</div>
+                <div className="text-xs tracking-[0.24em] text-[#7D8D7F]">PHYTOLOGIC</div>
+              </div>
+            </div>
+            <p className="mt-5 text-sm leading-7 text-[#49675A]">
+              以植物、科學與愛，<br />守護人生裡真正重要的人。
+            </p>
+            <button type="button" onClick={handleOpenLine} className="mt-5 rounded-full bg-[#06C755] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#05B64D]">加入 LINE</button>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold tracking-[0.2em] text-[#8B7A4C]">品牌</h3>
+            <ul className="mt-4 space-y-3 text-sm text-[#49675A]">
+              <li><button type="button" onClick={() => go("/about")} className="transition hover:text-[#123828]">品牌精神</button></li>
+              <li><button type="button" onClick={() => go("/products")} className="transition hover:text-[#123828]">全植物機能飲</button></li>
+              <li><button type="button" onClick={() => go("/assessment")} className="transition hover:text-[#123828]">Dr.Marvin 健康分析</button></li>
+              <li><button type="button" onClick={() => go("/news")} className="transition hover:text-[#123828]">最新消息</button></li>
+              <li><button type="button" onClick={() => go("/gallery")} className="transition hover:text-[#123828]">精彩剪影</button></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold tracking-[0.2em] text-[#8B7A4C]">合作</h3>
+            <ul className="mt-4 space-y-3 text-sm text-[#49675A]">
+              <li><button type="button" onClick={() => go("/join")} className="transition hover:text-[#123828]">合作募集</button></li>
+              <li><button type="button" onClick={() => go("/partners")} className="transition hover:text-[#123828]">合作夥伴</button></li>
+              <li><button type="button" onClick={() => { go("/join"); setTimeout(() => document.querySelector("#合作申請")?.scrollIntoView({ behavior: "smooth" }), 80); }} className="transition hover:text-[#123828]">送出合作申請</button></li>
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-[#E7DDBF] bg-white/70 p-5">
             <div className="text-sm text-[#8B7A4C]">官方 LINE</div>
             <div className="mt-1 font-semibold text-[#123828]">{lineId}</div>
-            <button type="button" onClick={handleOpenLine} className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white">立即加入 LINE</button>
+            <LineQRCode className="mt-3 w-24" />
+            <button type="button" onClick={handleOpenLine} className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#05B64D]">立即加入 LINE</button>
           </div>
         </div>
-      </div>
-      <div className="mx-auto mt-8 max-w-7xl border-t border-[#E7DDBF]/70 pt-5 text-right">
-        <button type="button" onClick={() => go("/admin")} className="text-xs text-[#9A8C68] transition hover:text-[#123828]">管理入口</button>
+
+        <div className="mt-12 flex flex-col gap-3 border-t border-[#E7DDBF]/70 pt-5 text-xs text-[#9A8C68] md:flex-row md:items-center md:justify-between">
+          <span>© 2026 植本邏輯 PHYTOLOGIC. All rights reserved. ・ 熱愛・尊重・相信</span>
+          <button type="button" onClick={() => go("/admin")} className="w-fit transition hover:text-[#123828]">管理入口</button>
+        </div>
       </div>
     </footer>
   );
