@@ -155,7 +155,7 @@ function buildProfileSummary(profile, bmi) {
 function buildPrompt({ profileSummary, total, levelLabel, categorySummary, answerSummary, primary, secondary }) {
   const productSummary = PRODUCTS.map((product) => `${product.id}｜${product.name}｜${product.desc}｜對應：${product.focus}`).join("\n");
 
-  return `你是植本邏輯（PHYTOLOGIC）的派森 AI 健康系統顧問，擅長以生活型態與植物機能飲品做日常健康建議。
+  return `你是植本邏輯（PHYTOLOGIC）的 Dr.Marvin 健康系統顧問，擅長以生活型態與植物機能飲品做日常健康建議。
 
 請根據以下「7 題生理狀態快篩」結果，分析使用者目前最需要被支持的生活狀態，並推薦最適合的一款植本邏輯飲品與一個具體生活改變方式。請避免醫療宣稱，用支持、幫助、維持、有助於、調節等語氣。
 
@@ -284,13 +284,13 @@ export default function HealthAssessment() {
     if (!result || !completed) return;
 
     setStep(2);
-    setStatusText("派森正在分析 7 題生理狀態線索...");
+    setStatusText("Dr.Marvin 正在分析 7 題生理狀態線索...");
     setSaveNotice("");
     setSaveStatus("idle");
 
     const { primary, secondary } = result.recommendations;
     const fallback = {
-      analysis: `您目前的快篩總分為 ${result.total} 分，屬於「${result.levelLabel}」。從回答來看，較需要留意的是 ${result.categorySummary}。這通常與睡眠節律、壓力累積、外食型態、久坐或恢復不足有關。派森建議優先選擇 ${primary.name}，以植物機能支持日常狀態；${secondary ? `也可把 ${secondary.name} 作為輔助選擇。` : ""}`,
+      analysis: `您目前的快篩總分為 ${result.total} 分，屬於「${result.levelLabel}」。從回答來看，較需要留意的是 ${result.categorySummary}。這通常與睡眠節律、壓力累積、外食型態、久坐或恢復不足有關。Dr.Marvin 建議優先選擇 ${primary.name}，以植物機能支持日常狀態；${secondary ? `也可把 ${secondary.name} 作為輔助選擇。` : ""}`,
       recommendedProductId: primary.id,
       recommendedProductName: primary.name,
       lifestyleChange: "今天先固定一個睡前儀式，晚餐增加深色蔬菜，並安排10分鐘輕快步行。",
@@ -414,8 +414,8 @@ export default function HealthAssessment() {
   return (
     <div className="mx-auto max-w-5xl text-[#1C3D2B]">
       <div className="mb-10 text-center">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.32em] text-[#C8A96E]">PHYSON AI HEALTH CHECK</p>
-        <h3 className="text-3xl font-semibold md:text-5xl">派森 AI 生理狀態快篩</h3>
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.32em] text-[#C8A96E]">DR.MARVIN HEALTH CHECK</p>
+        <h3 className="text-3xl font-semibold md:text-5xl">Dr.Marvin 生理狀態快篩</h3>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#49675A]">依年齡、工作型態、睡眠、運動與壓力資料，從題庫挑出最相關的 7 題，快速建立植物機能飲品推薦。</p>
       </div>
 
@@ -555,7 +555,7 @@ export default function HealthAssessment() {
       {step === 2 && (
         <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-[#E5E0D5] bg-white p-8 text-center shadow-xl shadow-[#123828]/5">
           <Loader2 className="h-12 w-12 animate-spin text-[#C8A96E]" />
-          <h4 className="mt-6 text-3xl font-semibold">派森正在生成個人化分析</h4>
+          <h4 className="mt-6 text-3xl font-semibold">Dr.Marvin 正在生成個人化分析</h4>
           <p className="mt-4 max-w-lg leading-8 text-[#49675A]">{statusText || "AI 正在比對生活型態、分類分數與植物機能飲品特性。"}</p>
         </div>
       )}

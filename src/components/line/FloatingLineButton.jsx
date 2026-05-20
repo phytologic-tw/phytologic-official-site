@@ -8,9 +8,9 @@ export default function FloatingLineButton() {
       type="button"
       onClick={handleOpenLine}
       aria-label="加入植本邏輯官方 LINE"
-      className="fixed bottom-5 right-5 z-[70] flex h-16 w-16 items-center justify-center rounded-full bg-[#06C755] text-white shadow-2xl shadow-[#06C755]/30 transition hover:-translate-y-1 hover:scale-105 md:hidden"
+      className="fixed bottom-5 right-5 z-[70] flex h-14 w-14 items-center justify-center rounded-full border border-[#A8BFA5]/70 bg-[#5F8F68]/88 text-[#F8F4EC] shadow-[0_18px_38px_rgba(60,82,62,0.18)] backdrop-blur-md transition duration-500 ease-out hover:-translate-y-px hover:bg-[#527F5B] md:hidden"
     >
-      <MessageCircle className="h-7 w-7" />
+      <MessageCircle className="h-6 w-6" />
     </button>
   );
 }

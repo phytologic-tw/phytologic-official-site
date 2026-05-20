@@ -44,7 +44,7 @@ const products = [
     formula: "由地瓜葉、青江菜、黑木耳、芭樂、檸檬等共 12 項蔬果穀植物所組成，建立以代謝循環與體內環保為核心的植物機能系統。",
     desc: "以深綠植萃、膳食纖維與清爽青檸酸香，支持外食族的日常代謝循環與排便順暢。",
     tags: ["代謝循環", "腸道順暢", "膳食纖維", "外食族"],
-    aiHint: "派森 AI 可能會在你的快篩出現腸胃與代謝警訊時推薦此產品。",
+    aiHint: "Dr.Marvin 可能會在你的快篩出現腸胃與代謝警訊時推薦此產品。",
     sections: [
       { title: "核心成分｜純天然無化學添加", text: "由地瓜葉、青江菜、黑木耳、芭樂、檸檬等共 12 項蔬果穀植物所組成，搭配鉑金基底液，保留葉綠素、膳食纖維與維生素 C 的自然機能。" },
       { title: "植物機能與身體影響", text: "深綠蔬菜提供葉綠素與植化素，黑木耳與芭樂補上纖維與清爽感，有助於維持消化節奏、支持代謝循環，讓身體在高油、高鹽與外食頻率高的生活中回到輕盈狀態。" },
@@ -66,7 +66,7 @@ const products = [
     formula: "由山藥、銀耳、生核桃、蘋果、紅棗等共 11 項蔬果穀植物所組成，建立溫和修復與抗發炎支持的植物機能系統。",
     desc: "以山藥、銀耳與核桃建立溫潤基底，支持熬夜、壓力疲勞與腸胃敏感時的日常穩定。",
     tags: ["溫和修復", "植物多醣", "熬夜族", "壓力疲勞"],
-    aiHint: "派森 AI 可能會在你的快篩出現睡眠、壓力或免疫警訊時推薦此產品。",
+    aiHint: "Dr.Marvin 可能會在你的快篩出現睡眠、壓力或免疫警訊時推薦此產品。",
     sections: [
       { title: "核心成分｜純天然無化學添加", text: "由山藥、銀耳、生核桃、蘋果、紅棗等共 11 項蔬果穀植物所組成，以植物多醣、水溶性膳食纖維與 Omega-3 形成溫和機能基底。" },
       { title: "植物機能與身體影響", text: "山藥與銀耳提供細緻滑順的植物多醣，核桃帶來植物性脂肪酸，老薑提供溫熱感，有助於支持壓力疲勞後的平衡感與腸胃滋養。" },
@@ -88,7 +88,7 @@ const products = [
     formula: "由甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等共 12 項蔬果穀植物所組成，建立女性保養與抗氧化支持的植物機能系統。",
     desc: "以紅紫色植化素、維生素 C 與玫瑰尾韻，支持氣色循環、女性保養與膠原蛋白生成。",
     tags: ["女性保養", "氣色循環", "花青素", "維生素 C"],
-    aiHint: "派森 AI 可能會在你的快篩出現女性保養、氣色或抗氧化需求時推薦此產品。",
+    aiHint: "Dr.Marvin 可能會在你的快篩出現女性保養、氣色或抗氧化需求時推薦此產品。",
     sections: [
       { title: "核心成分｜純天然無化學添加", text: "由甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等共 12 項蔬果穀植物所組成，提供花青素、維生素 C 與紅紫色植化素。" },
       { title: "植物機能與身體影響", text: "甜菜根與紫甘藍支持紅潤氣色與循環感，芭樂與百香果補充維生素 C，有助於膠原蛋白生成支持與日常抗氧化防護。" },
@@ -110,7 +110,7 @@ const products = [
     formula: "由甜玉米、香蕉、新鮮薑黃、黃甜椒、桂花等共 12 項蔬果穀植物所組成，建立運動恢復與能量代謝支持的植物機能系統。",
     desc: "以甜玉米、香蕉與新鮮薑黃組成金色能量系統，支持訓練後恢復、代謝能量與體能續航。",
     tags: ["運動恢復", "薑黃素", "鉀離子", "維生素 B6"],
-    aiHint: "派森 AI 可能會在你的快篩出現肌肉、運動恢復或能量代謝警訊時推薦此產品。",
+    aiHint: "Dr.Marvin 可能會在你的快篩出現肌肉、運動恢復或能量代謝警訊時推薦此產品。",
     sections: [
       { title: "核心成分｜純天然無化學添加", text: "由甜玉米、香蕉、新鮮薑黃、黃甜椒、桂花等共 12 項蔬果穀植物所組成，含薑黃素、鉀離子與維生素 B6 等營養線索。" },
       { title: "植物機能與身體影響", text: "香蕉與甜玉米提供訓練後需要的溫和能量，黃甜椒與薑黃支持抗氧化防護與代謝循環，有助於運動恢復與日常體能管理。" },
@@ -132,7 +132,7 @@ const products = [
     formula: "由藍莓、桑椹、紫薯、木鱉果、紫色高麗菜等共 13 項蔬果穀植物所組成，建立護眼抗氧化與長時間用眼支持的植物機能系統。",
     desc: "以紫色植萃與類胡蘿蔔素建立視覺支持網，為長時間用眼與 3C 族群提供日常抗氧化防護。",
     tags: ["長時間用眼", "3C族群", "花青素", "類胡蘿蔔素"],
-    aiHint: "派森 AI 可能會在你的快篩出現眼睛疲勞、螢幕使用或抗氧化需求時推薦此產品。",
+    aiHint: "Dr.Marvin 可能會在你的快篩出現眼睛疲勞、螢幕使用或抗氧化需求時推薦此產品。",
     sections: [
       { title: "核心成分｜純天然無化學添加", text: "由藍莓、桑椹、紫薯、木鱉果、紫色高麗菜等共 13 項蔬果穀植物所組成，結合花青素與類胡蘿蔔素的紫色機能矩陣。" },
       { title: "植物機能與身體影響", text: "藍莓、桑椹與紫色高麗菜提供花青素，木鱉果帶來類胡蘿蔔素線索，有助於支持長時間用眼、暗處視覺適應與日常抗氧化防護。" },
@@ -156,13 +156,13 @@ const productCards = [
     formula: "山藥、蘋果、白木耳、生核桃等天然蔬果穀物組成。",
     desc: "熬夜疲勞、腸胃敏感與身體修復時的溫和滋養。",
     tags: ["熬夜疲勞", "腸胃敏感", "身體修復"],
-    aiHint: "派森 AI 會在睡眠、壓力、腸胃敏感與修復需求偏高時，優先把雪山植萃列為溫和支持選項。",
+    aiHint: "Dr.Marvin 會在睡眠、壓力、腸胃敏感與修復需求偏高時，優先把雪山植萃列為溫和支持選項。",
     sections: [
       { title: "適合族群", text: "適合熬夜族、壓力疲勞明顯、腸胃容易敏感，或希望用低刺激植物配方照顧日常狀態的人。" },
       { title: "核心食材", text: "以山藥、蘋果、白木耳、生核桃等天然蔬果穀物建立溫潤基底，提供植物多醣、纖維與堅果油脂線索。" },
       { title: "機能說明", text: "重點放在抗發炎支持、腸胃修復與溫和滋養，讓身體在疲勞與敏感狀態下回到穩定節奏。" },
       { title: "飲用情境", text: "適合早晨狀態不穩、熬夜隔天、壓力後恢復，或想用一杯溫和植物飲作為日常保養時飲用。" },
-      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到睡眠、壓力、免疫或消化訊號較高時，會將此配方作為修復與穩定的推薦方向。" },
+      { title: "AI 推薦邏輯", text: "當 Dr.Marvin 健康分析偵測到睡眠、壓力、免疫或消化訊號較高時，會將此配方作為修復與穩定的推薦方向。" },
       { title: "研究資料入口", text: "完整營養學、植化素與相關科學邏輯，請由研究資料入口集中閱讀，不在首頁一次鋪陳。" },
     ],
   },
@@ -178,13 +178,13 @@ const productCards = [
     formula: "地瓜葉、青江菜、黑木耳、芭樂、檸檬等天然蔬果組成。",
     desc: "代謝卡卡、外食負擔與排除需求的清爽植物支持。",
     tags: ["代謝卡卡", "外食族", "排除負擔"],
-    aiHint: "派森 AI 會在腸胃、代謝、外食頻率與身體沉重感訊號偏高時，優先考慮青檸植萃。",
+    aiHint: "Dr.Marvin 會在腸胃、代謝、外食頻率與身體沉重感訊號偏高時，優先考慮青檸植萃。",
     sections: [
       { title: "適合族群", text: "適合外食族、久坐上班族、排便節奏不固定、常覺得身體沉重，或想建立每日體內環保習慣的人。" },
       { title: "核心食材", text: "以地瓜葉、青江菜、黑木耳、芭樂、檸檬等天然蔬果組成，補上深綠植萃與膳食纖維線索。" },
       { title: "機能說明", text: "重點放在膳食纖維、促進腸胃蠕動與代謝排除，支持高油、高鹽與外食生活後的清爽感。" },
       { title: "飲用情境", text: "適合外食隔天、久坐後、身體覺得悶重，或需要讓消化節奏回到輕盈狀態時飲用。" },
-      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到消化、代謝、水腫或外食相關訊號較高時，會推薦此配方作為清理型支持。" },
+      { title: "AI 推薦邏輯", text: "當 Dr.Marvin 健康分析偵測到消化、代謝、水腫或外食相關訊號較高時，會推薦此配方作為清理型支持。" },
       { title: "研究資料入口", text: "膳食纖維、植化素、SGS 模擬與更完整科學邏輯，統一收進研究資料入口。" },
     ],
   },
@@ -200,13 +200,13 @@ const productCards = [
     formula: "甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等天然蔬果組成。",
     desc: "好氣色、抗氧化與肌膚彈性的女性日常保養。",
     tags: ["好氣色", "抗氧化", "肌膚彈性"],
-    aiHint: "派森 AI 會在氣色、抗氧化、女性保養與膠原生成支持需求出現時，推薦玫瑰植萃。",
+    aiHint: "Dr.Marvin 會在氣色、抗氧化、女性保養與膠原生成支持需求出現時，推薦玫瑰植萃。",
     sections: [
       { title: "適合族群", text: "適合重視氣色管理、女性保養、肌膚光澤、日常抗氧化與外在狀態的人。" },
       { title: "核心食材", text: "以甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等天然蔬果組成，提供紅紫色植化素與維生素 C 線索。" },
       { title: "機能說明", text: "重點放在維生素 C、膠原蛋白生成支持與紅潤氣色，讓保養更接近日常飲食。" },
       { title: "飲用情境", text: "適合重要場合前、忙碌工作日、肌膚狀態需要維持，或想把保養變成每日儀式時飲用。" },
-      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到氣色、女性保養、抗氧化或美感機能需求時，會把此配方列為推薦。" },
+      { title: "AI 推薦邏輯", text: "當 Dr.Marvin 健康分析偵測到氣色、女性保養、抗氧化或美感機能需求時，會把此配方列為推薦。" },
       { title: "研究資料入口", text: "維生素 C、花青素與膠原生成相關科學資料，集中於研究資料入口閱讀。" },
     ],
   },
@@ -222,13 +222,13 @@ const productCards = [
     formula: "甜玉米、香蕉、紅蘿蔔、百香果、新鮮薑黃等天然蔬果組成。",
     desc: "運動恢復、肌肉修復與能量補給的金色植物系統。",
     tags: ["運動恢復", "肌肉修復", "能量補給"],
-    aiHint: "派森 AI 會在肌肉、運動恢復、能量代謝與體能消耗訊號偏高時，推薦桂香植萃。",
+    aiHint: "Dr.Marvin 會在肌肉、運動恢復、能量代謝與體能消耗訊號偏高時，推薦桂香植萃。",
     sections: [
       { title: "適合族群", text: "適合規律運動者、訓練後需要補給的人、體能消耗大、久站外勤，或想兼顧增肌修復與能量管理的人。" },
       { title: "核心食材", text: "以甜玉米、香蕉、紅蘿蔔、百香果、新鮮薑黃等天然蔬果組成，建立金色能量與抗氧化線索。" },
       { title: "機能說明", text: "重點放在運動修復、蛋白質利用與抗氧化支持，讓訓練後補給更乾淨、日常化。" },
       { title: "飲用情境", text: "適合運動後、久站外勤後、體能消耗大的一天，或需要溫和能量補給時飲用。" },
-      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到肌肉緊繃、運動恢復、體力消耗或能量代謝訊號時，會推薦此配方。" },
+      { title: "AI 推薦邏輯", text: "當 Dr.Marvin 健康分析偵測到肌肉緊繃、運動恢復、體力消耗或能量代謝訊號時，會推薦此配方。" },
       { title: "研究資料入口", text: "薑黃、抗氧化與運動修復相關研究資料，集中於研究資料入口閱讀。" },
     ],
   },
@@ -244,13 +244,13 @@ const productCards = [
     formula: "木鱉果、紫薯、藍莓、桑椹、紫色高麗菜等天然蔬果組成。",
     desc: "3C 用眼、眼睛疲勞與視覺保養的紫色抗氧化支持。",
     tags: ["3C 用眼", "眼睛疲勞", "視覺保養"],
-    aiHint: "派森 AI 會在眼睛疲勞、長時間螢幕使用與抗氧化需求偏高時，推薦紫莓植萃。",
+    aiHint: "Dr.Marvin 會在眼睛疲勞、長時間螢幕使用與抗氧化需求偏高時，推薦紫莓植萃。",
     sections: [
       { title: "適合族群", text: "適合 3C 族群、長時間盯螢幕、夜間工作、閱讀量大、眼睛容易乾澀疲勞，或希望維持視覺節奏的人。" },
       { title: "核心食材", text: "以木鱉果、紫薯、藍莓、桑椹、紫色高麗菜等天然蔬果組成，結合紫色植萃與類胡蘿蔔素線索。" },
       { title: "機能說明", text: "重點放在花青素、類胡蘿蔔素與護眼抗氧化，支持長時間用眼後的日常保養。" },
       { title: "飲用情境", text: "適合長時間使用手機與電腦後、閱讀或工作量大的一天，或需要專注與視覺保養時飲用。" },
-      { title: "AI 推薦邏輯", text: "當派森健康分析偵測到眼睛疲勞、螢幕使用、睡眠不足或抗氧化需求時，會推薦此配方。" },
+      { title: "AI 推薦邏輯", text: "當 Dr.Marvin 健康分析偵測到眼睛疲勞、螢幕使用、睡眠不足或抗氧化需求時，會推薦此配方。" },
       { title: "研究資料入口", text: "花青素、類胡蘿蔔素與視覺保養相關科學資料，集中於研究資料入口閱讀。" },
     ],
   },
@@ -265,7 +265,7 @@ const colorStories = [
 ];
 
 const homeNews = [
-  { date: "2026.05", category: "品牌公告", title: "植本邏輯官方網站籌備啟動", text: "以品牌形象、產品教育、派森與合作加盟為核心，建立完整官方資訊入口。", detail: "官方網站將作為植本邏輯的品牌門面，整合創辦理念、產品教育、派森、加盟合作與最新活動資訊，讓消費者、合作夥伴與加盟主都能快速理解品牌價值。" },
+  { date: "2026.05", category: "品牌公告", title: "植本邏輯官方網站籌備啟動", text: "以品牌形象、產品教育、Dr.Marvin 與合作加盟為核心，建立完整官方資訊入口。", detail: "官方網站將作為植本邏輯的品牌門面，整合創辦理念、產品教育、Dr.Marvin、加盟合作與最新活動資訊，讓消費者、合作夥伴與加盟主都能快速理解品牌價值。" },
   { date: "2026.07", category: "展會消息", title: "高雄加盟展合作計畫啟動", text: "招募城市合作者、門市加盟與衛星據點，共同推動植物機能飲品進入日常生活。", detail: "高雄加盟展將以試飲體驗、品牌說明、城市合作者洽談與門市模型展示為核心，目標建立可複製、可落地、可擴張的植物機能飲品合作系統。" },
   { date: "COMING", category: "系統開發", title: "LINE會員與AI健康推薦系統", text: "以生活狀態、身體反應與個人化資料，建立每日飲品建議與健康陪伴服務。", detail: "第一階段將以LINE作為會員入口，導入AI超級客服、每日推播、飲品推薦、好運顏色、生活任務與回訪紀錄，讓健康服務變得更輕、更近、更容易持續。" },
 ];
@@ -467,7 +467,7 @@ function Header({ route, go }) {
   const nav = [
     { label: "品牌精神", path: "/about" },
     { label: "全植物機能飲", path: "/products" },
-    { label: "派森健康分析", path: "/assessment" },
+    { label: "Dr.Marvin 健康分析", path: "/assessment" },
     { label: "合作募集", path: "/join" },
     { label: "最新消息", path: "/news" },
     { label: "精彩剪影", path: "/gallery" },
@@ -477,57 +477,68 @@ function Header({ route, go }) {
     go(item.path);
   };
   return (
-    <header className="sticky top-0 z-50 border-b border-[#E7DDBF] bg-[#F9F5EA]/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
+    <header className="sticky top-0 z-50 border-b border-[#D9D2C4]/55 bg-[#F8F4EC]/82 backdrop-blur-2xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-8 md:py-3.5">
         <button type="button" onClick={() => go("/")} className="flex items-center gap-3 text-left">
-          <img src={logo} alt="植本邏輯 PHYTOLOGIC Logo" className="h-10 w-10 object-contain" />
+          <img src={logo} alt="植本邏輯 PHYTOLOGIC Logo" className="h-7 w-7 object-contain opacity-90 drop-shadow-[0_7px_15px_rgba(50,62,52,0.10)] md:h-8 md:w-8" />
           <span>
-            <span className="block text-lg font-semibold tracking-[0.18em]">植本邏輯</span>
-            <span className="block text-xs tracking-[0.24em] text-[#7D8D7F]">PHYTOLOGIC</span>
+            <span className="block text-[14px] font-medium tracking-[0.22em] text-[#293C34]">植本邏輯</span>
+            <span className="block text-[9px] tracking-[0.34em] text-[#8E9588]">PHYTOLOGIC</span>
           </span>
         </button>
-        <nav className="hidden items-center gap-7 text-sm text-[#355548] lg:flex">
-          {nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className={`transition hover:text-[#B89B5E] ${route === item.path ? "text-[#B89B5E]" : ""}`}>{item.label}</button>)}
+        <nav className="hidden items-center gap-7 text-[12px] font-normal text-[#4B5B51] xl:flex">
+          {nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className={`transition duration-500 ease-out hover:text-[#9B8558] ${route === item.path ? "text-[#9B8558]" : ""}`}>{item.label}</button>)}
         </nav>
-        <button type="button" onClick={handleOpenLine} className="hidden rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#06C755]/15 transition hover:bg-[#05B64D] md:block">加入 LINE</button>
-        <button type="button" className="lg:hidden" onClick={() => setMenuOpen((v) => !v)}>{menuOpen ? <X /> : <Menu />}</button>
+        <button type="button" onClick={handleOpenLine} className="hidden rounded-full border border-[#B7A06B]/45 bg-white/10 px-4 py-1.5 text-[11px] font-normal tracking-[0.1em] text-[#59513F] transition duration-500 ease-out hover:border-[#B7A06B]/75 hover:bg-[#F2EBDD]/50 hover:text-[#7C6738] hover:shadow-[0_0_22px_rgba(183,160,107,0.10)] md:block">會員登入 / 加入會員</button>
+        <button type="button" className="xl:hidden" onClick={() => setMenuOpen((v) => !v)}>{menuOpen ? <X /> : <Menu />}</button>
       </div>
-      {menuOpen && <div className="border-t border-[#E7DDBF] px-5 py-5 lg:hidden"><div className="grid gap-4">{nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className="text-left">{item.label}</button>)}</div></div>}
+      {menuOpen && <div className="border-t border-[#D8CFBE]/55 bg-[#F8F4EC]/96 px-5 py-5 xl:hidden"><div className="grid gap-4">{nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className="text-left text-sm text-[#46584D]">{item.label}</button>)}<button type="button" onClick={handleOpenLine} className="w-fit rounded-full border border-[#B7A06B]/45 px-4 py-1.5 text-[11px] tracking-[0.1em] text-[#4F4A36]">會員登入 / 加入會員</button></div></div>}
     </header>
   );
 }
 
 function HomePage({ go }) {
   const entries = [
-    { label: "品牌精神", path: "/about", text: "六個家庭、創辦故事與三好三無的品牌底層。" },
-    { label: "全植物機能飲", path: "/products", text: "五款全植物配方，以身體狀態作為選擇邏輯。" },
-    { label: "派森健康分析", path: "/assessment", text: "用 7 題快篩理解目前最需要被支持的狀態。" },
-    { label: "合作募集", path: "/join", text: "城市合作者、門市加盟、衛星據點與企業方案。" },
+    { label: "品牌精神", path: "/about", tone: "pearl", icon: ShieldCheck, text: "六個家庭的健康起點" },
+    { label: "全植物機能飲", path: "/products", tone: "emerald", icon: Leaf, text: "植物營養的日常支持" },
+    { label: "Dr.Marvin\n健康分析", path: "/assessment", tone: "gold", icon: Activity, text: "理解身體當下需求" },
+    { label: "合作募集", path: "/join", tone: "rose", icon: Users, text: "讓系統進入更多城市" },
   ];
   return (
     <main>
-      <section className="relative overflow-hidden bg-[#F8F3E8] px-5 py-16 md:px-8 md:py-24">
-        <div className="mx-auto flex min-h-[calc(100svh-88px)] max-w-5xl flex-col justify-center">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
-            <img src={logo} alt="植本邏輯 Logo" className="mx-auto h-20 w-20 object-contain" />
-            <p className="mt-7 text-xs font-semibold uppercase tracking-[0.34em] text-[#B89B5E]">PHYTOLOGIC</p>
-            <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight text-[#123828] md:text-6xl">全植物機能飲 × 派森健康系統</h1>
-            <p className="mt-6 text-lg leading-8 text-[#49675A] md:text-2xl">讓每一個人活得久，還要活得好精彩。</p>
+      <section className="luxury-hero relative isolate overflow-hidden bg-[#F8F4EC] px-5 py-12 md:px-8 md:py-10">
+        <div className="luxury-hero-wash pointer-events-none absolute inset-0 -z-10" />
+        <div className="luxury-hero-grid pointer-events-none absolute inset-0 -z-10" />
+        <div className="pointer-events-none absolute left-1/2 top-[48%] -z-10 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#A89566]/[0.07]" />
+        <div className="mx-auto flex min-h-[calc(100svh-70px)] max-w-6xl flex-col justify-start">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} className="mx-auto max-w-5xl text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#A89566]/20 bg-[#FBF8F1]/20 shadow-[0_16px_44px_rgba(48,57,49,0.06)] md:h-[3.75rem] md:w-[3.75rem]">
+              <img src={logo} alt="植本邏輯 Logo" className="h-9 w-9 object-contain opacity-90 drop-shadow-[0_10px_20px_rgba(60,64,53,0.10)] md:h-9 md:w-9" />
+            </div>
+            <p className="luxury-kicker mt-7 text-[10px] font-medium uppercase tracking-[0.48em] text-[#9F8B63]">PHYTOLOGIC HEALTH OPERATING SYSTEM</p>
+            <h1 className="mx-auto mt-6 max-w-5xl text-[2.35rem] font-medium leading-[1.22] tracking-[0.015em] text-[#243A31] md:text-[3rem] lg:text-[3.25rem]">全植物機能飲 × Dr.Marvin 健康系統</h1>
+            <p className="mt-6 whitespace-pre-line text-[1.35rem] font-light leading-[1.7] tracking-[0.02em] text-[#4F6258] md:text-[1.62rem]">讓每一個人活得久，{"\n"}也活得好精彩。</p>
+            <p className="mx-auto mt-6 max-w-xl text-sm font-light leading-8 text-[#707D73] md:text-[15px]">以植物、營養與生活型態資料，建立一套能被日常持續的健康入口。</p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#253A31]/90 bg-[#253A31] px-5 py-2 text-[13px] font-normal tracking-[0.02em] text-[#F8F4EC] shadow-[0_14px_30px_rgba(35,59,49,0.10)] transition duration-500 ease-out hover:-translate-y-px hover:bg-[#2D463B] hover:shadow-[0_16px_36px_rgba(35,59,49,0.13)]">登入健康身份</button>
+              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#B7A06B]/45 bg-white/[0.08] px-5 py-2 text-[13px] font-normal tracking-[0.02em] text-[#5E5441] transition duration-500 ease-out hover:-translate-y-px hover:border-[#A58B58]/70 hover:bg-[#EFE7D5]/35">建立會員身份</button>
+            </div>
           </motion.div>
-          <div className="mt-12 grid gap-4 md:grid-cols-4">
+          <div className="mx-auto mt-9 grid max-w-4xl grid-cols-2 gap-x-7 gap-y-8 md:mt-10 md:grid-cols-4 md:gap-x-10">
             {entries.map((entry) => (
-              <button key={entry.path} type="button" onClick={() => go(entry.path)} className="group rounded-2xl border border-[#D8C99C] bg-white/72 p-6 text-left shadow-sm transition hover:-translate-y-1 hover:border-[#B89B5E] hover:bg-white hover:shadow-xl hover:shadow-[#123828]/8">
-                <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-semibold text-[#123828]">{entry.label}</h2>
-                  <ArrowRight className="h-5 w-5 text-[#B89B5E] transition group-hover:translate-x-1" />
+              <button key={entry.path} type="button" onClick={() => go(entry.path)} className={`hex-entry hex-entry-${entry.tone} group`}>
+                <div className="hex-entry-inner">
+                  <entry.icon className="h-4 w-4 opacity-55" />
+                  <h2 className="mt-2 whitespace-pre-line text-center text-[12px] font-medium leading-[1.45] tracking-[0.03em] text-[#293C34]">{entry.label}</h2>
+                  <p className="mt-1 max-w-[6.75rem] text-center text-[9.5px] font-light leading-[1.65] text-[#707B72]">{entry.text}</p>
+                  <ArrowRight className="mt-2 h-3 w-3 opacity-35 transition duration-500 ease-out group-hover:translate-x-px group-hover:opacity-60" />
                 </div>
-                <p className="mt-4 text-sm leading-7 text-[#49675A]">{entry.text}</p>
               </button>
             ))}
           </div>
-          <div className="mx-auto mt-10 max-w-2xl text-center">
-            <p className="text-sm leading-7 text-[#49675A]">植本邏輯以植物、營養與生活型態資料，建立一套能被日常持續的健康入口。</p>
-            <button type="button" onClick={handleOpenLine} className="mt-6 rounded-full bg-[#06C755] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-[#06C755]/15 transition hover:bg-[#05B64D]">加入官方 LINE</button>
+          <div className="mx-auto mt-8 max-w-3xl text-center">
+            <p className="text-sm font-light leading-8 tracking-[0.02em] text-[#5F6F65]">我們不是在販售飲料，我們是在用自然、科學與愛，守護人生裡真正重要的人。</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.34em] text-[#9F8B63]">Six Families · Plant Science · Health Identity</p>
           </div>
         </div>
       </section>
@@ -615,7 +626,7 @@ function ProductDetailPage({ slug, go }) {
           <h1 className="mt-3 text-5xl font-semibold text-[#123828]">{product.name}</h1>
           <p className="mt-5 text-xl leading-9 text-[#49675A]">{product.theme}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button type="button" onClick={() => go("/assessment")} className="rounded-full bg-[#123828] px-7 py-4 font-semibold text-white">開始派森分析</button>
+            <button type="button" onClick={() => go("/assessment")} className="rounded-full bg-[#123828] px-7 py-4 font-semibold text-white">開始 Dr.Marvin 分析</button>
             <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#06C755] bg-white/75 px-7 py-4 font-semibold text-[#087E3A]">加入官方 LINE</button>
           </div>
         </div>
@@ -674,7 +685,7 @@ function JoinPage({ go }) {
   };
   return (
     <main className="px-5 py-16 md:px-8">
-      <SectionTitle eyebrow="Partnership" title="合作募集" text="一起把全植物機能飲與派森健康分析帶進更多城市與日常生活。" />
+      <SectionTitle eyebrow="Partnership" title="合作募集" text="一起把全植物機能飲與 Dr.Marvin 健康分析帶進更多城市與日常生活。" />
       <section className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_.9fr]">
         <div className="rounded-[2rem] bg-[#123828] p-8 text-white md:p-12">
           <h2 className="text-4xl font-semibold leading-tight">合作理念</h2>
@@ -684,14 +695,14 @@ function JoinPage({ go }) {
         <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/75 p-8 shadow-sm">
           <h2 className="text-3xl font-semibold text-[#123828]">合作流程</h2>
           <ol className="mt-6 grid gap-4 text-[#49675A]">
-            {["提交合作需求", "品牌團隊初步洽談", "確認合作模式與城市條件", "導入產品、LINE 與派森服務", "展開試飲與會員經營"].map((item, index) => (
+            {["提交合作需求", "品牌團隊初步洽談", "確認合作模式與城市條件", "導入產品、LINE 與 Dr.Marvin 服務", "展開試飲與會員經營"].map((item, index) => (
               <li key={item} className="rounded-2xl bg-[#F9F5EA] p-4"><span className="font-semibold text-[#B89B5E]">0{index + 1}</span> {item}</li>
             ))}
           </ol>
         </div>
       </section>
       <section className="mx-auto mt-10 grid max-w-7xl gap-5 md:grid-cols-3">
-        {["品牌與產品教育完整建置", "試飲活動與加盟展轉換流程", "LINE 會員與派森健康分析導入"].map((item) => (
+        {["品牌與產品教育完整建置", "試飲活動與加盟展轉換流程", "LINE 會員與 Dr.Marvin 健康分析導入"].map((item) => (
           <article key={item} className="rounded-[1.5rem] border border-[#E7DDBF] bg-white/75 p-7 shadow-sm">
             <h3 className="text-xl font-semibold text-[#123828]">{item}</h3>
             <p className="mt-4 leading-7 text-[#49675A]">總部提供可複製的營運內容與品牌支持，讓合作夥伴能更快進入市場。</p>
@@ -722,7 +733,7 @@ function PartnersPage() {
     city: "高雄市",
     category: "健康顧問",
     contact_name: "品牌顧問",
-    description: "提供植物機能飲品體驗、健康需求初談與派森 AI 快篩導入服務。",
+    description: "提供植物機能飲品體驗、健康需求初談與 Dr.Marvin 快篩導入服務。",
     isSample: true,
   };
   const [form, setForm] = useState(initialPartnerForm);

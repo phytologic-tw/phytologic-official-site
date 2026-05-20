@@ -17,7 +17,7 @@ export const adminSeed = {
       phone: "07-223-2301",
       email: "bryan@phytologic.tw",
       website_url: "https://phytologic.tw",
-      description: "提供植物機能飲品體驗、健康需求初談與派森 AI 快篩導入服務。",
+      description: "提供植物機能飲品體驗、健康需求初談與 Dr.Marvin 快篩導入服務。",
       status: "approved",
     },
     {
@@ -35,8 +35,8 @@ export const adminSeed = {
     {
       title: "植本邏輯官方網站籌備啟動",
       category: "品牌活動",
-      summary: "以品牌形象、產品教育、派森與合作加盟為核心，建立完整官方資訊入口。",
-      content: "官方網站將整合創辦理念、產品教育、派森、加盟合作與最新活動資訊。",
+      summary: "以品牌形象、產品教育、Dr.Marvin 與合作加盟為核心，建立完整官方資訊入口。",
+      content: "官方網站將整合創辦理念、產品教育、Dr.Marvin、加盟合作與最新活動資訊。",
       status: "published",
       is_pinned: true,
       published_at: "2026-05-18T00:00:00.000Z",
@@ -45,7 +45,7 @@ export const adminSeed = {
       title: "LINE 會員與 AI 健康推薦系統開發中",
       category: "系統開發",
       summary: "以生活狀態與快篩結果建立每日飲品建議。",
-      content: "第一階段將以 LINE 作為會員入口，導入派森快篩與飲品推薦。",
+      content: "第一階段將以 LINE 作為會員入口，導入 Dr.Marvin 快篩與飲品推薦。",
       status: "draft",
       is_pinned: false,
     },

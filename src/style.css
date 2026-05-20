@@ -6,6 +6,131 @@ html { scroll-behavior: smooth; }
 body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
 
+.luxury-hero {
+  color: #243a31;
+}
+
+.luxury-hero-wash {
+  background:
+    radial-gradient(circle at 50% 4%, rgba(173, 159, 119, 0.12), transparent 34%),
+    radial-gradient(circle at 18% 78%, rgba(151, 169, 150, 0.12), transparent 30%),
+    radial-gradient(circle at 84% 64%, rgba(190, 156, 148, 0.08), transparent 27%),
+    linear-gradient(135deg, rgba(250, 247, 240, 0.94), rgba(242, 238, 229, 0.9) 42%, rgba(232, 237, 229, 0.58));
+}
+
+.luxury-hero-grid {
+  opacity: 0.34;
+  background-image:
+    linear-gradient(rgba(71, 87, 76, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(71, 87, 76, 0.03) 1px, transparent 1px),
+    linear-gradient(120deg, transparent 0 49.6%, rgba(168, 149, 102, 0.08) 49.8% 50.2%, transparent 50.4% 100%);
+  background-size: 96px 96px, 96px 96px, 560px 560px;
+  mask-image: radial-gradient(circle at 50% 44%, black 0%, rgba(0, 0, 0, 0.46) 42%, transparent 74%);
+}
+
+.luxury-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image: radial-gradient(rgba(63, 71, 61, 0.18) 0.55px, transparent 0.55px);
+  background-size: 4px 4px;
+  mix-blend-mode: multiply;
+}
+
+.hex-entry {
+  position: relative;
+  width: min(38vw, 124px);
+  aspect-ratio: 1 / 1.12;
+  border: 0;
+  padding: 1px;
+  color: #263a32;
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background: rgba(154, 138, 99, 0.22);
+  box-shadow: 0 16px 34px rgba(47, 57, 48, 0.045);
+  transition: transform 420ms ease, box-shadow 420ms ease, background 420ms ease, opacity 420ms ease;
+}
+
+.hex-entry::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  clip-path: inherit;
+  border: 1px solid rgba(154, 138, 99, 0.11);
+  opacity: 0.74;
+  pointer-events: none;
+  transition: opacity 420ms ease, border-color 420ms ease;
+}
+
+.hex-entry:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 42px rgba(47, 57, 48, 0.075);
+  background: rgba(154, 138, 99, 0.34);
+}
+
+.hex-entry:hover::after {
+  opacity: 1;
+  border-color: rgba(154, 138, 99, 0.2);
+}
+
+.hex-entry-inner {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 25px 16px 22px;
+  clip-path: inherit;
+  backdrop-filter: blur(10px);
+}
+
+.hex-entry-pearl .hex-entry-inner {
+  background: linear-gradient(145deg, rgba(255, 254, 249, 0.82), rgba(236, 231, 221, 0.52));
+}
+
+.hex-entry-emerald .hex-entry-inner {
+  background: linear-gradient(145deg, rgba(239, 244, 237, 0.82), rgba(188, 206, 187, 0.48));
+}
+
+.hex-entry-gold .hex-entry-inner {
+  background: linear-gradient(145deg, rgba(248, 243, 229, 0.84), rgba(212, 196, 152, 0.46));
+}
+
+.hex-entry-rose .hex-entry-inner {
+  background: linear-gradient(145deg, rgba(248, 238, 237, 0.84), rgba(211, 175, 175, 0.42));
+}
+
+@media (max-width: 520px) {
+  .luxury-kicker {
+    letter-spacing: 0.34em;
+    line-height: 1.85;
+    max-width: 21rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .luxury-hero {
+    padding-top: 2.75rem;
+    padding-bottom: 3rem;
+  }
+
+  .luxury-hero-grid {
+    opacity: 0.26;
+    background-size: 72px 72px, 72px 72px, 420px 420px;
+  }
+
+  .hex-entry {
+    width: min(42vw, 132px);
+  }
+
+  .hex-entry-inner {
+    padding: 25px 16px 22px;
+  }
+}
+
 .physon-glass {
   border: 1px solid rgba(255, 255, 255, 0.72);
   background:
