@@ -520,8 +520,9 @@ function HomePage({ go }) {
             <p className="mt-6 whitespace-pre-line text-[1.35rem] font-light leading-[1.7] tracking-[0.02em] text-[#4F6258] md:text-[1.62rem]">讓每一個人活得久，{"\n"}也活得好精彩。</p>
             <p className="mx-auto mt-6 max-w-xl text-sm font-light leading-8 text-[#707D73] md:text-[15px]">以植物、營養與生活型態資料，建立一套能被日常持續的健康入口。</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#253A31]/90 bg-[#253A31] px-5 py-2 text-[13px] font-normal tracking-[0.02em] text-[#F8F4EC] shadow-[0_14px_30px_rgba(35,59,49,0.10)] transition duration-500 ease-out hover:-translate-y-px hover:bg-[#2D463B] hover:shadow-[0_16px_36px_rgba(35,59,49,0.13)]">登入健康身份</button>
-              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#B7A06B]/45 bg-white/[0.08] px-5 py-2 text-[13px] font-normal tracking-[0.02em] text-[#5E5441] transition duration-500 ease-out hover:-translate-y-px hover:border-[#A58B58]/70 hover:bg-[#EFE7D5]/35">建立會員身份</button>
+              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#253A31]/90 bg-[#253A31] px-6 py-3 text-[13px] font-medium tracking-[0.02em] text-[#F8F4EC] shadow-[0_14px_30px_rgba(35,59,49,0.10)] transition duration-500 ease-out hover:-translate-y-px hover:bg-[#2D463B] hover:shadow-[0_16px_36px_rgba(35,59,49,0.13)]">免費分析我的身體狀態</button>
+              <button type="button" onClick={() => go("/products")} className="rounded-full border border-[#B7A06B]/60 bg-white/[0.18] px-6 py-3 text-[13px] font-normal tracking-[0.02em] text-[#253A31] transition duration-500 ease-out hover:-translate-y-px hover:border-[#A58B58]/80 hover:bg-[#EFE7D5]/40">探索產品系列</button>
+              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#D8CFBE]/80 bg-transparent px-6 py-3 text-xs font-normal tracking-[0.02em] text-[#6C756D] transition duration-500 ease-out hover:-translate-y-px hover:bg-white/35 hover:text-[#4F6258]">加入 LINE</button>
             </div>
           </motion.div>
           <div className="mx-auto mt-9 grid max-w-4xl grid-cols-2 gap-x-7 gap-y-8 md:mt-10 md:grid-cols-4 md:gap-x-10">
