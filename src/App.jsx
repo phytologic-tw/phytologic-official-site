@@ -155,6 +155,7 @@ const productCards = [
     deep: "#9D8360",
     formula: "山藥、蘋果、白木耳、生核桃等天然蔬果穀物組成。",
     desc: "熬夜疲勞、腸胃敏感與身體修復時的溫和滋養。",
+    forWho: "久坐辦公室、腸胃敏感、熬夜族",
     tags: ["熬夜疲勞", "腸胃敏感", "身體修復"],
     aiHint: "Dr.Marvin 會在睡眠、壓力、腸胃敏感與修復需求偏高時，優先把雪山植萃列為溫和支持選項。",
     sections: [
@@ -177,6 +178,7 @@ const productCards = [
     deep: "#2F6E4E",
     formula: "地瓜葉、青江菜、黑木耳、芭樂、檸檬等天然蔬果組成。",
     desc: "代謝卡卡、外食負擔與排除需求的清爽植物支持。",
+    forWho: "水腫、代謝慢、想排清體內廢物的人",
     tags: ["代謝卡卡", "外食族", "排除負擔"],
     aiHint: "Dr.Marvin 會在腸胃、代謝、外食頻率與身體沉重感訊號偏高時，優先考慮青檸植萃。",
     sections: [
@@ -199,6 +201,7 @@ const productCards = [
     deep: "#A64F61",
     formula: "甜菜根、紫甘藍、芭樂、百香果、玫瑰花瓣等天然蔬果組成。",
     desc: "好氣色、抗氧化與肌膚彈性的女性日常保養。",
+    forWho: "想維持好氣色、注重女性日常保養的人",
     tags: ["好氣色", "抗氧化", "肌膚彈性"],
     aiHint: "Dr.Marvin 會在氣色、抗氧化、女性保養與膠原生成支持需求出現時，推薦玫瑰植萃。",
     sections: [
@@ -221,6 +224,7 @@ const productCards = [
     deep: "#A57921",
     formula: "甜玉米、香蕉、紅蘿蔔、百香果、新鮮薑黃等天然蔬果組成。",
     desc: "運動恢復、肌肉修復與能量補給的金色植物系統。",
+    forWho: "有健身習慣、重視體態管理、想維持活力的人",
     tags: ["運動恢復", "肌肉修復", "能量補給"],
     aiHint: "Dr.Marvin 會在肌肉、運動恢復、能量代謝與體能消耗訊號偏高時，推薦桂香植萃。",
     sections: [
@@ -243,6 +247,7 @@ const productCards = [
     deep: "#69528E",
     formula: "木鱉果、紫薯、藍莓、桑椹、紫色高麗菜等天然蔬果組成。",
     desc: "3C 用眼、眼睛疲勞與視覺保養的紫色抗氧化支持。",
+    forWho: "長時間使用螢幕、眼睛疲勞、重視抗氧化的人",
     tags: ["3C 用眼", "眼睛疲勞", "視覺保養"],
     aiHint: "Dr.Marvin 會在眼睛疲勞、長時間螢幕使用與抗氧化需求偏高時，推薦紫莓植萃。",
     sections: [
@@ -409,6 +414,10 @@ function ProductOverviewCard({ product, go }) {
         </div>
       </div>
       <p className="mt-6 text-lg font-medium leading-8 text-[#123828]">{product.theme}</p>
+      <p className="mt-3 inline-flex items-start gap-2 rounded-full bg-white/55 px-4 py-1.5 text-sm leading-6 text-[#49675A]">
+        <span className="shrink-0 text-[#8B7A4C]">適合</span>
+        <span className="text-[#123828]">{product.forWho}</span>
+      </p>
       <p className="mt-4 text-sm leading-7 text-[#49675A]">{product.formula}</p>
       <button type="button" onClick={() => go(`/products/${productSlugs[product.id]}`)} className="mt-auto inline-flex items-center justify-between rounded-full bg-[#123828] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1E6B43]">
         了解更多
@@ -520,8 +529,9 @@ function HomePage({ go }) {
             <p className="mt-6 whitespace-pre-line text-[1.35rem] font-light leading-[1.7] tracking-[0.02em] text-[#4F6258] md:text-[1.62rem]">讓每一個人活得久，{"\n"}也活得好精彩。</p>
             <p className="mx-auto mt-6 max-w-xl text-sm font-light leading-8 text-[#707D73] md:text-[15px]">以植物、營養與生活型態資料，建立一套能被日常持續的健康入口。</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#253A31]/90 bg-[#253A31] px-5 py-2 text-[13px] font-normal tracking-[0.02em] text-[#F8F4EC] shadow-[0_14px_30px_rgba(35,59,49,0.10)] transition duration-500 ease-out hover:-translate-y-px hover:bg-[#2D463B] hover:shadow-[0_16px_36px_rgba(35,59,49,0.13)]">登入健康身份</button>
-              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#B7A06B]/45 bg-white/[0.08] px-5 py-2 text-[13px] font-normal tracking-[0.02em] text-[#5E5441] transition duration-500 ease-out hover:-translate-y-px hover:border-[#A58B58]/70 hover:bg-[#EFE7D5]/35">建立會員身份</button>
+              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#253A31]/90 bg-[#253A31] px-6 py-3 text-[13px] font-medium tracking-[0.02em] text-[#F8F4EC] shadow-[0_14px_30px_rgba(35,59,49,0.10)] transition duration-500 ease-out hover:-translate-y-px hover:bg-[#2D463B] hover:shadow-[0_16px_36px_rgba(35,59,49,0.13)]">免費分析我的身體狀態</button>
+              <button type="button" onClick={() => go("/products")} className="rounded-full border border-[#B7A06B]/60 bg-white/[0.18] px-6 py-3 text-[13px] font-normal tracking-[0.02em] text-[#253A31] transition duration-500 ease-out hover:-translate-y-px hover:border-[#A58B58]/80 hover:bg-[#EFE7D5]/40">探索產品系列</button>
+              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#D8CFBE]/80 bg-transparent px-6 py-3 text-xs font-normal tracking-[0.02em] text-[#6C756D] transition duration-500 ease-out hover:-translate-y-px hover:bg-white/35 hover:text-[#4F6258]">加入 LINE</button>
             </div>
           </motion.div>
           <div className="mx-auto mt-9 grid max-w-4xl grid-cols-2 gap-x-7 gap-y-8 md:mt-10 md:grid-cols-4 md:gap-x-10">
@@ -907,23 +917,55 @@ function GalleryPage() {
 
 function Footer({ go }) {
   return (
-    <footer className="border-t border-[#E7DDBF] px-5 py-10 md:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_auto] md:items-center">
-        <div className="text-sm text-[#49675A]">
-          <div>© 2026 植本邏輯 PHYTOLOGIC. All rights reserved.</div>
-          <div className="mt-2 tracking-[0.28em]">熱愛・尊重・相信</div>
-        </div>
-        <div className="grid gap-4 rounded-2xl border border-[#E7DDBF] bg-white/70 p-4 md:grid-cols-[88px_1fr] md:items-center">
-          <LineQRCode className="w-24" />
+    <footer className="border-t border-[#E7DDBF] bg-[#F9F5EA] px-5 py-14 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1.2fr] md:gap-8">
           <div>
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="植本邏輯 Logo" className="h-10 w-10 object-contain" />
+              <div>
+                <div className="font-semibold tracking-[0.18em] text-[#123828]">植本邏輯</div>
+                <div className="text-xs tracking-[0.24em] text-[#7D8D7F]">PHYTOLOGIC</div>
+              </div>
+            </div>
+            <p className="mt-5 text-sm leading-7 text-[#49675A]">
+              以植物、科學與愛，<br />守護人生裡真正重要的人。
+            </p>
+            <button type="button" onClick={handleOpenLine} className="mt-5 rounded-full bg-[#06C755] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#05B64D]">加入 LINE</button>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold tracking-[0.2em] text-[#8B7A4C]">品牌</h3>
+            <ul className="mt-4 space-y-3 text-sm text-[#49675A]">
+              <li><button type="button" onClick={() => go("/about")} className="transition hover:text-[#123828]">品牌精神</button></li>
+              <li><button type="button" onClick={() => go("/products")} className="transition hover:text-[#123828]">全植物機能飲</button></li>
+              <li><button type="button" onClick={() => go("/assessment")} className="transition hover:text-[#123828]">Dr.Marvin 健康分析</button></li>
+              <li><button type="button" onClick={() => go("/news")} className="transition hover:text-[#123828]">最新消息</button></li>
+              <li><button type="button" onClick={() => go("/gallery")} className="transition hover:text-[#123828]">精彩剪影</button></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold tracking-[0.2em] text-[#8B7A4C]">合作</h3>
+            <ul className="mt-4 space-y-3 text-sm text-[#49675A]">
+              <li><button type="button" onClick={() => go("/join")} className="transition hover:text-[#123828]">合作募集</button></li>
+              <li><button type="button" onClick={() => go("/partners")} className="transition hover:text-[#123828]">合作夥伴</button></li>
+              <li><button type="button" onClick={() => { go("/join"); setTimeout(() => document.querySelector("#合作申請")?.scrollIntoView({ behavior: "smooth" }), 80); }} className="transition hover:text-[#123828]">送出合作申請</button></li>
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-[#E7DDBF] bg-white/70 p-5">
             <div className="text-sm text-[#8B7A4C]">官方 LINE</div>
             <div className="mt-1 font-semibold text-[#123828]">{lineId}</div>
-            <button type="button" onClick={handleOpenLine} className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white">立即加入 LINE</button>
+            <LineQRCode className="mt-3 w-24" />
+            <button type="button" onClick={handleOpenLine} className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#05B64D]">立即加入 LINE</button>
           </div>
         </div>
-      </div>
-      <div className="mx-auto mt-8 max-w-7xl border-t border-[#E7DDBF]/70 pt-5 text-right">
-        <button type="button" onClick={() => go("/admin")} className="text-xs text-[#9A8C68] transition hover:text-[#123828]">管理入口</button>
+
+        <div className="mt-12 flex flex-col gap-3 border-t border-[#E7DDBF]/70 pt-5 text-xs text-[#9A8C68] md:flex-row md:items-center md:justify-between">
+          <span>© 2026 植本邏輯 PHYTOLOGIC. All rights reserved. ・ 熱愛・尊重・相信</span>
+          <button type="button" onClick={() => go("/admin")} className="w-fit transition hover:text-[#123828]">管理入口</button>
+        </div>
       </div>
     </footer>
   );
