@@ -48,6 +48,13 @@ const QUESTION_BANK = [
 ];
 
 const ANSWER_OPTIONS = [1, 2, 3, 4, 5];
+const SCORE_STYLES = {
+  1: { backgroundColor: "#F8F5EC", borderColor: "#E5DDC8", color: "#68786D" },
+  2: { backgroundColor: "#EEF0E6", borderColor: "#D9DFC9", color: "#5F765F" },
+  3: { backgroundColor: "#DDE7D7", borderColor: "#C4D2BB", color: "#46664C" },
+  4: { backgroundColor: "#B9CBB2", borderColor: "#9EB294", color: "#254B34" },
+  5: { backgroundColor: "#1C3D2B", borderColor: "#1C3D2B", color: "#FFFFFF" },
+};
 
 const CATEGORY_LABELS = {
   sleep: "睡眠 / 疲勞",
@@ -489,6 +496,20 @@ export default function HealthAssessment() {
           <div className="mt-6 h-3 overflow-hidden rounded-full bg-[#EFEAE0]">
             <div className="h-full rounded-full bg-[#C8A96E] transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
+          <div className="mt-6 rounded-2xl border border-[#DCD1B8] bg-[#F8F5EC] px-5 py-4 text-[#3F5B49] shadow-sm md:flex md:items-center md:justify-between md:gap-6">
+            <div>
+              <p className="text-base font-semibold">請依照您的身體狀況評分：</p>
+              <p className="mt-2 text-sm leading-7 md:text-base">1 分代表狀況最好／幾乎沒有</p>
+              <p className="text-sm leading-7 md:text-base">5 分代表狀況最明顯／最嚴重</p>
+            </div>
+            <div className="mt-4 flex items-center gap-2 md:mt-0">
+              {ANSWER_OPTIONS.map((score) => (
+                <span key={score} className="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold" style={SCORE_STYLES[score]}>
+                  {score}
+                </span>
+              ))}
+            </div>
+          </div>
           <div className="mt-8 space-y-5">
             {questions.map((question, index) => {
               const currentScore = answers[question.id];
@@ -499,7 +520,18 @@ export default function HealthAssessment() {
                     {ANSWER_OPTIONS.map((score) => {
                       const active = currentScore === score;
                       return (
-                        <button key={score} type="button" onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: score }))} className={`h-11 w-11 rounded-full border text-sm font-semibold transition ${active ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                        <button
+                          key={score}
+                          type="button"
+                          onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: score }))}
+                          className="h-11 w-11 rounded-full border text-sm font-semibold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#C8A96E]/50"
+                          style={{
+                            ...SCORE_STYLES[score],
+                            boxShadow: active ? "0 0 0 3px rgba(200, 169, 110, 0.32), 0 10px 24px rgba(28, 61, 43, 0.12)" : "none",
+                            transform: active ? "translateY(-1px)" : undefined,
+                          }}
+                          aria-label={`${score} 分`}
+                        >
                           {score}
                         </button>
                       );
