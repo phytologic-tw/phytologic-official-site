@@ -4,7 +4,7 @@ import { supabase, supabaseConfigMessage } from "../lib/supabase";
 import { submitPublicRecord } from "../lib/adminData";
 import UnlockFullReportCard from "./line/UnlockFullReportCard";
 
-const QUESTION_COUNT = 7;
+const QUESTION_COUNT = 15;
 const hasJoinedLine = false;
 
 const AGE_GROUPS = [
@@ -60,6 +60,7 @@ const QUESTION_BANK = [
   { id: "muscle-02", category: "muscle", text: "訓練後或勞動後，隔天仍覺得身體沉、腿部或肩頸需要更久舒緩？", tags: ["體力勞動", "外勤走動", "高強度訓練", "每週 5 次以上"] },
   { id: "eye-01", category: "eye", text: "長時間看手機、電腦或平板後，眼睛乾澀、酸脹或聚焦變慢？", tags: ["久坐辦公", "學生", "自由業 / 居家工作", "少於 5 小時"] },
   { id: "eye-02", category: "eye", text: "晚上或光線變暗時，視覺清晰度與眼睛舒適度比較容易下降？", tags: ["熟齡", "銀髮樂齡", "久坐辦公", "學生"] },
+  { id: "eye-03", category: "eye", text: "用眼一整天後，容易覺得注意力下降，或需要更久才能恢復清晰感？", tags: ["久坐辦公", "學生", "自由業 / 居家工作", "輪班工作", "少於 5 小時"] },
 ];
 
 const ANSWER_OPTIONS = [
@@ -90,16 +91,13 @@ function questionRelevance(question, profile) {
 }
 
 function selectQuestions(profile) {
-  return CATEGORY_ORDER.map((category) => {
-    const pool = QUESTION_BANK.filter((question) => question.category === category);
-    return [...pool].sort((a, b) => questionRelevance(b, profile) - questionRelevance(a, profile))[0];
-  }).filter(Boolean).slice(0, QUESTION_COUNT);
+  return [...QUESTION_BANK].sort((a, b) => questionRelevance(b, profile) - questionRelevance(a, profile)).slice(0, QUESTION_COUNT);
 }
 
 function getLevel(total) {
-  if (total <= 13) return "狀態穩定";
-  if (total <= 20) return "輕度失衡";
-  if (total <= 27) return "中度警訊";
+  if (total <= 30) return "狀態穩定";
+  if (total <= 45) return "輕度失衡";
+  if (total <= 60) return "中度警訊";
   return "高度警訊";
 }
 
@@ -157,7 +155,7 @@ function buildPrompt({ profileSummary, total, levelLabel, categorySummary, answe
 
   return `你是植本邏輯（PHYTOLOGIC）的 Dr.Marvin 健康系統顧問，擅長以生活型態與植物機能飲品做日常健康建議。
 
-請根據以下「7 題生理狀態快篩」結果，分析使用者目前最需要被支持的生活狀態，並推薦最適合的一款植本邏輯飲品與一個具體生活改變方式。請避免醫療宣稱，用支持、幫助、維持、有助於、調節等語氣。
+請根據以下「15 題生理狀態快篩」結果，分析使用者目前最需要被支持的生活狀態，並推薦最適合的一款植本邏輯飲品與一個具體生活改變方式。請避免醫療宣稱，用支持、幫助、維持、有助於、調節等語氣。
 
 用戶資料：
 - 年齡：${profileSummary.ageLabel}
@@ -167,11 +165,11 @@ function buildPrompt({ profileSummary, total, levelLabel, categorySummary, answe
 - 運動：${profileSummary.exercise}
 - 飲食：${profileSummary.diet}
 - 壓力：${profileSummary.stress}
-- 快篩總分：${total} / 35（${levelLabel}）
+- 快篩總分：${total} / ${QUESTION_COUNT * 5}（${levelLabel}）
 - 分類線索：${categorySummary}
 - 系統推薦主選：${primary.name}
 - 系統推薦輔助：${secondary?.name || "無"}
-- 7 題作答結果：
+- 15 題作答結果：
 ${answerSummary}
 
 可推薦飲品：
@@ -284,7 +282,7 @@ export default function HealthAssessment() {
     if (!result || !completed) return;
 
     setStep(2);
-    setStatusText("Dr.Marvin 正在分析 7 題生理狀態線索...");
+    setStatusText("Dr.Marvin 正在分析 15 題生理狀態線索...");
     setSaveNotice("");
     setSaveStatus("idle");
 
@@ -416,7 +414,7 @@ export default function HealthAssessment() {
       <div className="mb-10 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-[0.32em] text-[#C8A96E]">DR.MARVIN HEALTH CHECK</p>
         <h3 className="text-3xl font-semibold md:text-5xl">Dr.Marvin 生理狀態快篩</h3>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#49675A]">依年齡、工作型態、睡眠、運動與壓力資料，從題庫挑出最相關的 7 題，快速建立植物機能飲品推薦。</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#49675A]">依年齡、工作型態、睡眠、運動與壓力資料，完成 15 題快速評估，了解你目前的發炎風險與最適合的植物機能飲品。</p>
       </div>
 
       {step === 0 && (
@@ -500,7 +498,7 @@ export default function HealthAssessment() {
           </div>
           {bmi && <p className="mb-2 text-sm text-[#49675A]">BMI 將納入 AI 分析：<span className="font-semibold text-[#1C3D2B]">{bmi}</span></p>}
           <button type="button" disabled={!profileCompleted} onClick={startAssessment} className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
-            開始 7 題快篩 <ArrowRight className="h-4 w-4" />
+            開始 15 題快篩 <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -512,7 +510,7 @@ export default function HealthAssessment() {
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C3D2B] text-white"><Sparkles className="h-5 w-5" /></div>
               <div>
                 <p className="text-sm text-[#8B7A4C]">步驟 2 / 3</p>
-                <h4 className="text-2xl font-semibold">7 題生理狀態快篩</h4>
+                <h4 className="text-2xl font-semibold">15 題生理狀態快篩</h4>
               </div>
             </div>
             <div className="rounded-full bg-[#F5F2EB] px-4 py-2 text-sm font-semibold text-[#49675A]">{answeredCount} / {QUESTION_COUNT} 題完成</div>
@@ -565,9 +563,9 @@ export default function HealthAssessment() {
           <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
             <div className="rounded-2xl border border-[#E5E0D5] bg-[#1C3D2B] p-7 text-white shadow-xl shadow-[#123828]/10">
               <p className="text-sm tracking-[0.24em] text-[#C8A96E]">PHYSIOLOGIC SCORE</p>
-              <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/50">/35</span></div>
+              <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/50">/{QUESTION_COUNT * 5}</span></div>
               <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1C3D2B]">{result.levelLabel}</div>
-              <p className="mt-5 leading-8 text-white/70">{profile.ageGroup}｜7 題生理狀態快篩</p>
+              <p className="mt-5 leading-8 text-white/70">{profile.ageGroup}｜15 題生理狀態快篩</p>
             </div>
             <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7 shadow-xl shadow-[#123828]/5">
               <h4 className="text-2xl font-semibold">AI 判讀重點</h4>
