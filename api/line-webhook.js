@@ -43,6 +43,20 @@ function getKeyType(key) {
   return "unknown";
 }
 
+function getJwtRole(key) {
+  if (!key?.startsWith("eyJ")) return null;
+
+  try {
+    const [, payload] = key.split(".");
+    if (!payload) return null;
+    const normalizedPayload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decodedPayload = Buffer.from(normalizedPayload, "base64").toString("utf8");
+    return JSON.parse(decodedPayload).role || null;
+  } catch {
+    return "unreadable";
+  }
+}
+
 function readRawBody(req) {
   if (typeof req.body === "string") return Promise.resolve(req.body);
   if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body.toString("utf8"));
@@ -190,6 +204,7 @@ export default async function handler(req, res) {
       status: "ok",
       supabaseUrlConfigured: Boolean(SUPABASE_URL),
       supabaseKeyType: getKeyType(SUPABASE_SERVICE_ROLE_KEY),
+      supabaseJwtRole: getJwtRole(SUPABASE_SERVICE_ROLE_KEY),
       lineSecretConfigured: Boolean(CHANNEL_SECRET),
       lineTokenConfigured: Boolean(CHANNEL_ACCESS_TOKEN),
     });
