@@ -40,7 +40,7 @@ export async function findOrCreateMember(lineProfile) {
   try {
     // 先嘗試查找既有會員
     const { data: existing, error: findErr } = await supabase
-      .from("profiles")
+      .from("line_members")
       .select("*")
       .eq("line_user_id", userId)
       .maybeSingle();
@@ -51,7 +51,7 @@ export async function findOrCreateMember(lineProfile) {
     if (existing) {
       // 更新頭像和名稱（可能已更換）
       const { data: updated } = await supabase
-        .from("profiles")
+        .from("line_members")
         .update({ display_name: displayName, picture_url: pictureUrl })
         .eq("line_user_id", userId)
         .select()
@@ -64,7 +64,7 @@ export async function findOrCreateMember(lineProfile) {
     const luckyColor = "珍珠白";
 
     const { data: created, error: createErr } = await supabase
-      .from("profiles")
+      .from("line_members")
       .insert({
         line_user_id: userId,
         display_name: displayName,
@@ -97,7 +97,7 @@ export async function getMemberByLineId(lineUserId) {
   if (!supabase || !lineUserId) return null;
 
   const { data, error } = await supabase
-    .from("profiles")
+    .from("line_members")
     .select("*")
     .eq("line_user_id", lineUserId)
     .maybeSingle();
@@ -120,7 +120,7 @@ export async function updateMemberHealth(lineUserId, { healthType, recommendedDr
   const color = luckyColor || colors[Math.floor(Math.random() * colors.length)];
 
   const { error } = await supabase
-    .from("profiles")
+    .from("line_members")
     .update({
       health_type: healthType,
       recommended_drink: drink,
@@ -160,7 +160,7 @@ export async function doCheckin(memberId) {
 
     // 取得目前會員資料
     const { data: member, error: memberErr } = await supabase
-      .from("profiles")
+      .from("line_members")
       .select("le, health_score, streak_days, last_checkin_date")
       .eq("id", memberId)
       .single();
@@ -190,7 +190,7 @@ export async function doCheckin(memberId) {
 
     // 更新會員積分
     const { error: updateErr } = await supabase
-      .from("profiles")
+      .from("line_members")
       .update({
         le: newLe,
         health_score: newHealthScore,
