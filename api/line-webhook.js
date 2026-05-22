@@ -80,6 +80,35 @@ function getUuidRangeFromShortCode(shortCode) {
 }
 
 async function findReportByCode(supabase, shortCode) {
+  const uuidRange = getUuidRangeFromShortCode(shortCode);
+
+  if (uuidRange) {
+    let idPrefixQuery = supabase
+      .from("assessment_reports")
+      .select(REPORT_SELECT)
+      .gte("id", uuidRange.lower)
+      .order("id", { ascending: true })
+      .limit(1);
+
+    idPrefixQuery = uuidRange.upperInclusive
+      ? idPrefixQuery.lte("id", uuidRange.upper)
+      : idPrefixQuery.lt("id", uuidRange.upper);
+
+    const { data: idPrefixReports, error: idPrefixError } = await idPrefixQuery;
+
+    if (idPrefixError) {
+      idPrefixError.stage = "id_prefix";
+      console.error("[Webhook] id prefix lookup failed:", {
+        code: idPrefixError.code,
+        message: idPrefixError.message,
+        details: idPrefixError.details,
+      });
+      throw idPrefixError;
+    }
+
+    if (idPrefixReports?.[0]) return idPrefixReports[0];
+  }
+
   const { data: shortCodeReport, error: shortCodeError } = await supabase
     .from("assessment_reports")
     .select(REPORT_SELECT_WITH_SHORT_CODE)
@@ -87,44 +116,16 @@ async function findReportByCode(supabase, shortCode) {
     .maybeSingle();
 
   if (shortCodeError) {
+    shortCodeError.stage = "short_code";
     console.error("[Webhook] short_code lookup failed:", {
       code: shortCodeError.code,
       message: shortCodeError.message,
       details: shortCodeError.details,
     });
+    throw shortCodeError;
   }
 
-  if (shortCodeReport) return shortCodeReport;
-
-  const uuidRange = getUuidRangeFromShortCode(shortCode);
-  if (!uuidRange) {
-    if (shortCodeError) throw shortCodeError;
-    return null;
-  }
-
-  let idPrefixQuery = supabase
-    .from("assessment_reports")
-    .select(REPORT_SELECT)
-    .gte("id", uuidRange.lower)
-    .order("id", { ascending: true })
-    .limit(1);
-
-  idPrefixQuery = uuidRange.upperInclusive
-    ? idPrefixQuery.lte("id", uuidRange.upper)
-    : idPrefixQuery.lt("id", uuidRange.upper);
-
-  const { data: idPrefixReports, error: idPrefixError } = await idPrefixQuery;
-
-  if (idPrefixError) {
-    console.error("[Webhook] id prefix lookup failed:", {
-      code: idPrefixError.code,
-      message: idPrefixError.message,
-      details: idPrefixError.details,
-    });
-    throw idPrefixError;
-  }
-
-  return idPrefixReports?.[0] || null;
+  return shortCodeReport;
 }
 
 // 驗證 LINE Webhook 簽章
@@ -292,8 +293,9 @@ export default async function handler(req, res) {
         }
       } catch (err) {
         console.error("[webhook] 查詢報告失敗:", err);
+        const errorCode = [err.stage, err.code].filter(Boolean).join(":") || "unknown";
         await replyMessage(replyToken, [
-          { type: "text", text: "系統暫時無法查詢，請稍後再試。" },
+          { type: "text", text: `系統暫時無法查詢，請稍後再試。\n\n錯誤代碼：${errorCode}` },
         ]);
       }
       continue;
