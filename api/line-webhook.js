@@ -3,15 +3,61 @@
 // 功能：接收使用者訊息、查詢報告編號、回傳完整分析
 
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
 
 const CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_KEY;
+
+let supabaseAdmin;
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+function getSupabaseAdmin() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Missing Supabase server configuration.");
+  }
+
+  if (!supabaseAdmin) {
+    supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+
+  return supabaseAdmin;
+}
+
+function getKeyType(key) {
+  if (!key) return "missing";
+  if (key.startsWith("eyJ")) return "legacy-jwt";
+  if (key.startsWith("sb_secret_")) return "secret";
+  return "unknown";
+}
+
+function readRawBody(req) {
+  if (typeof req.body === "string") return Promise.resolve(req.body);
+  if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body.toString("utf8"));
+  if (req.body && typeof req.body === "object") return Promise.resolve(JSON.stringify(req.body));
+
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
 
 // 驗證 LINE Webhook 簽章
 function verifySignature(body, signature) {
-  if (!CHANNEL_SECRET) return true; // dev mode
+  if (!CHANNEL_SECRET) return false;
+  if (!signature) return false;
   const hash = crypto
     .createHmac("SHA256", CHANNEL_SECRET)
     .update(body)
@@ -19,23 +65,13 @@ function verifySignature(body, signature) {
   return hash === signature;
 }
 
-// 呼叫 Supabase REST API（不用 SDK，避免 edge runtime 問題）
-async function supabaseQuery(table, query) {
-  const url = `${SUPABASE_URL}/rest/v1/${table}?${query}`;
-  const res = await fetch(url, {
-    headers: {
-      apikey: SUPABASE_SERVICE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-      "Content-Type": "application/json",
-    },
-  });
-  if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
-  return res.json();
-}
-
 // 傳送 LINE 回覆訊息
 async function replyMessage(replyToken, messages) {
-  await fetch("https://api.line.me/v2/bot/message/reply", {
+  if (!CHANNEL_ACCESS_TOKEN) {
+    throw new Error("Missing LINE_CHANNEL_ACCESS_TOKEN.");
+  }
+
+  const response = await fetch("https://api.line.me/v2/bot/message/reply", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,13 +79,20 @@ async function replyMessage(replyToken, messages) {
     },
     body: JSON.stringify({ replyToken, messages }),
   });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`LINE reply failed: ${response.status} ${text}`);
+  }
 }
 
 // 格式化完整健康報告訊息
 function formatReport(report) {
-  const level = report.level || "未知";
+  const level = report.inflammation_level || "未知";
   const score = report.total_score || 0;
-  const products = (report.recommended_products || []).join("、");
+  const products = Array.isArray(report.recommended_products)
+    ? report.recommended_products.join("、")
+    : report.recommended_products || "";
   const analysis = report.ai_analysis
     ? report.ai_analysis.slice(0, 300) + (report.ai_analysis.length > 300 ? "..." : "")
     : "分析資料尚未產生";
@@ -68,20 +111,49 @@ function formatReport(report) {
 }
 
 export default async function handler(req, res) {
+  if (req.method === "GET") {
+    return res.status(200).json({
+      status: "ok",
+      supabaseUrlConfigured: Boolean(SUPABASE_URL),
+      supabaseKeyType: getKeyType(SUPABASE_SERVICE_ROLE_KEY),
+      lineSecretConfigured: Boolean(CHANNEL_SECRET),
+      lineTokenConfigured: Boolean(CHANNEL_ACCESS_TOKEN),
+    });
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const rawBody = await readRawBody(req);
+
   // 驗證簽章
   const signature = req.headers["x-line-signature"];
-  const body = JSON.stringify(req.body);
-  if (!verifySignature(body, signature)) {
+  if (!verifySignature(rawBody, signature)) {
     return res.status(401).json({ error: "Invalid signature" });
   }
 
-  const events = req.body.events || [];
+  let payload;
+  try {
+    payload = rawBody ? JSON.parse(rawBody) : {};
+  } catch (err) {
+    console.error("[Webhook] Invalid JSON body:", err);
+    return res.status(400).json({ error: "Invalid JSON body" });
+  }
+
+  const events = payload.events || [];
 
   for (const event of events) {
+    if (event.type === "follow") {
+      await replyMessage(event.replyToken, [
+        {
+          type: "text",
+          text: "🌿 歡迎加入植本邏輯！\n\n您好，我是派森 AI 健康顧問。\n\n如果您已完成官網快篩，請直接傳送您的 8 碼報告編號（例如：A1B2C3D4），即可收到完整個人化健康報告。\n\n輸入「報告」可重新查詢。",
+        },
+      ]);
+      continue;
+    }
+
     if (event.type !== "message" || event.message.type !== "text") continue;
 
     const userMessage = event.message.text.trim();
@@ -90,31 +162,64 @@ export default async function handler(req, res) {
     // 使用者輸入報告編號（8碼英數字）
     if (/^[A-Z0-9]{8}$/i.test(userMessage)) {
       try {
-        const reports = await supabaseQuery(
-          "assessment_reports",
-          `short_code=eq.${userMessage.toUpperCase()}&select=*&limit=1`
-        );
+        const supabase = getSupabaseAdmin();
+        const shortCode = userMessage.toUpperCase();
+        const { data: report, error: reportError } = await supabase
+          .from("assessment_reports")
+          .select("id, short_code, inflammation_level, total_score, full_report, partial_report, recommended_products, ai_analysis, lifestyle_advice, line_user_id, member_id")
+          .eq("short_code", shortCode)
+          .maybeSingle();
 
-        if (reports.length === 0) {
+        if (reportError) throw reportError;
+
+        if (!report) {
           await replyMessage(replyToken, [
-            { type: "text", text: `找不到編號「${userMessage.toUpperCase()}」的報告。\n\n請確認編號是否正確，或前往官網重新進行派森分析：\nhttps://phytologic.tw` },
+            { type: "text", text: `找不到編號「${shortCode}」的報告。\n\n請確認編號是否正確，或前往官網重新進行派森分析：\nhttps://phytologic.tw` },
           ]);
         } else {
-          const report = reports[0];
-          // 標記已透過 LINE 發送
-          await fetch(`${SUPABASE_URL}/rest/v1/assessment_reports?id=eq.${report.id}`, {
-            method: "PATCH",
-            headers: {
-              apikey: SUPABASE_SERVICE_KEY,
-              Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-              "Content-Type": "application/json",
-              Prefer: "return=minimal",
-            },
-            body: JSON.stringify({
+          const userId = event.source.userId;
+          let memberId = null;
+
+          const { data: existingProfile, error: profileLookupError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("line_user_id", userId)
+            .maybeSingle();
+
+          if (profileLookupError) {
+            console.error("[Webhook] profiles lookup failed:", profileLookupError.message);
+          } else if (existingProfile) {
+            memberId = existingProfile.id;
+          } else {
+            const { data: newProfile, error: profileError } = await supabase
+              .from("profiles")
+              .insert({
+                line_user_id: userId,
+                role: "user",
+                line_linked_at: new Date().toISOString(),
+              })
+              .select("id")
+              .single();
+
+            if (profileError) {
+              console.error("[Webhook] profiles insert failed:", profileError.message);
+            } else {
+              memberId = newProfile.id;
+            }
+          }
+
+          const { error: patchError } = await supabase
+            .from("assessment_reports")
+            .update({
               line_user_id: event.source.userId,
               line_sent_at: new Date().toISOString(),
-            }),
-          });
+              member_id: memberId,
+            })
+            .eq("short_code", shortCode);
+
+          if (patchError) {
+            console.error("[Webhook] PATCH assessment_reports failed:", patchError.message);
+          }
 
           await replyMessage(replyToken, formatReport(report));
         }
