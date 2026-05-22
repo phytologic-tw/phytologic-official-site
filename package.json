@@ -9,6 +9,7 @@
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
+    "@line/liff": "^2.29.0",
     "@supabase/supabase-js": "^2.105.4",
     "@vitejs/plugin-react": "latest",
     "framer-motion": "latest",

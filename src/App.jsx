@@ -26,6 +26,12 @@ import FloatingLineButton from "./components/line/FloatingLineButton";
 import LineQRCode from "./components/line/LineQRCode";
 import { handleOpenLine } from "./components/line/lineConfig";
 import { listPublicRecords, submitPublicRecord } from "./lib/adminData";
+import LineEntry from "./pages/line/LineEntry";
+import LineTodayPage from "./pages/line/LineTodayPage";
+import LineCheckinPage from "./pages/line/LineCheckinPage";
+import LineProfilePage from "./pages/line/LineProfilePage";
+import LineTasksPage from "./pages/line/LineTasksPage";
+import LineShopPage from "./pages/line/LineShopPage";
 
 const logo = "/logo.png";
 const lineId = "@phytologic";
@@ -296,10 +302,14 @@ function DataState({ loading, error, empty, children }) {
 
 function SectionTitle({ eyebrow, title, text }) {
   return (
-    <div className="mx-auto mb-12 max-w-3xl text-center">
-      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#B89B5E]">{eyebrow}</p>
-      <h2 className="text-3xl font-semibold tracking-tight text-[#123828] md:text-5xl">{title}</h2>
-      {text && <p className="mt-5 text-base leading-8 text-[#49675A] md:text-lg">{text}</p>}
+    <div className="mx-auto mb-8 max-w-7xl">
+      <span className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#D8C99C] px-3 py-1 text-[10px] uppercase tracking-[0.35em] text-[#B89B5E]">
+        {eyebrow}
+      </span>
+      <h2 className="max-w-3xl text-[30px] font-normal leading-[1.25] text-[#123828] md:text-[42px]">
+        {title}
+      </h2>
+      {text && <p className="mt-2.5 max-w-2xl text-[14px] leading-[1.75] text-[#49675A]">{text}</p>}
     </div>
   );
 }
@@ -486,69 +496,86 @@ function Header({ route, go }) {
     go(item.path);
   };
   return (
-    <header className="sticky top-0 z-50 border-b border-[#D9D2C4]/55 bg-[#F8F4EC]/82 backdrop-blur-2xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-8 md:py-3.5">
+    <header className="sticky top-0 z-50 border-b border-[#D8C99C] bg-[#FDFBF6]/95 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-7">
         <button type="button" onClick={() => go("/")} className="flex items-center gap-3 text-left">
-          <img src={logo} alt="植本邏輯 PHYTOLOGIC Logo" className="h-7 w-7 object-contain opacity-90 drop-shadow-[0_7px_15px_rgba(50,62,52,0.10)] md:h-8 md:w-8" />
+          <img src={logo} alt="植本邏輯 PHYTOLOGIC Logo" className="h-9 w-9 object-contain" />
           <span>
-            <span className="block text-[14px] font-medium tracking-[0.22em] text-[#293C34]">植本邏輯</span>
-            <span className="block text-[9px] tracking-[0.34em] text-[#8E9588]">PHYTOLOGIC</span>
+            <span className="block text-[14px] font-medium tracking-[0.22em] text-[#123828]">植本邏輯</span>
+            <span className="block text-[9px] tracking-[0.34em] text-[#49675A]">PHYTOLOGIC</span>
           </span>
         </button>
-        <nav className="hidden items-center gap-7 text-[12px] font-normal text-[#4B5B51] xl:flex">
-          {nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className={`transition duration-500 ease-out hover:text-[#9B8558] ${route === item.path ? "text-[#9B8558]" : ""}`}>{item.label}</button>)}
+        <nav className="hidden items-center gap-7 text-[12px] font-normal text-[#49675A] xl:flex">
+          {nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className={`transition hover:text-[#B89B5E] ${route === item.path ? "text-[#B89B5E]" : ""}`}>{item.label}</button>)}
         </nav>
-        <button type="button" onClick={handleOpenLine} className="hidden rounded-full border border-[#B7A06B]/45 bg-white/10 px-4 py-1.5 text-[11px] font-normal tracking-[0.1em] text-[#59513F] transition duration-500 ease-out hover:border-[#B7A06B]/75 hover:bg-[#F2EBDD]/50 hover:text-[#7C6738] hover:shadow-[0_0_22px_rgba(183,160,107,0.10)] md:block">會員登入 / 加入會員</button>
+        <button type="button" onClick={handleOpenLine} className="hidden rounded-full bg-[#06C755] px-5 py-2.5 text-[11px] font-medium tracking-[0.08em] text-white transition hover:bg-[#05B64D] md:block">加入 LINE</button>
         <button type="button" className="xl:hidden" onClick={() => setMenuOpen((v) => !v)}>{menuOpen ? <X /> : <Menu />}</button>
       </div>
-      {menuOpen && <div className="border-t border-[#D8CFBE]/55 bg-[#F8F4EC]/96 px-5 py-5 xl:hidden"><div className="grid gap-4">{nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className="text-left text-sm text-[#46584D]">{item.label}</button>)}<button type="button" onClick={handleOpenLine} className="w-fit rounded-full border border-[#B7A06B]/45 px-4 py-1.5 text-[11px] tracking-[0.1em] text-[#4F4A36]">會員登入 / 加入會員</button></div></div>}
+      {menuOpen && <div className="border-t border-[#D8C99C] bg-[#FDFBF6]/98 px-5 py-5 xl:hidden"><div className="grid gap-4">{nav.map((item) => <button key={item.path} type="button" onClick={() => handleNav(item)} className="text-left text-sm text-[#49675A]">{item.label}</button>)}<button type="button" onClick={handleOpenLine} className="w-fit rounded-full bg-[#06C755] px-5 py-2.5 text-[11px] tracking-[0.08em] text-white">加入 LINE</button></div></div>}
     </header>
   );
 }
 
 function HomePage({ go }) {
-  const entries = [
-    { label: "品牌精神", path: "/about", tone: "pearl", icon: ShieldCheck, text: "六個家庭的健康起點" },
-    { label: "全植物機能飲", path: "/products", tone: "emerald", icon: Leaf, text: "植物營養的日常支持" },
-    { label: "Dr.Marvin\n健康分析", path: "/assessment", tone: "gold", icon: Activity, text: "理解身體當下需求" },
-    { label: "合作募集", path: "/join", tone: "rose", icon: Users, text: "讓系統進入更多城市" },
-  ];
+  const [activeProduct, setActiveProduct] = useState(productCards[1]);
   return (
     <main>
-      <section className="luxury-hero relative isolate overflow-hidden bg-[#F8F4EC] px-5 py-12 md:px-8 md:py-10">
-        <div className="luxury-hero-wash pointer-events-none absolute inset-0 -z-10" />
-        <div className="luxury-hero-grid pointer-events-none absolute inset-0 -z-10" />
-        <div className="pointer-events-none absolute left-1/2 top-[48%] -z-10 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#A89566]/[0.07]" />
-        <div className="mx-auto flex min-h-[calc(100svh-70px)] max-w-6xl flex-col justify-start">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} className="mx-auto max-w-5xl text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#A89566]/20 bg-[#FBF8F1]/20 shadow-[0_16px_44px_rgba(48,57,49,0.06)] md:h-[3.75rem] md:w-[3.75rem]">
-              <img src={logo} alt="植本邏輯 Logo" className="h-9 w-9 object-contain opacity-90 drop-shadow-[0_10px_20px_rgba(60,64,53,0.10)] md:h-9 md:w-9" />
-            </div>
-            <p className="luxury-kicker mt-7 text-[10px] font-medium uppercase tracking-[0.48em] text-[#9F8B63]">PHYTOLOGIC HEALTH OPERATING SYSTEM</p>
-            <h1 className="mx-auto mt-6 max-w-5xl text-[2.35rem] font-medium leading-[1.22] tracking-[0.015em] text-[#243A31] md:text-[3rem] lg:text-[3.25rem]">全植物機能飲 × Dr.Marvin 健康系統</h1>
-            <p className="mt-6 whitespace-pre-line text-[1.35rem] font-light leading-[1.7] tracking-[0.02em] text-[#4F6258] md:text-[1.62rem]">讓每一個人活得久，{"\n"}也活得好精彩。</p>
-            <p className="mx-auto mt-6 max-w-xl text-sm font-light leading-8 text-[#707D73] md:text-[15px]">以植物、營養與生活型態資料，建立一套能被日常持續的健康入口。</p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#253A31]/90 bg-[#253A31] px-6 py-3 text-[13px] font-medium tracking-[0.02em] text-[#F8F4EC] shadow-[0_14px_30px_rgba(35,59,49,0.10)] transition duration-500 ease-out hover:-translate-y-px hover:bg-[#2D463B] hover:shadow-[0_16px_36px_rgba(35,59,49,0.13)]">免費分析我的身體狀態</button>
-              <button type="button" onClick={() => go("/products")} className="rounded-full border border-[#B7A06B]/60 bg-white/[0.18] px-6 py-3 text-[13px] font-normal tracking-[0.02em] text-[#253A31] transition duration-500 ease-out hover:-translate-y-px hover:border-[#A58B58]/80 hover:bg-[#EFE7D5]/40">探索產品系列</button>
-              <button type="button" onClick={handleOpenLine} className="rounded-full border border-[#D8CFBE]/80 bg-transparent px-6 py-3 text-xs font-normal tracking-[0.02em] text-[#6C756D] transition duration-500 ease-out hover:-translate-y-px hover:bg-white/35 hover:text-[#4F6258]">加入 LINE</button>
+      <section className="relative overflow-hidden bg-[#123828] px-5 py-14 md:px-9">
+        <div className="mx-auto grid min-h-[540px] max-w-7xl items-center gap-9 lg:grid-cols-[1.1fr_0.9fr]">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <p className="mb-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-[#B89B5E]">
+              <span className="inline-block h-px w-6 bg-[#B89B5E]" />
+              Phytologic · 植物機能飲
+            </p>
+            <h1 className="text-[44px] font-normal leading-[1.18] text-white md:text-[64px]">
+              每一杯，<br />都是給家人的<br /><em className="italic text-[#D8C99C]">真實答案。</em>
+            </h1>
+            <p className="mt-5 max-w-md text-[14px] leading-[1.85] text-white/60">
+              無人工、無化學、無合成。五色植物機能系統，從土地到身體的長期陪伴。
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button type="button" onClick={() => go("/products")} className="rounded-full bg-white px-6 py-3 text-[12px] font-medium text-[#123828] transition hover:bg-[#F5F0E8]">探索產品系列</button>
+              <button type="button" onClick={() => go("/assessment")} className="rounded-full border border-[#D8C99C]/50 px-6 py-3 text-[12px] text-[#D8C99C] transition hover:bg-white/10">了解 Dr.Marvin</button>
+              <button type="button" onClick={handleOpenLine} className="rounded-full border border-white/20 px-6 py-3 text-[12px] text-white/70 transition hover:bg-white/10">加入 LINE</button>
             </div>
           </motion.div>
-          <div className="mx-auto mt-9 grid max-w-4xl grid-cols-2 gap-x-7 gap-y-8 md:mt-10 md:grid-cols-4 md:gap-x-10">
-            {entries.map((entry) => (
-              <button key={entry.path} type="button" onClick={() => go(entry.path)} className={`hex-entry hex-entry-${entry.tone} group`}>
-                <div className="hex-entry-inner">
-                  <entry.icon className="h-4 w-4 opacity-55" />
-                  <h2 className="mt-2 whitespace-pre-line text-center text-[12px] font-medium leading-[1.45] tracking-[0.03em] text-[#293C34]">{entry.label}</h2>
-                  <p className="mt-1 max-w-[6.75rem] text-center text-[9.5px] font-light leading-[1.65] text-[#707B72]">{entry.text}</p>
-                  <ArrowRight className="mt-2 h-3 w-3 opacity-35 transition duration-500 ease-out group-hover:translate-x-px group-hover:opacity-60" />
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, delay: 0.1 }} className="flex flex-col gap-2">
+            {productCards.map((product) => (
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => setActiveProduct(product)}
+                className={`flex items-center gap-3 rounded-full border px-4 py-2.5 transition ${activeProduct.id === product.id ? "border-[#D8C99C]/50 bg-white/[0.06]" : "border-white/10 bg-transparent"}`}
+              >
+                <div className="h-7 w-7 flex-shrink-0 rounded-full" style={{ background: `linear-gradient(135deg, ${product.accent}, ${product.deep})` }} />
+                <div className="flex-1 text-left">
+                  <div className="text-[12px] font-medium text-white">{product.name}</div>
+                  <div className="text-[10px] tracking-wide text-white/40">{product.english}</div>
                 </div>
+                <div className="text-[10px] text-[#D8C99C]/70">{product.tags[0]}</div>
               </button>
             ))}
-          </div>
-          <div className="mx-auto mt-8 max-w-3xl text-center">
-            <p className="text-sm font-light leading-8 tracking-[0.02em] text-[#5F6F65]">我們不是在販售飲料，我們是在用自然、科學與愛，守護人生裡真正重要的人。</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.34em] text-[#9F8B63]">Six Families · Plant Science · Health Identity</p>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="bg-[#F5F0E8] px-5 py-14 md:px-7">
+        <div className="mx-auto max-w-7xl">
+          <SectionTitle eyebrow="News" title="最新消息" text="品牌公告、合作計畫與系統開發進度。" />
+          <div className="overflow-hidden rounded-2xl border border-[#D8C99C] divide-y divide-[#D8C99C]">
+            {homeNews.map((item) => (
+              <button key={item.title} type="button" onClick={() => go("/news")} className="grid w-full grid-cols-[56px_1fr_16px] items-start gap-4 bg-white px-5 py-4 text-left transition hover:bg-[#FDFBF6]">
+                <div>
+                  <div className="text-[10px] tracking-[0.1em] text-[#B89B5E]">{item.date}</div>
+                  <div className="mt-0.5 text-[10px] text-[#49675A]">{item.category}</div>
+                </div>
+                <div>
+                  <div className="mb-1 text-[13px] font-medium text-[#123828]">{item.title}</div>
+                  <div className="text-[12px] leading-[1.65] text-[#49675A]">{item.text}</div>
+                </div>
+                <div className="mt-0.5 text-[18px] text-[#D8C99C]">›</div>
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -560,7 +587,7 @@ function AboutPage() {
   return (
     <main className="px-5 py-16 md:px-8">
       <SectionTitle eyebrow="Brand Philosophy" title="品牌精神" text="六個家庭，是植本邏輯重新理解健康之後的起點。" />
-      <section className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.05fr_.95fr]">
+      <section className="mx-auto max-w-7xl">
         <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/75 p-8 shadow-sm md:p-12">
           <p className="text-sm font-semibold tracking-[0.28em] text-[#B89B5E]">FOUNDER STORY</p>
           <h2 className="mt-5 text-4xl font-semibold leading-tight text-[#123828]">從國際品牌經理人，到一位父親。</h2>
@@ -569,36 +596,25 @@ function AboutPage() {
             <p>植本邏輯因此從六個家庭的真實願望出發，重新研究植物、營養、人體修復、東方藥食智慧與西方營養學。</p>
             <p>真正重要的問題不是能不能賣，而是如果這是每天要給家人吃的東西，它應該長成什麼樣子。</p>
           </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {["重視生命", "尊重自然", "相信邏輯"].map((value) => (
+              <span key={value} className="rounded-full border border-[#D8C99C] px-5 py-2 text-sm text-[#49675A]">{value}</span>
+            ))}
+          </div>
         </div>
-        <div className="rounded-[2rem] bg-[#123828] p-8 text-white shadow-xl shadow-[#123828]/10 md:p-12">
-          <p className="text-sm font-semibold tracking-[0.28em] text-[#D8C99C]">CORE BELIEF</p>
-          <h2 className="mt-5 text-4xl font-semibold leading-tight">重視生命、尊重自然、相信邏輯。</h2>
-          <p className="mt-7 text-base leading-8 text-white/75">我們不是在販售飲料，而是在建立每天會進入身體、長期影響未來十年與二十年的食物系統。</p>
-          <div className="mt-8 flex flex-wrap gap-3"><Pill>重視生命</Pill><Pill>尊重自然</Pill><Pill>相信邏輯</Pill></div>
-        </div>
-      </section>
-      <section className="mx-auto mt-10 grid max-w-7xl gap-6 md:grid-cols-3">
-        {philosophyCards.map((card) => (
-          <article key={card.title} className="rounded-[1.5rem] border border-[#E2D5B5] bg-white/70 p-7 shadow-sm">
-            <h3 className="text-2xl font-semibold text-[#123828]">{card.title}</h3>
-            <p className="mt-4 leading-8 text-[#49675A]">{card.detail}</p>
-          </article>
-        ))}
-      </section>
-      <section className="mx-auto mt-10 grid max-w-7xl gap-6 lg:grid-cols-[.8fr_1.2fr]">
-        <div className="rounded-[2rem] border border-[#E7DDBF] bg-white/75 p-8">
-          <img src={logo} alt="植本邏輯 Logo" className="h-24 w-24 object-contain" />
-          <h2 className="mt-6 text-3xl font-semibold text-[#123828]">品牌 LOGO 意義</h2>
-          <p className="mt-4 leading-8 text-[#49675A]">以植物為根、以邏輯為形，象徵自然食材、科學判斷與長期陪伴的交會。</p>
-        </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {colorStories.slice(0, 3).map((story) => (
-            <article key={story.color} className="rounded-[1.5rem] border p-6" style={{ backgroundColor: story.card, borderColor: story.border, color: story.textColor }}>
-              <h3 className="text-2xl font-semibold">{story.color}</h3>
-              <p className="mt-3 font-medium">{story.title}</p>
-              <p className="mt-4 leading-7" style={{ color: story.muted }}>{story.text}</p>
-            </article>
-          ))}
+
+        <div className="mt-12">
+          <p className="mb-6 text-xs uppercase tracking-[0.35em] text-[#B89B5E]">Life Colors</p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+            {colorStories.map((story, index) => (
+              <div key={story.color} className="rounded-2xl p-6" style={{ background: story.card, color: story.textColor }}>
+                <div className="mb-3 text-xs tracking-[0.2em] opacity-40">0{index + 1}</div>
+                <div className="mb-1 text-base font-semibold">{story.color}</div>
+                <div className="mb-3 text-sm font-medium" style={{ color: story.number }}>{story.title}</div>
+                <p className="text-sm leading-7" style={{ color: story.muted }}>{story.text}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>
@@ -606,11 +622,57 @@ function AboutPage() {
 }
 
 function ProductsPage({ go }) {
+  const [activeProduct, setActiveProduct] = useState(productCards[1]);
   return (
-    <main className="px-5 py-16 md:px-8">
+    <main className="bg-[#FDFBF6] px-5 py-16 md:px-8">
       <SectionTitle eyebrow="Product System" title="全植物機能飲" text="先選擇產品，再進入完整介紹。產品總覽只保留核心定位與食材摘要。" />
-      <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-5">
-        {productCards.map((product) => <ProductOverviewCard key={product.id} product={product} go={go} />)}
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {[
+            { num: "01", title: "不是飲料，是食物", text: "每天敢給家人吃為底線，回到植物、營養與身體真正需要的本質。" },
+            { num: "02", title: "三好原則", text: "好喝、好看、好吸收。真正能持續的健康，一定要能融入生活。" },
+            { num: "03", title: "三無鐵律", text: "無人工、無化學、無合成。真正重要的人，值得最乾淨的選擇。" },
+          ].map((card) => (
+            <div key={card.num} className="rounded-2xl border border-[#E7DDBF] bg-white/70 p-6">
+              <div className="mb-3 text-sm text-[#B89B5E]">{card.num}</div>
+              <h3 className="mb-2 font-semibold text-[#123828]">{card.title}</h3>
+              <p className="text-sm leading-7 text-[#49675A]">{card.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-5">
+          {productCards.map((product) => (
+            <button
+              key={product.id}
+              type="button"
+              onClick={() => setActiveProduct(product)}
+              className={`rounded-2xl border p-3 text-center transition ${activeProduct.id === product.id ? "border-[#D8C99C]" : "border-transparent"}`}
+              style={{ background: `${product.accent}${activeProduct.id === product.id ? "CC" : "66"}` }}
+            >
+              <div className="mx-auto mb-2 h-9 w-9 rounded-full" style={{ background: `linear-gradient(135deg, ${product.accent}, ${product.deep})` }} />
+              <div className="text-[11px] font-medium text-[#123828]">{product.name}</div>
+              <div className="mt-0.5 text-[9px] tracking-wide text-[#49675A]">{product.english}</div>
+            </button>
+          ))}
+        </div>
+        <div className="rounded-[1.5rem] bg-[#123828] p-7 text-white">
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-[30px] font-normal">{activeProduct.name}</h3>
+              <p className="mt-1 text-[12px] text-[#D8C99C]/80">{activeProduct.theme}</p>
+            </div>
+            <div className="h-12 w-12 rounded-full border-2 border-white/20" style={{ background: `linear-gradient(135deg, ${activeProduct.accent}, ${activeProduct.deep})` }} />
+          </div>
+          <p className="mb-4 text-[13px] leading-[1.8] text-white/70">{activeProduct.desc}</p>
+          <p className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-[12px] leading-7 text-white/58">{activeProduct.formula}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {activeProduct.tags.map((tag) => <span key={tag} className="rounded-full border border-white/20 px-3 py-1 text-[11px] text-white/75">{tag}</span>)}
+          </div>
+          <button type="button" onClick={() => go(`/products/${productSlugs[activeProduct.id]}`)} className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[12px] font-medium text-[#123828] transition hover:bg-[#F5F0E8]">
+            進入完整介紹 <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </main>
   );
@@ -660,7 +722,7 @@ function ProductDetailPage({ slug, go }) {
 
 function AssessmentPage() {
   return (
-    <main className="bg-[#F5F2EB] px-5 py-16 md:px-8">
+    <main className="bg-[#F5F0E8] px-5 py-16 md:px-8">
       <HealthAssessment />
     </main>
   );
@@ -871,17 +933,22 @@ function NewsPage() {
   const { items: news, loading, error } = usePublished("announcements");
   const sorted = useMemo(() => [...news].sort((a, b) => Number(b.is_pinned) - Number(a.is_pinned)), [news]);
   return (
-    <main className="px-5 py-16 md:px-8">
+    <main className="bg-[#F5F0E8] px-5 py-16 md:px-8">
       <SectionTitle eyebrow="News" title="植本公布欄" text="品牌活動、試飲活動、加盟說明會、合作公告與健康文章。" />
       <DataState loading={loading} error={error} empty={!loading && !error && sorted.length === 0}>目前尚無已發布公告。</DataState>
-      <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-3">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl border border-[#D8C99C] divide-y divide-[#D8C99C]">
         {sorted.map((item) => (
-          <article key={item.id || item.title} className="rounded-2xl border border-[#E7DDBF] bg-white/75 p-7 shadow-sm">
-            <div className="flex items-center justify-between text-sm text-[#8B7A4C]"><span>{item.category}</span><span>{item.is_pinned ? "置頂" : item.published_at}</span></div>
-            {item.cover_image_url && <img src={item.cover_image_url} alt="" className="mt-5 aspect-[16/10] w-full rounded-xl object-cover" />}
-            <h3 className="mt-5 text-2xl font-semibold">{item.title}</h3>
-            <p className="mt-4 leading-7 text-[#49675A]">{item.summary}</p>
-            <p className="mt-5 text-sm leading-7 text-[#7D8D7F]">{item.content}</p>
+          <article key={item.id || item.title} className="grid gap-4 bg-white px-5 py-4 transition hover:bg-[#FDFBF6] md:grid-cols-[120px_1fr]">
+            <div>
+              <div className="text-[10px] tracking-[0.1em] text-[#B89B5E]">{item.is_pinned ? "置頂" : item.published_at}</div>
+              <div className="mt-0.5 text-[10px] text-[#49675A]">{item.category}</div>
+            </div>
+            <div>
+              {item.cover_image_url && <img src={item.cover_image_url} alt="" className="mb-4 aspect-[16/7] w-full rounded-xl object-cover" />}
+              <h3 className="mb-1 text-[16px] font-medium text-[#123828]">{item.title}</h3>
+              <p className="text-[13px] leading-[1.75] text-[#49675A]">{item.summary}</p>
+              <p className="mt-3 text-[12px] leading-7 text-[#7D8D7F]">{item.content}</p>
+            </div>
           </article>
         ))}
       </div>
@@ -916,55 +983,34 @@ function GalleryPage() {
 }
 
 function Footer({ go }) {
+  const footerLinks = [
+    ["品牌理念", "/about"],
+    ["產品系列", "/products"],
+    ["Dr.Marvin", "/assessment"],
+    ["最新消息", "/news"],
+    ["合作加盟", "/join"],
+    ["合作夥伴", "/partners"],
+  ];
   return (
-    <footer className="border-t border-[#E7DDBF] bg-[#F9F5EA] px-5 py-14 md:px-8">
+    <footer className="bg-[#123828] px-5 py-10 text-white md:px-7">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1.2fr] md:gap-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="植本邏輯 Logo" className="h-10 w-10 object-contain" />
-              <div>
-                <div className="font-semibold tracking-[0.18em] text-[#123828]">植本邏輯</div>
-                <div className="text-xs tracking-[0.24em] text-[#7D8D7F]">PHYTOLOGIC</div>
-              </div>
-            </div>
-            <p className="mt-5 text-sm leading-7 text-[#49675A]">
-              以植物、科學與愛，<br />守護人生裡真正重要的人。
-            </p>
-            <button type="button" onClick={handleOpenLine} className="mt-5 rounded-full bg-[#06C755] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#05B64D]">加入 LINE</button>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold tracking-[0.2em] text-[#8B7A4C]">品牌</h3>
-            <ul className="mt-4 space-y-3 text-sm text-[#49675A]">
-              <li><button type="button" onClick={() => go("/about")} className="transition hover:text-[#123828]">品牌精神</button></li>
-              <li><button type="button" onClick={() => go("/products")} className="transition hover:text-[#123828]">全植物機能飲</button></li>
-              <li><button type="button" onClick={() => go("/assessment")} className="transition hover:text-[#123828]">Dr.Marvin 健康分析</button></li>
-              <li><button type="button" onClick={() => go("/news")} className="transition hover:text-[#123828]">最新消息</button></li>
-              <li><button type="button" onClick={() => go("/gallery")} className="transition hover:text-[#123828]">精彩剪影</button></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold tracking-[0.2em] text-[#8B7A4C]">合作</h3>
-            <ul className="mt-4 space-y-3 text-sm text-[#49675A]">
-              <li><button type="button" onClick={() => go("/join")} className="transition hover:text-[#123828]">合作募集</button></li>
-              <li><button type="button" onClick={() => go("/partners")} className="transition hover:text-[#123828]">合作夥伴</button></li>
-              <li><button type="button" onClick={() => { go("/join"); setTimeout(() => document.querySelector("#合作申請")?.scrollIntoView({ behavior: "smooth" }), 80); }} className="transition hover:text-[#123828]">送出合作申請</button></li>
-            </ul>
-          </div>
-
-          <div className="rounded-2xl border border-[#E7DDBF] bg-white/70 p-5">
-            <div className="text-sm text-[#8B7A4C]">官方 LINE</div>
-            <div className="mt-1 font-semibold text-[#123828]">{lineId}</div>
-            <LineQRCode className="mt-3 w-24" />
-            <button type="button" onClick={handleOpenLine} className="mt-3 inline-flex rounded-full bg-[#06C755] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#05B64D]">立即加入 LINE</button>
-          </div>
+        <h3 className="mb-1 text-[20px] font-normal">植本邏輯 Phytologic</h3>
+        <p className="mb-6 text-[12px] text-white/45">植物 · 邏輯 · 每日健康陪伴</p>
+        <div className="mb-7 flex flex-wrap gap-4">
+          {footerLinks.map(([label, path]) => (
+            <button key={label} type="button" onClick={() => go(path)} className="text-[12px] text-white/55 transition hover:text-[#D8C99C]">{label}</button>
+          ))}
         </div>
-
-        <div className="mt-12 flex flex-col gap-3 border-t border-[#E7DDBF]/70 pt-5 text-xs text-[#9A8C68] md:flex-row md:items-center md:justify-between">
-          <span>© 2026 植本邏輯 PHYTOLOGIC. All rights reserved. ・ 熱愛・尊重・相信</span>
-          <button type="button" onClick={() => go("/admin")} className="w-fit transition hover:text-[#123828]">管理入口</button>
+        <hr className="mb-5 border-white/10" />
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-[11px] text-white/30">© 2026 植本邏輯 Phytologic. All rights reserved.</span>
+            <button type="button" onClick={() => go("/admin")} className="text-[11px] text-white/35 transition hover:text-[#D8C99C]">管理入口</button>
+          </div>
+          <button type="button" onClick={handleOpenLine} className="flex w-fit items-center gap-1.5 rounded-full bg-white/[0.08] px-3 py-1.5 text-[11px] text-white/70 transition hover:bg-white/12">
+            <span className="h-2 w-2 rounded-full bg-[#06C755]" />
+            {lineId}
+          </button>
         </div>
       </div>
     </footer>
@@ -974,32 +1020,55 @@ function Footer({ go }) {
 export default function PhytologicWebsite() {
   const [route, go] = useRoute();
   const isAdminRoute = route === "/admin" || route.startsWith("/admin/");
+  const isLineRoute = route.startsWith("/line/");
   const productMatch = route.match(/^\/products\/([^/]+)$/);
   const page = isAdminRoute
     ? <AdminDashboard route={route} go={go} />
+    : route === "/line/entry"
+    ? <LineEntry go={go} />
+    : route === "/line/today"
+    ? <LineTodayPage route={route} go={go} />
+    : route === "/line/checkin"
+    ? <LineCheckinPage route={route} go={go} />
+    : route === "/line/profile"
+    ? <LineProfilePage route={route} go={go} />
+    : route === "/line/tasks"
+    ? <LineTasksPage route={route} go={go} />
+    : route === "/line/shop"
+    ? <LineShopPage route={route} go={go} />
+    : route === "/line/assessment"
+    ? (
+      <HealthAssessment
+        lineMode={true}
+        onComplete={(member) => {
+          if (member) sessionStorage.setItem("line_member", JSON.stringify(member));
+          go("/line/today");
+        }}
+      />
+    )
     : route === "/about"
-      ? <AboutPage />
-      : route === "/products"
-        ? <ProductsPage go={go} />
-        : productMatch
-          ? <ProductDetailPage slug={productMatch[1]} go={go} />
-          : route === "/assessment"
-            ? <AssessmentPage />
-            : route === "/join"
-              ? <JoinPage go={go} />
-              : route === "/partners"
-                ? <PartnersPage />
-                : route === "/news"
-                  ? <NewsPage />
-                  : route === "/gallery"
-                    ? <GalleryPage />
-                    : <HomePage go={go} />;
+    ? <AboutPage />
+    : route === "/products"
+    ? <ProductsPage go={go} />
+    : productMatch
+    ? <ProductDetailPage slug={productMatch[1]} go={go} />
+    : route === "/assessment"
+    ? <AssessmentPage />
+    : route === "/join"
+    ? <JoinPage go={go} />
+    : route === "/partners"
+    ? <PartnersPage />
+    : route === "/news"
+    ? <NewsPage />
+    : route === "/gallery"
+    ? <GalleryPage />
+    : <HomePage go={go} />;
   return (
     <div className="min-h-screen bg-[#F9F5EA] text-[#123828]">
-      {!isAdminRoute && <Header route={route} go={go} />}
+      {!isAdminRoute && !isLineRoute && <Header route={route} go={go} />}
       {page}
-      {!isAdminRoute && <Footer go={go} />}
-      {!isAdminRoute && <FloatingLineButton />}
+      {!isAdminRoute && !isLineRoute && <Footer go={go} />}
+      {!isAdminRoute && !isLineRoute && <FloatingLineButton />}
     </div>
   );
 }
