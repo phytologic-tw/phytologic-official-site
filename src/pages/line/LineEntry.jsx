@@ -31,7 +31,7 @@ export default function LineEntry({ go }) {
         // 3. 建立或讀取 Supabase 會員
         const { member, error } = await findOrCreateMember(profile);
         if (error || !member) {
-          setErrorMsg("會員資料建立失敗，請稍後再試。");
+          setErrorMsg("錯誤：" + (error?.message || error?.code || JSON.stringify(error) || "未知錯誤"));
           setStatus("error");
           return;
         }
