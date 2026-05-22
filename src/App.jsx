@@ -1038,25 +1038,34 @@ export default function PhytologicWebsite() {
     ? <LineShopPage route={route} go={go} />
     : route === "/line/assessment"
     ? (
-      <HealthAssessment
-        lineMode={true}
-        onComplete={async (assessmentResult) => {
-          const stored = sessionStorage.getItem("line_member");
-          if (stored) {
-            const member = JSON.parse(stored);
-            const { updateMemberHealth } = await import("./lib/memberProfile");
-            await updateMemberHealth(member.line_user_id, {
-              healthType: assessmentResult?.recommendations?.primary?.name || "抗發炎修復",
-              recommendedDrink: assessmentResult?.recommendations?.primary?.name || "雪山植萃",
-              ageGroup: member.age_group,
-            });
-            const { getMemberByLineId } = await import("./lib/memberProfile");
-            const updated = await getMemberByLineId(member.line_user_id);
-            if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
-          }
-          go("/line/today");
-        }}
-      />
+      <div>
+        <div style={{ padding: "12px 16px", background: "#F9F5EA" }}>
+          <button
+            onClick={() => go("/line/today")}
+            style={{ fontSize: "14px", color: "#123828", fontWeight: "500", background: "none", border: "none", cursor: "pointer" }}
+          >
+            ← 返回今日
+          </button>
+        </div>
+        <HealthAssessment
+          lineMode={true}
+          onComplete={async (assessmentResult) => {
+            const stored = sessionStorage.getItem("line_member");
+            if (stored) {
+              const member = JSON.parse(stored);
+              const { updateMemberHealth, getMemberByLineId } = await import("./lib/memberProfile");
+              await updateMemberHealth(member.line_user_id, {
+                healthType: assessmentResult?.recommendations?.primary?.name || "抗發炎修復",
+                recommendedDrink: assessmentResult?.recommendations?.primary?.name || "雪山植萃",
+                ageGroup: member.age_group,
+              });
+              const updated = await getMemberByLineId(member.line_user_id);
+              if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
+            }
+            go("/line/today");
+          }}
+        />
+      </div>
     )
     : route === "/about"
     ? <AboutPage />

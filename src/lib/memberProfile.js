@@ -140,10 +140,11 @@ export async function updateMemberHealth(lineUserId, { healthType, recommendedDr
  * 今日打卡
  * 返回: { success, alreadyChecked, le, healthScore, streakDays, message }
  */
-export async function doCheckin(memberId) {
-  if (!supabase || !memberId) return { success: false, message: "會員資料不完整" };
+export async function doCheckin(member) {
+  if (!supabase || !member?.id) return { success: false, message: "會員資料不完整" };
 
   const today = getTaiwanToday();
+  const memberId = member.id;
 
   try {
     // 檢查今天是否已打卡
@@ -202,6 +203,9 @@ export async function doCheckin(memberId) {
       .eq("id", memberId);
 
     if (updateErr) throw updateErr;
+
+    const updated = await getMemberByLineId(member.line_user_id);
+    if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
 
     return {
       success: true,

@@ -26,7 +26,7 @@ export default function LineCheckinPage({ route, go }) {
     if (!member?.id || state === "loading") return;
     setState("loading");
 
-    const res = await doCheckin(member.id);
+    const res = await doCheckin(member);
 
     if (res.alreadyChecked) {
       setState("already");
@@ -34,16 +34,8 @@ export default function LineCheckinPage({ route, go }) {
     }
 
     if (res.success) {
-      // 更新 sessionStorage 的積分
-      const updated = {
-        ...member,
-        le: res.le,
-        health_score: res.healthScore,
-        streak_days: res.streakDays,
-        last_checkin_date: getTaiwanToday(),
-      };
-      sessionStorage.setItem("line_member", JSON.stringify(updated));
-      setMember(updated);
+      const stored = sessionStorage.getItem("line_member");
+      if (stored) setMember(JSON.parse(stored));
       setResult(res);
       setState("done");
     } else {
