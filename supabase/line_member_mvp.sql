@@ -33,7 +33,7 @@ alter table assessment_reports
 -- 2. 每日打卡紀錄表
 create table if not exists daily_checkins (
   id              uuid primary key default gen_random_uuid(),
-  member_id       uuid not null references profiles(id) on delete cascade,
+  member_id       uuid not null references line_members(id) on delete cascade,
   checkin_date    date not null,
   drink_type      text,
   le_earned       int default 10,
@@ -42,6 +42,11 @@ create table if not exists daily_checkins (
   created_at      timestamptz default now(),
   unique (member_id, checkin_date)
 );
+
+alter table daily_checkins
+  drop constraint if exists daily_checkins_member_id_fkey,
+  add constraint daily_checkins_member_id_fkey
+  foreign key (member_id) references line_members(id) on delete cascade;
 
 -- 3. 每日 AI 推播訊息表
 create table if not exists daily_ai_messages (

@@ -141,6 +141,8 @@ export async function updateMemberHealth(lineUserId, { healthType, recommendedDr
  * 返回: { success, alreadyChecked, le, healthScore, streakDays, message }
  */
 export async function doCheckin(member) {
+  console.log("[memberProfile] doCheckin member:", member);
+
   if (!supabase || !member?.id) return { success: false, message: "會員資料不完整" };
 
   const today = getTaiwanToday();
@@ -160,7 +162,7 @@ export async function doCheckin(member) {
     }
 
     // 取得目前會員資料
-    const { data: member, error: memberErr } = await supabase
+    const { data: currentMember, error: memberErr } = await supabase
       .from("line_members")
       .select("le, health_score, streak_days, last_checkin_date")
       .eq("id", memberId)
@@ -172,10 +174,10 @@ export async function doCheckin(member) {
     const yesterday = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei" })
       .format(new Date(Date.now() - 86400000));
 
-    const isConsecutive = member.last_checkin_date === yesterday;
-    const newStreakDays = isConsecutive ? (member.streak_days || 0) + 1 : 1;
-    const newLe = (member.le || 0) + 10;
-    const newHealthScore = Math.min((member.health_score || 0) + 3, 100);
+    const isConsecutive = currentMember.last_checkin_date === yesterday;
+    const newStreakDays = isConsecutive ? (currentMember.streak_days || 0) + 1 : 1;
+    const newLe = (currentMember.le || 0) + 10;
+    const newHealthScore = Math.min((currentMember.health_score || 0) + 3, 100);
 
     // 寫入打卡紀錄
     const { error: checkinErr } = await supabase
