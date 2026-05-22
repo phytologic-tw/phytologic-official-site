@@ -1040,8 +1040,8 @@ export default function PhytologicWebsite() {
     ? (
       <HealthAssessment
         lineMode={true}
-        onComplete={(member) => {
-          if (member) sessionStorage.setItem("line_member", JSON.stringify(member));
+        onComplete={(assessmentResult) => {
+          if (assessmentResult) sessionStorage.setItem("line_assessment_result", JSON.stringify(assessmentResult));
           go("/line/today");
         }}
       />

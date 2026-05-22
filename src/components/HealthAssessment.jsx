@@ -188,7 +188,7 @@ async function insertAssessmentReport(reportPayload) {
   };
 }
 
-export default function HealthAssessment() {
+export default function HealthAssessment({ onComplete } = {}) {
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState(initialProfile);
   const [questions, setQuestions] = useState([]);
@@ -199,6 +199,7 @@ export default function HealthAssessment() {
   const [saveStatus, setSaveStatus] = useState("idle");
   const [assessmentId, setAssessmentId] = useState(null);
   const resultRef = useRef(null);
+  const completionNotifiedRef = useRef(false);
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / QUESTION_COUNT) * 100);
@@ -243,6 +244,20 @@ export default function HealthAssessment() {
     }
   }, [step]);
 
+  useEffect(() => {
+    if (step !== 3 || !aiResult || !result || completionNotifiedRef.current || typeof onComplete !== "function") return;
+
+    completionNotifiedRef.current = true;
+    onComplete({
+      ...aiResult,
+      totalScore: result.total,
+      levelLabel: result.levelLabel,
+      categoryScores: result.categoryScores,
+      topSignals: result.topSignals,
+      profile,
+    });
+  }, [step, aiResult, result, profile, onComplete]);
+
   const resetAssessment = () => {
     setStep(0);
     setProfile(initialProfile);
@@ -253,6 +268,7 @@ export default function HealthAssessment() {
     setSaveNotice("");
     setSaveStatus("idle");
     setAssessmentId(null);
+    completionNotifiedRef.current = false;
   };
 
   const startAssessment = () => {
@@ -260,6 +276,7 @@ export default function HealthAssessment() {
     setAnswers({});
     setAiResult(null);
     setSaveNotice("");
+    completionNotifiedRef.current = false;
     setStep(1);
     window.setTimeout(() => document.querySelector("#physon")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
