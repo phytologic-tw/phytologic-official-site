@@ -11,6 +11,8 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_KEY;
+const REPORT_SELECT = "id, inflammation_level, total_score, recommended_products, ai_analysis";
+const REPORT_SELECT_WITH_SHORT_CODE = `${REPORT_SELECT}, short_code`;
 
 let supabaseAdmin;
 
@@ -52,6 +54,77 @@ function readRawBody(req) {
     req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     req.on("error", reject);
   });
+}
+
+function getUuidRangeFromShortCode(shortCode) {
+  if (!/^[0-9A-F]{8}$/i.test(shortCode)) return null;
+
+  const lowerPrefix = shortCode.toLowerCase();
+  const nextPrefixNumber = Number.parseInt(lowerPrefix, 16) + 1;
+  const lower = `${lowerPrefix}-0000-0000-0000-000000000000`;
+
+  if (nextPrefixNumber > 0xffffffff) {
+    return {
+      lower,
+      upper: "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      upperInclusive: true,
+    };
+  }
+
+  const upperPrefix = nextPrefixNumber.toString(16).padStart(8, "0");
+  return {
+    lower,
+    upper: `${upperPrefix}-0000-0000-0000-000000000000`,
+    upperInclusive: false,
+  };
+}
+
+async function findReportByCode(supabase, shortCode) {
+  const { data: shortCodeReport, error: shortCodeError } = await supabase
+    .from("assessment_reports")
+    .select(REPORT_SELECT_WITH_SHORT_CODE)
+    .eq("short_code", shortCode)
+    .maybeSingle();
+
+  if (shortCodeError) {
+    console.error("[Webhook] short_code lookup failed:", {
+      code: shortCodeError.code,
+      message: shortCodeError.message,
+      details: shortCodeError.details,
+    });
+  }
+
+  if (shortCodeReport) return shortCodeReport;
+
+  const uuidRange = getUuidRangeFromShortCode(shortCode);
+  if (!uuidRange) {
+    if (shortCodeError) throw shortCodeError;
+    return null;
+  }
+
+  let idPrefixQuery = supabase
+    .from("assessment_reports")
+    .select(REPORT_SELECT)
+    .gte("id", uuidRange.lower)
+    .order("id", { ascending: true })
+    .limit(1);
+
+  idPrefixQuery = uuidRange.upperInclusive
+    ? idPrefixQuery.lte("id", uuidRange.upper)
+    : idPrefixQuery.lt("id", uuidRange.upper);
+
+  const { data: idPrefixReports, error: idPrefixError } = await idPrefixQuery;
+
+  if (idPrefixError) {
+    console.error("[Webhook] id prefix lookup failed:", {
+      code: idPrefixError.code,
+      message: idPrefixError.message,
+      details: idPrefixError.details,
+    });
+    throw idPrefixError;
+  }
+
+  return idPrefixReports?.[0] || null;
 }
 
 // 驗證 LINE Webhook 簽章
@@ -164,13 +237,7 @@ export default async function handler(req, res) {
       try {
         const supabase = getSupabaseAdmin();
         const shortCode = userMessage.toUpperCase();
-        const { data: report, error: reportError } = await supabase
-          .from("assessment_reports")
-          .select("id, short_code, inflammation_level, total_score, full_report, partial_report, recommended_products, ai_analysis, lifestyle_advice, line_user_id, member_id")
-          .eq("short_code", shortCode)
-          .maybeSingle();
-
-        if (reportError) throw reportError;
+        const report = await findReportByCode(supabase, shortCode);
 
         if (!report) {
           await replyMessage(replyToken, [
@@ -215,7 +282,7 @@ export default async function handler(req, res) {
               line_sent_at: new Date().toISOString(),
               member_id: memberId,
             })
-            .eq("short_code", shortCode);
+            .eq("id", report.id);
 
           if (patchError) {
             console.error("[Webhook] PATCH assessment_reports failed:", patchError.message);
