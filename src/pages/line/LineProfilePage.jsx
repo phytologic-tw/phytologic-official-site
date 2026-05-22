@@ -17,9 +17,21 @@ export default function LineProfilePage({ route, go }) {
   const [member, setMember] = useState(null);
 
   useEffect(() => {
+    function refreshMember() {
+      const stored = sessionStorage.getItem("line_member");
+      if (stored) setMember(JSON.parse(stored));
+    }
+
+    function handleVisibilityChange() {
+      if (!document.hidden) refreshMember();
+    }
+
     const stored = sessionStorage.getItem("line_member");
     if (!stored) { go("/line/entry"); return; }
     setMember(JSON.parse(stored));
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [go]);
 
   if (!member) return null;

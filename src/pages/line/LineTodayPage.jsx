@@ -20,6 +20,15 @@ export default function LineTodayPage({ route, go }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    function refreshMember() {
+      const stored = sessionStorage.getItem("line_member");
+      if (stored) setMember(JSON.parse(stored));
+    }
+
+    function handleVisibilityChange() {
+      if (!document.hidden) refreshMember();
+    }
+
     async function load() {
       const stored = sessionStorage.getItem("line_member");
       if (!stored) { go("/line/entry"); return; }
@@ -32,6 +41,9 @@ export default function LineTodayPage({ route, go }) {
       setLoading(false);
     }
     load();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [go]);
 
   if (loading) {
