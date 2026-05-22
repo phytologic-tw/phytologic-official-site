@@ -1,6 +1,8 @@
 // src/lib/lineAuth.js
 // LIFF 初始化、LINE userId 取得、登入狀態管理
 
+import liff from "@line/liff";
+
 const LIFF_ID = import.meta.env.VITE_LINE_LIFF_ID || "2010068530-ddmtwm5t";
 
 let _liffInitialized = false;
@@ -14,8 +16,6 @@ export async function initLiff() {
   if (_liffInitialized) return true;
 
   try {
-    // 動態載入 LIFF SDK（避免影響非 LINE 頁面的載入速度）
-    const liff = (await import("@line/liff")).default;
     await liff.init({ liffId: LIFF_ID });
     _liffInitialized = true;
 
@@ -40,7 +40,6 @@ export async function getLiffProfile() {
   if (_liffProfile) return _liffProfile;
 
   try {
-    const liff = (await import("@line/liff")).default;
     if (!liff.isLoggedIn()) return null;
 
     const profile = await liff.getProfile();
@@ -62,7 +61,6 @@ export async function getLiffProfile() {
  */
 export async function getLiffAccessToken() {
   try {
-    const liff = (await import("@line/liff")).default;
     return liff.getAccessToken();
   } catch {
     return null;
@@ -74,7 +72,6 @@ export async function getLiffAccessToken() {
  */
 export async function isInLiffBrowser() {
   try {
-    const liff = (await import("@line/liff")).default;
     return liff.isInClient();
   } catch {
     return false;
@@ -86,7 +83,6 @@ export async function isInLiffBrowser() {
  */
 export async function liffLogout() {
   try {
-    const liff = (await import("@line/liff")).default;
     liff.logout();
     _liffProfile = null;
     _liffInitialized = false;
@@ -100,7 +96,6 @@ export async function liffLogout() {
  */
 export async function sendLiffMessage(messages) {
   try {
-    const liff = (await import("@line/liff")).default;
     if (liff.isInClient()) {
       await liff.sendMessages(messages);
     }
