@@ -1040,8 +1040,20 @@ export default function PhytologicWebsite() {
     ? (
       <HealthAssessment
         lineMode={true}
-        onComplete={(assessmentResult) => {
-          if (assessmentResult) sessionStorage.setItem("line_assessment_result", JSON.stringify(assessmentResult));
+        onComplete={async (assessmentResult) => {
+          const stored = sessionStorage.getItem("line_member");
+          if (stored) {
+            const member = JSON.parse(stored);
+            const { updateMemberHealth } = await import("./lib/memberProfile");
+            await updateMemberHealth(member.line_user_id, {
+              healthType: assessmentResult?.recommendations?.primary?.name || "抗發炎修復",
+              recommendedDrink: assessmentResult?.recommendations?.primary?.name || "雪山植萃",
+              ageGroup: member.age_group,
+            });
+            const { getMemberByLineId } = await import("./lib/memberProfile");
+            const updated = await getMemberByLineId(member.line_user_id);
+            if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
+          }
           go("/line/today");
         }}
       />
