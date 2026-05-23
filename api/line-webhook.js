@@ -19,9 +19,10 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_KEY;
+const DEFAULT_LIFF_ID = process.env.VITE_LINE_LIFF_ID || "2010068530-ddmtwm5t";
 const LIFF_ENTRY_URL =
   process.env.LINE_LIFF_ENTRY_URL ||
-  (process.env.VITE_LINE_LIFF_ID ? `https://liff.line.me/${process.env.VITE_LINE_LIFF_ID}` : "https://www.phytologic.tw/line/entry");
+  `https://liff.line.me/${DEFAULT_LIFF_ID}`;
 const REPORT_SELECT = "id, inflammation_level, total_score, recommended_products, ai_analysis";
 const REPORT_SELECT_WITH_SHORT_CODE = `${REPORT_SELECT}, short_code`;
 
@@ -66,6 +67,31 @@ function getJwtRole(key) {
   } catch {
     return "unreadable";
   }
+}
+
+function buildMemberEntryMessage() {
+  return {
+    type: "template",
+    altText: "建立植本邏輯會員資料",
+    template: {
+      type: "buttons",
+      title: "植本邏輯會員建檔",
+      text: "點擊下方按鈕進入 LIFF 建檔頁面，完成後即可查看今日健康狀態與七天修補計畫。",
+      actions: [
+        {
+          type: "uri",
+          label: "立即建立會員資料",
+          uri: LIFF_ENTRY_URL,
+        },
+      ],
+    },
+  };
+}
+
+function isMemberEntryKeyword(message) {
+  return ["會員", "建檔", "加入會員", "member"].some((keyword) =>
+    message.toLowerCase().includes(keyword.toLowerCase())
+  );
 }
 
 function readRawBody(req) {
@@ -537,24 +563,7 @@ export default async function handler(req, res) {
 
   for (const event of events) {
     if (event.type === "follow") {
-      await replyMessage(event.replyToken, [
-        {
-          type: "template",
-          altText: "歡迎加入植本邏輯",
-          template: {
-            type: "buttons",
-            title: "歡迎加入植本邏輯",
-            text: "我是派森 AI 健康顧問。先完成 LINE 會員建檔，讓我把快篩報告變成你的七天修補計畫。",
-            actions: [
-              {
-                type: "uri",
-                label: "開始會員建檔",
-                uri: LIFF_ENTRY_URL,
-              },
-            ],
-          },
-        },
-      ]);
+      await replyMessage(event.replyToken, [buildMemberEntryMessage()]);
       continue;
     }
 
@@ -577,6 +586,11 @@ export default async function handler(req, res) {
 
     const userMessage = event.message.text.trim();
     const replyToken = event.replyToken;
+
+    if (isMemberEntryKeyword(userMessage)) {
+      await replyMessage(replyToken, [buildMemberEntryMessage()]);
+      continue;
+    }
 
     // 使用者輸入報告編號（8碼英數字）
     if (/^[A-Z0-9]{8}$/i.test(userMessage)) {
