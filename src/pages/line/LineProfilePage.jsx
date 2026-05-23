@@ -38,7 +38,7 @@ export default function LineProfilePage({ route, go }) {
 
   const drink = member.recommended_drink || "雪山植萃";
   const color = DRINK_COLORS[drink] || DRINK_COLORS["雪山植萃"];
-  const level = member.level || 1;
+  const level = member.level_number || 1;
   const le = member.le || 0;
   const nextLe = LEVEL_NEXT_LE[level] || 100;
   const progress = Math.min((le / nextLe) * 100, 100);
@@ -49,27 +49,27 @@ export default function LineProfilePage({ route, go }) {
         {/* 頭像與身份 */}
         <div className="mb-6 flex flex-col items-center text-center">
           {member.picture_url ? (
-            <img src={member.picture_url} alt={member.display_name} className="mb-3 h-20 w-20 rounded-full border-2 border-[#E7DDBF] object-cover" />
+            <img src={member.picture_url} alt={member.display_name} className="mb-3 h-20 w-20 rounded-full border-2 border-brand-border-warm object-cover" />
           ) : (
-            <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-[#123828] text-2xl font-semibold text-white">
+            <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-brand-dark text-2xl font-semibold text-white">
               {(member.display_name || "?")[0]}
             </div>
           )}
-          <h2 className="text-xl font-semibold text-[#123828]">{member.display_name || "健康夥伴"}</h2>
+          <h2 className="text-xl font-semibold text-brand-dark">{member.display_name || "健康夥伴"}</h2>
           <div className="mt-1 flex items-center gap-2">
-            <span className="rounded-full bg-[#123828] px-3 py-1 text-xs font-semibold text-white">Lv.{level}</span>
-            <span className="text-sm text-[#8B7A4C]">{member.title || "改變者"}</span>
+            <span className="rounded-full bg-brand-dark px-3 py-1 text-xs font-semibold text-white">Lv.{level}</span>
+            <span className="text-sm text-brand-gold-deep">{member.title || "改變者"}</span>
           </div>
         </div>
 
         {/* 等級進度條 */}
-        <div className="mb-5 rounded-2xl border border-[#E7DDBF] bg-white p-5">
-          <div className="mb-2 flex justify-between text-xs text-[#8B7A4C]">
+        <div className="mb-5 rounded-2xl border border-brand-border-warm bg-white p-5">
+          <div className="mb-2 flex justify-between text-xs text-brand-gold-deep">
             <span>升級進度</span>
             <span>{le} / {nextLe} LE</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-[#F0EBE0]">
-            <div className="h-full rounded-full bg-[#123828] transition-all" style={{ width: `${progress}%` }} />
+            <div className="h-full rounded-full bg-brand-dark transition-all" style={{ width: `${progress}%` }} />
           </div>
           {level < 4 && (
             <p className="mt-2 text-xs text-[#9A8C68]">再 {nextLe - le} LE 升級為「{calcTitle(level + 1)}」</p>
@@ -85,14 +85,14 @@ export default function LineProfilePage({ route, go }) {
         </div>
 
         {/* 健康特質 */}
-        <div className="mb-4 rounded-2xl border border-[#E7DDBF] bg-white p-5">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#8B7A4C]">健康特質</p>
+        <div className="mb-4 rounded-2xl border border-brand-border-warm bg-white p-5">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">健康特質</p>
           <div className="flex flex-wrap gap-2">
             {member.health_type && (
-              <span className="rounded-full bg-[#F0EBE0] px-3 py-1 text-xs text-[#49675A]">{member.health_type}</span>
+              <span className="rounded-full bg-[#F0EBE0] px-3 py-1 text-xs text-brand-mid">{member.health_type}</span>
             )}
             {member.age_group && (
-              <span className="rounded-full bg-[#F0EBE0] px-3 py-1 text-xs text-[#49675A]">{member.age_group}</span>
+              <span className="rounded-full bg-[#F0EBE0] px-3 py-1 text-xs text-brand-mid">{member.age_group}</span>
             )}
           </div>
         </div>
@@ -103,9 +103,9 @@ export default function LineProfilePage({ route, go }) {
             <p className="mb-1 text-[10px]" style={{ color: color.text }}>推薦飲品</p>
             <p className="text-sm font-semibold" style={{ color: color.text }}>{drink}</p>
           </div>
-          <div className="rounded-2xl border border-[#E7DDBF] bg-white p-4 text-center">
-            <p className="mb-1 text-[10px] text-[#8B7A4C]">幸運色</p>
-            <p className="text-sm font-semibold text-[#123828]">{member.lucky_color || "珍珠白"}</p>
+          <div className="rounded-2xl border border-brand-border-warm bg-white p-4 text-center">
+            <p className="mb-1 text-[10px] text-brand-gold-deep">幸運色</p>
+            <p className="text-sm font-semibold text-brand-dark">{member.lucky_color || "珍珠白"}</p>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export default function LineProfilePage({ route, go }) {
         {!member.health_type && (
           <button
             onClick={() => go("/line/assessment")}
-            className="mt-5 w-full rounded-2xl border border-[#D8C99C] bg-white py-4 text-sm font-semibold text-[#123828]"
+            className="mt-5 w-full rounded-2xl border border-brand-border-gold bg-white py-4 text-sm font-semibold text-brand-dark"
           >
             完成派森分析，了解你的健康特質
           </button>
@@ -125,9 +125,9 @@ export default function LineProfilePage({ route, go }) {
 
 function InfoCard({ label, value }) {
   return (
-    <div className="rounded-2xl border border-[#E7DDBF] bg-white p-4 text-center">
-      <p className="text-base font-semibold text-[#123828]">{value}</p>
-      <p className="text-[10px] text-[#8B7A4C]">{label}</p>
+    <div className="rounded-2xl border border-brand-border-warm bg-white p-4 text-center">
+      <p className="text-base font-semibold text-brand-dark">{value}</p>
+      <p className="text-[10px] text-brand-gold-deep">{label}</p>
     </div>
   );
 }

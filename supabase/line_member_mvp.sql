@@ -1,6 +1,9 @@
 -- ============================================================
 -- 植本邏輯 LINE 會員系統 MVP Migration
--- 執行方式：Supabase Dashboard > SQL Editor > 貼上執行
+-- DEPRECATED: 請勿再執行此檔。
+-- 此檔保留早期 MVP 設計紀錄，仍含 line_members 舊模型與過期欄位。
+-- Phase 0 後正式 schema 以 MEMBER_SYSTEM_SPEC_V1.0.md 與 profiles_migration_v2.sql 為準。
+-- daily_checkins.member_id 正式指向 public.profiles(id)，不是 line_members(id)。
 -- ============================================================
 
 -- 1. 擴充既有 profiles 表，加入 LINE 會員所需欄位

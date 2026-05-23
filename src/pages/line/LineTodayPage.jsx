@@ -50,7 +50,7 @@ export default function LineTodayPage({ route, go }) {
     return (
       <LineMemberLayout route={route} go={go} member={member}>
         <div className="flex h-64 items-center justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#123828] border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-dark border-t-transparent" />
         </div>
       </LineMemberLayout>
     );
@@ -67,10 +67,10 @@ export default function LineTodayPage({ route, go }) {
       <div className="px-4 py-5">
 
         {/* 日期 */}
-        <p className="mb-1 text-xs tracking-widest text-[#8B7A4C]">
+        <p className="mb-1 text-xs tracking-widest text-brand-gold-deep">
           {new Date().toLocaleDateString("zh-TW", { month: "long", day: "numeric", weekday: "long" })}
         </p>
-        <h1 className="mb-5 text-2xl font-semibold text-[#123828]">
+        <h1 className="mb-5 text-2xl font-semibold text-brand-dark">
           {member?.display_name?.split(" ")[0] || "健康夥伴"}，今天好嗎？
         </h1>
 
@@ -92,9 +92,9 @@ export default function LineTodayPage({ route, go }) {
 
         {/* 今日行動 */}
         {todayMsg?.recommended_action && (
-          <div className="mb-4 rounded-2xl border border-[#E7DDBF] bg-white px-5 py-4">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-[#8B7A4C]">今日行動</p>
-            <p className="text-sm font-medium text-[#123828]">{todayMsg.recommended_action}</p>
+          <div className="mb-4 rounded-2xl border border-brand-border-warm bg-white px-5 py-4">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">今日行動</p>
+            <p className="text-sm font-medium text-brand-dark">{todayMsg.recommended_action}</p>
           </div>
         )}
 
@@ -106,10 +106,10 @@ export default function LineTodayPage({ route, go }) {
         </div>
 
         {/* 推薦飲品 */}
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#E7DDBF] bg-white px-5 py-4">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-brand-border-warm bg-white px-5 py-4">
           <div>
-            <p className="mb-1 text-xs text-[#8B7A4C]">今日推薦</p>
-            <p className="font-semibold text-[#123828]">{drink}</p>
+            <p className="mb-1 text-xs text-brand-gold-deep">今日推薦</p>
+            <p className="font-semibold text-brand-dark">{drink}</p>
           </div>
           <span
             className="rounded-full px-4 py-2 text-xs font-semibold"
@@ -128,7 +128,7 @@ export default function LineTodayPage({ route, go }) {
         ) : (
           <button
             onClick={() => go("/line/checkin")}
-            className="w-full rounded-2xl bg-[#123828] py-4 text-sm font-semibold text-white transition active:scale-98"
+            className="w-full rounded-2xl bg-brand-dark py-4 text-sm font-semibold text-white transition active:scale-98"
           >
             今天已飲用 — 前往打卡
           </button>
@@ -141,9 +141,9 @@ export default function LineTodayPage({ route, go }) {
 
 function StatCard({ label, value, unit }) {
   return (
-    <div className="rounded-2xl border border-[#E7DDBF] bg-white px-3 py-4 text-center">
-      <p className="text-lg font-semibold text-[#123828]">{value}</p>
-      <p className="text-[10px] text-[#8B7A4C]">{unit}</p>
+    <div className="rounded-2xl border border-brand-border-warm bg-white px-3 py-4 text-center">
+      <p className="text-lg font-semibold text-brand-dark">{value}</p>
+      <p className="text-[10px] text-brand-gold-deep">{unit}</p>
       <p className="text-[10px] text-[#9A8C68]">{label}</p>
     </div>
   );

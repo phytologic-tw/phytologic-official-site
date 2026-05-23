@@ -26,7 +26,7 @@ export default function LineTasksPage({ route, go }) {
     return (
       <LineMemberLayout route={route} go={go} member={member}>
         <div className="flex h-64 items-center justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#123828] border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-dark border-t-transparent" />
         </div>
       </LineMemberLayout>
     );
@@ -48,15 +48,15 @@ export default function LineTasksPage({ route, go }) {
   return (
     <LineMemberLayout route={route} go={go} member={member}>
       <div className="px-4 py-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8B7A4C]">活動任務</p>
-        <h1 className="mb-1 text-2xl font-semibold text-[#123828]">七日啟動任務</h1>
-        <p className="mb-6 text-sm text-[#49675A]">連續七天飲用，建立你的健康日常。</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">活動任務</p>
+        <h1 className="mb-1 text-2xl font-semibold text-brand-dark">七日啟動任務</h1>
+        <p className="mb-6 text-sm text-brand-mid">連續七天飲用，建立你的健康日常。</p>
 
         {/* 進度條 */}
-        <div className="mb-6 rounded-2xl border border-[#E7DDBF] bg-white p-5">
+        <div className="mb-6 rounded-2xl border border-brand-border-warm bg-white p-5">
           <div className="mb-3 flex justify-between text-sm">
-            <span className="font-medium text-[#123828]">完成進度</span>
-            <span className="text-[#8B7A4C]">{completedDays} / 7 天</span>
+            <span className="font-medium text-brand-dark">完成進度</span>
+            <span className="text-brand-gold-deep">{completedDays} / 7 天</span>
           </div>
           <div className="grid grid-cols-7 gap-1.5">
             {Array.from({ length: 7 }, (_, i) => {
@@ -66,7 +66,7 @@ export default function LineTasksPage({ route, go }) {
                   key={i}
                   className={`flex h-9 items-center justify-center rounded-xl text-xs font-semibold transition ${
                     done
-                      ? "bg-[#123828] text-white"
+                      ? "bg-brand-dark text-white"
                       : "bg-[#F0EBE0] text-[#9A8C68]"
                   }`}
                 >
@@ -89,21 +89,21 @@ export default function LineTasksPage({ route, go }) {
                   done
                     ? "border-[#BFDABC] bg-[#DDEEDB]"
                     : isCurrent
-                    ? "border-[#D8C99C] bg-white shadow-sm"
-                    : "border-[#E7DDBF] bg-white opacity-60"
+                    ? "border-brand-border-gold bg-white shadow-sm"
+                    : "border-brand-border-warm bg-white opacity-60"
                 }`}
               >
                 <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                  done ? "bg-[#1E6B43] text-white" : isCurrent ? "bg-[#123828] text-white" : "bg-[#F0EBE0] text-[#9A8C68]"
+                  done ? "bg-[#1E6B43] text-white" : isCurrent ? "bg-brand-dark text-white" : "bg-[#F0EBE0] text-[#9A8C68]"
                 }`}>
                   {done ? "✓" : i + 1}
                 </div>
                 <div>
-                  <p className={`text-sm font-medium ${done ? "text-[#1E6B43]" : isCurrent ? "text-[#123828]" : "text-[#9A8C68]"}`}>
+                  <p className={`text-sm font-medium ${done ? "text-[#1E6B43]" : isCurrent ? "text-brand-dark" : "text-[#9A8C68]"}`}>
                     {label}
                   </p>
                   {isCurrent && (
-                    <p className="text-xs text-[#8B7A4C]">今天完成打卡即可完成</p>
+                    <p className="text-xs text-brand-gold-deep">今天完成打卡即可完成</p>
                   )}
                 </div>
               </div>
@@ -113,14 +113,14 @@ export default function LineTasksPage({ route, go }) {
 
         {/* 完成獎勵 */}
         {allDone && (
-          <div className="rounded-2xl border border-[#D8C99C] bg-[#F8E6AD] p-5 text-center">
+          <div className="rounded-2xl border border-brand-border-gold bg-[#F8E6AD] p-5 text-center">
             <p className="mb-1 text-lg font-semibold text-[#B8871B]">🎉 七日任務完成！</p>
             <p className="text-sm text-[#7B6229]">你已經建立了屬於自己的健康日常。繼續保持，讓改變成為一生的習慣。</p>
           </div>
         )}
 
         {!allDone && (
-          <button onClick={() => go("/line/checkin")} className="w-full rounded-2xl bg-[#123828] py-4 text-sm font-semibold text-white">
+          <button onClick={() => go("/line/checkin")} className="w-full rounded-2xl bg-brand-dark py-4 text-sm font-semibold text-white">
             前往今日打卡
           </button>
         )}

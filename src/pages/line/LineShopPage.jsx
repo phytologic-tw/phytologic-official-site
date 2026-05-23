@@ -23,9 +23,9 @@ export default function LineShopPage({ route, go }) {
   return (
     <LineMemberLayout route={route} go={go} member={member}>
       <div className="px-4 py-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8B7A4C]">商城</p>
-        <h1 className="mb-1 text-2xl font-semibold text-[#123828]">植萃飲品</h1>
-        <p className="mb-6 text-sm text-[#49675A]">全植物機能飲，找到最適合你的選擇。</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">商城</p>
+        <h1 className="mb-1 text-2xl font-semibold text-brand-dark">植萃飲品</h1>
+        <p className="mb-6 text-sm text-brand-mid">全植物機能飲，找到最適合你的選擇。</p>
 
         <div className="space-y-4">
           {PRODUCTS.map((p) => {
@@ -33,18 +33,18 @@ export default function LineShopPage({ route, go }) {
             return (
               <div
                 key={p.id}
-                className={`rounded-2xl border p-5 ${isRecommended ? "border-[#123828]" : "border-[#E7DDBF] bg-white"}`}
+                className={`rounded-2xl border p-5 ${isRecommended ? "border-brand-dark" : "border-brand-border-warm bg-white"}`}
                 style={isRecommended ? { background: p.bg } : {}}
               >
                 {isRecommended && (
-                  <span className="mb-3 inline-block rounded-full bg-[#123828] px-3 py-1 text-[10px] font-semibold text-white">
+                  <span className="mb-3 inline-block rounded-full bg-brand-dark px-3 py-1 text-[10px] font-semibold text-white">
                     ✓ 派森推薦給你
                   </span>
                 )}
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-[#123828]">{p.name}</h3>
-                    <p className="text-sm text-[#49675A]">{p.theme}</p>
+                    <h3 className="text-lg font-semibold text-brand-dark">{p.name}</h3>
+                    <p className="text-sm text-brand-mid">{p.theme}</p>
                   </div>
                   <span
                     className="rounded-full px-3 py-1 text-[10px] font-semibold"
@@ -53,17 +53,17 @@ export default function LineShopPage({ route, go }) {
                     了解更多
                   </span>
                 </div>
-                <p className="mt-2 text-xs text-[#8B7A4C]">適合：{p.audience}</p>
+                <p className="mt-2 text-xs text-brand-gold-deep">適合：{p.audience}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {p.tags.map(t => (
-                    <span key={t} className="rounded-full bg-[#F0EBE0] px-3 py-1 text-[10px] text-[#49675A]">{t}</span>
+                    <span key={t} className="rounded-full bg-[#F0EBE0] px-3 py-1 text-[10px] text-brand-mid">{t}</span>
                   ))}
                 </div>
                 <a
                   href={lineUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-4 flex w-full items-center justify-center rounded-xl border border-[#D8C99C] bg-white py-3 text-sm font-semibold text-[#123828]"
+                  className="mt-4 flex w-full items-center justify-center rounded-xl border border-brand-border-gold bg-white py-3 text-sm font-semibold text-brand-dark"
                 >
                   洽詢門市 / 加入官方 LINE
                 </a>

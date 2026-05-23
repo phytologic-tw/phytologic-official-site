@@ -28,62 +28,116 @@ const LUCKY_COLORS = {
   紫莓植萃: ["水晶紫", "藍紫", "靛藍", "薰衣草紫", "紫羅蘭"],
 };
 
+function getLevelNumber(level) {
+  if (typeof level === "number") return level;
+  if (typeof level === "string" && level.startsWith("L")) {
+    return Number(level.replace("L", "")) || 1;
+  }
+  return 1;
+}
+
+function normalizeMember(profile) {
+  if (!profile) return profile;
+
+  const healthType = profile.inflammation_level || profile.health_type;
+  const recommendedDrink = profile.recommended_drink || HEALTH_TYPE_DRINK[healthType] || "雪山植萃";
+  const colors = LUCKY_COLORS[recommendedDrink] || LUCKY_COLORS["雪山植萃"];
+  const level = profile.level || "L1";
+  const levelNumber = getLevelNumber(level);
+  const lePoints = profile.le_points ?? 0;
+  const pPoints = profile.p_points ?? 0;
+  const cpPoints = profile.cp_points ?? 0;
+
+  return {
+    ...profile,
+    display_name: profile.nickname || profile.line_display_name,
+    picture_url: profile.line_picture_url,
+    level,
+    level_number: levelNumber,
+    title: profile.title ?? "改變者",
+    p_points: pPoints,
+    cp_points: cpPoints,
+    le_points: lePoints,
+    p: pPoints,
+    cp: cpPoints,
+    le: lePoints,
+    health_type: healthType,
+    recommended_drink: recommendedDrink,
+    lucky_color: profile.lucky_color || colors[0],
+  };
+}
+
+function buildHealthUpdates(updates = {}) {
+  const nextUpdates = { ...updates };
+
+  if ("healthType" in nextUpdates) {
+    nextUpdates.inflammation_level = nextUpdates.healthType;
+    delete nextUpdates.healthType;
+  }
+
+  if ("ageGroup" in nextUpdates) {
+    nextUpdates.age_group = nextUpdates.ageGroup;
+    delete nextUpdates.ageGroup;
+  }
+
+  delete nextUpdates.recommendedDrink;
+  delete nextUpdates.luckyColor;
+  delete nextUpdates.health_type;
+  delete nextUpdates.recommended_drink;
+  delete nextUpdates.lucky_color;
+
+  return nextUpdates;
+}
+
+function calculateNextCheckinStats(member, today) {
+  const yesterday = new Date(`${today}T00:00:00+08:00`);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const taiwanYesterday = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Taipei",
+  }).format(yesterday);
+
+  const currentStreak = member.streak_days ?? 0;
+  const streakDays = member.last_checkin_date === taiwanYesterday ? currentStreak + 1 : 1;
+  const lePoints = (member.le_points ?? 0) + 10;
+  const healthScore = Math.min((member.health_score ?? 0) + 3, 100);
+  const levelNumber = calcLevel(lePoints);
+
+  return {
+    lePoints,
+    healthScore,
+    streakDays,
+    level: `L${levelNumber}`,
+    title: calcTitle(levelNumber),
+    totalCheckins: (member.total_checkins ?? 0) + 1,
+    longestStreak: Math.max(member.longest_streak ?? 0, streakDays),
+  };
+}
+
 /**
  * 根據 LINE userId 找到或建立會員
  * 這是所有 LINE 頁面的入口函式
  */
 export async function findOrCreateMember(lineProfile) {
-  if (!supabase || !lineProfile?.userId) return { member: null, error: "缺少必要資料" };
+  if (!lineProfile?.userId) return { member: null, error: "缺少必要資料" };
 
-  const { userId, displayName, pictureUrl } = lineProfile;
+  const { userId, displayName, pictureUrl, statusMessage } = lineProfile;
 
   try {
-    // 先嘗試查找既有會員
-    const { data: existing, error: findErr } = await supabase
-      .from("line_members")
-      .select("*")
-      .eq("line_user_id", userId)
-      .maybeSingle();
+    const response = await fetch("/api/line-member", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lineUserId: userId,
+        displayName,
+        pictureUrl,
+        statusMessage,
+      }),
+    });
 
-    if (findErr) throw findErr;
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "會員建立失敗");
 
-    // 既有會員：回傳資料
-    if (existing) {
-      // 更新頭像和名稱（可能已更換）
-      const { data: updated } = await supabase
-        .from("line_members")
-        .update({ display_name: displayName, picture_url: pictureUrl })
-        .eq("line_user_id", userId)
-        .select()
-        .single();
-      return { member: updated || existing, isNew: false };
-    }
-
-    // 新會員：建立 profile
-    const recommendedDrink = "雪山植萃"; // 預設，問卷完成後更新
-    const luckyColor = "珍珠白";
-
-    const { data: created, error: createErr } = await supabase
-      .from("line_members")
-      .insert({
-        line_user_id: userId,
-        display_name: displayName,
-        picture_url: pictureUrl,
-        recommended_drink: recommendedDrink,
-        lucky_color: luckyColor,
-        level: 1,
-        title: "改變者",
-        le: 0,
-        cp: 0,
-        health_score: 0,
-        streak_days: 0,
-      })
-      .select()
-      .single();
-
-    if (createErr) throw createErr;
-
-    return { member: created, isNew: true };
+    return { member: normalizeMember(result.profile), isNew: result.isNewMember };
   } catch (err) {
     console.error("[memberProfile] findOrCreateMember 失敗:", err);
     return { member: null, error: err.message };
@@ -97,7 +151,7 @@ export async function getMemberByLineId(lineUserId) {
   if (!supabase || !lineUserId) return null;
 
   const { data, error } = await supabase
-    .from("line_members")
+    .from("profiles")
     .select("*")
     .eq("line_user_id", lineUserId)
     .maybeSingle();
@@ -106,118 +160,130 @@ export async function getMemberByLineId(lineUserId) {
     console.error("[memberProfile] getMemberByLineId 失敗:", error);
     return null;
   }
-  return data;
+  return normalizeMember(data);
 }
 
 /**
  * 更新會員健康資料（問卷完成後呼叫）
  */
-export async function updateMemberHealth(lineUserId, { healthType, recommendedDrink, luckyColor, ageGroup }) {
+export async function updateMemberHealth(lineUserId, updates = {}) {
   if (!supabase || !lineUserId) return false;
 
-  const drink = recommendedDrink || HEALTH_TYPE_DRINK[healthType] || "雪山植萃";
-  const colors = LUCKY_COLORS[drink] || LUCKY_COLORS["雪山植萃"];
-  const color = luckyColor || colors[Math.floor(Math.random() * colors.length)];
+  const profileUpdates = buildHealthUpdates(updates);
+  if (Object.keys(profileUpdates).length === 0) return false;
 
-  const { error } = await supabase
-    .from("line_members")
-    .update({
-      health_type: healthType,
-      recommended_drink: drink,
-      lucky_color: color,
-      age_group: ageGroup,
-    })
-    .eq("line_user_id", lineUserId);
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(profileUpdates)
+    .eq("line_user_id", lineUserId)
+    .select()
+    .single();
 
   if (error) {
     console.error("[memberProfile] updateMemberHealth 失敗:", error);
     return false;
   }
-  return true;
+  return normalizeMember(data);
+}
+
+/**
+ * 更新 LIFF 建檔資料（首次登入後填寫）
+ */
+export async function updateMemberProfile(lineUserId, updates = {}) {
+  if (!lineUserId) return { member: null, error: "會員資料不完整" };
+
+  try {
+    const response = await fetch("/api/line-member", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lineUserId,
+        profileData: updates,
+      }),
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "建檔儲存失敗");
+
+    const member = normalizeMember(result.profile);
+    sessionStorage.setItem("line_member", JSON.stringify(member));
+    return { member, error: null };
+  } catch (err) {
+    console.error("[memberProfile] updateMemberProfile 失敗:", err);
+    return { member: null, error: err.message };
+  }
 }
 
 /**
  * 今日打卡
  * 返回: { success, alreadyChecked, le, healthScore, streakDays, message }
  */
-export async function doCheckin(member) {
-  console.log("[memberProfile] doCheckin member:", member);
+export async function doCheckin(lineUserIdOrMember, checkinData = {}) {
+  const lineUserId = typeof lineUserIdOrMember === "string"
+    ? lineUserIdOrMember
+    : lineUserIdOrMember?.line_user_id;
 
-  if (!supabase || !member?.id) return { success: false, message: "會員資料不完整" };
+  if (!supabase || !lineUserId) return { success: false, message: "會員資料不完整" };
 
   const today = getTaiwanToday();
-  const memberId = member.id;
 
   try {
-    // 檢查今天是否已打卡
-    const { data: existing } = await supabase
-      .from("daily_checkins")
-      .select("id")
-      .eq("member_id", memberId)
-      .eq("checkin_date", today)
-      .maybeSingle();
+    const member = await getMemberByLineId(lineUserId);
+    if (!member) throw new Error("Member not found");
 
-    if (existing) {
+    if (member.last_checkin_date === today) {
       return { success: true, alreadyChecked: true, message: "今天已完成飲用，明天繼續加油！" };
     }
 
-    // 取得目前會員資料
-    const { data: currentMember, error: memberErr } = await supabase
-      .from("line_members")
-      .select("le, health_score, streak_days, last_checkin_date")
-      .eq("id", memberId)
+    const { data, error } = await supabase
+      .from("daily_checkins")
+      .upsert(
+        {
+          member_id: member.id,
+          checkin_date: today,
+          mood_score: checkinData.moodScore ?? checkinData.mood ?? null,
+          energy_level: checkinData.energyLevel ?? null,
+          symptoms: checkinData.symptoms ?? [],
+          notes: checkinData.note ?? null,
+          drink_done: true,
+          drink_product: checkinData.drinkProduct || member.recommended_product || member.recommended_drink || null,
+          le_earned: 10,
+        },
+        { onConflict: "member_id,checkin_date" }
+      )
+      .select()
       .single();
 
-    if (memberErr) throw memberErr;
+    if (error) throw error;
 
-    // 計算連續天數（昨天是否有打卡）
-    const yesterday = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei" })
-      .format(new Date(Date.now() - 86400000));
-
-    const isConsecutive = currentMember.last_checkin_date === yesterday;
-    const newStreakDays = isConsecutive ? (currentMember.streak_days || 0) + 1 : 1;
-    const newLe = (currentMember.le || 0) + 10;
-    const newHealthScore = Math.min((currentMember.health_score || 0) + 3, 100);
-
-    // 寫入打卡紀錄
-    const { error: checkinErr } = await supabase
-      .from("daily_checkins")
-      .insert({
-        member_id: memberId,
-        checkin_date: today,
-        le_earned: 10,
-        health_score_earned: 3,
-      });
-
-    if (checkinErr) throw checkinErr;
-
-    // 更新會員積分
+    const nextStats = calculateNextCheckinStats(member, today);
     const { error: updateErr } = await supabase
-      .from("line_members")
+      .from("profiles")
       .update({
-        le: newLe,
-        health_score: newHealthScore,
-        streak_days: newStreakDays,
         last_checkin_date: today,
-        level: calcLevel(newLe),
-        title: calcTitle(calcLevel(newLe)),
+        le_points: nextStats.lePoints,
+        health_score: nextStats.healthScore,
+        streak_days: nextStats.streakDays,
+        longest_streak: nextStats.longestStreak,
+        total_checkins: nextStats.totalCheckins,
+        level: nextStats.level,
+        title: nextStats.title,
       })
-      .eq("id", memberId);
+      .eq("id", member.id);
 
     if (updateErr) throw updateErr;
 
-    const updated = await getMemberByLineId(member.line_user_id);
+    const updated = await getMemberByLineId(lineUserId);
     if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
 
     return {
       success: true,
-      alreadyChecked: false,
-      le: newLe,
-      healthScore: newHealthScore,
-      streakDays: newStreakDays,
-      message: newStreakDays >= 7
-        ? `連續第 ${newStreakDays} 天！你真的做到了 🌿`
-        : `第 ${newStreakDays} 天，繼續讓身體感受植物的力量`,
+      alreadyChecked: member.last_checkin_date === today,
+      le: nextStats.lePoints,
+      healthScore: nextStats.healthScore,
+      streakDays: nextStats.streakDays,
+      message: "今日打卡完成，讓植物營養繼續陪你累積。",
+      data,
     };
   } catch (err) {
     console.error("[memberProfile] doCheckin 失敗:", err);
@@ -228,18 +294,40 @@ export async function doCheckin(member) {
 /**
  * 取得會員打卡紀錄（最近 N 天）
  */
-export async function getCheckinHistory(memberId, days = 7) {
-  if (!supabase || !memberId) return [];
+export async function getCheckinHistory(lineUserIdOrMemberId, limit = 30) {
+  if (!supabase || !lineUserIdOrMemberId) return [];
+
+  let member = null;
+  if (typeof lineUserIdOrMemberId === "string" && lineUserIdOrMemberId.startsWith("U")) {
+    member = await getMemberByLineId(lineUserIdOrMemberId);
+  } else {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", lineUserIdOrMemberId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("[memberProfile] getCheckinHistory 會員查詢失敗:", error);
+      return [];
+    }
+    member = data;
+  }
+
+  if (!member) return [];
 
   const { data, error } = await supabase
     .from("daily_checkins")
-    .select("checkin_date, le_earned, health_score_earned")
-    .eq("member_id", memberId)
+    .select("*")
+    .eq("member_id", member.id)
     .order("checkin_date", { ascending: false })
-    .limit(days);
+    .limit(limit);
 
-  if (error) return [];
-  return data || [];
+  if (error) {
+    console.error("[memberProfile] getCheckinHistory 失敗:", error);
+    return [];
+  }
+  return data ?? [];
 }
 
 /**

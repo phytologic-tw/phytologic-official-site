@@ -1,0 +1,3002 @@
+[
+  {
+    "id": "autonomic_stress_001",
+    "dimension": "autonomic_stress",
+    "age_group": "all",
+    "indicator": "壓力感知",
+    "question": "過去兩週，您是否覺得時間總是不夠用而緊繃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_002",
+    "dimension": "autonomic_stress",
+    "age_group": "12-18",
+    "indicator": "交感神經活化",
+    "question": "過去兩週，您是否遇到突發狀況時心跳變快或手心冒汗？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_003",
+    "dimension": "autonomic_stress",
+    "age_group": "19-34",
+    "indicator": "肌肉緊繃",
+    "question": "過去兩週，您是否肩頸僵硬到休息後仍不容易放鬆？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_004",
+    "dimension": "autonomic_stress",
+    "age_group": "35-49",
+    "indicator": "情緒耐受",
+    "question": "過去兩週，您是否因小事對身邊的人不耐煩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_005",
+    "dimension": "autonomic_stress",
+    "age_group": "50-64",
+    "indicator": "思緒停不下來",
+    "question": "過去兩週，您是否身體很累但腦袋停不下來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_006",
+    "dimension": "autonomic_stress",
+    "age_group": "65-99",
+    "indicator": "工作恢復力",
+    "question": "過去兩週，您是否下班或下課後仍一直想著待辦事項？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_007",
+    "dimension": "autonomic_stress",
+    "age_group": "all",
+    "indicator": "壓力後疲憊",
+    "question": "過去兩週，您是否壓力一大就明顯疲倦或提不起勁？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_008",
+    "dimension": "autonomic_stress",
+    "age_group": "12-18",
+    "indicator": "焦慮體感",
+    "question": "過去兩週，您是否在安靜時也感到胸口悶或呼吸淺？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_009",
+    "dimension": "autonomic_stress",
+    "age_group": "19-34",
+    "indicator": "社交壓力",
+    "question": "過去兩週，您是否因人際互動而持續消耗能量？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_010",
+    "dimension": "autonomic_stress",
+    "age_group": "35-49",
+    "indicator": "決策壓力",
+    "question": "過去兩週，您是否面對選擇時容易卡住並反覆擔心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_011",
+    "dimension": "autonomic_stress",
+    "age_group": "50-64",
+    "indicator": "壓力感知",
+    "question": "最近一個月，您是否覺得時間總是不夠用而緊繃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_012",
+    "dimension": "autonomic_stress",
+    "age_group": "65-99",
+    "indicator": "交感神經活化",
+    "question": "最近一個月，您是否遇到突發狀況時心跳變快或手心冒汗？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_013",
+    "dimension": "autonomic_stress",
+    "age_group": "all",
+    "indicator": "肌肉緊繃",
+    "question": "最近一個月，您是否肩頸僵硬到休息後仍不容易放鬆？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_014",
+    "dimension": "autonomic_stress",
+    "age_group": "12-18",
+    "indicator": "情緒耐受",
+    "question": "最近一個月，您是否因小事對身邊的人不耐煩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_015",
+    "dimension": "autonomic_stress",
+    "age_group": "19-34",
+    "indicator": "思緒停不下來",
+    "question": "最近一個月，您是否身體很累但腦袋停不下來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_016",
+    "dimension": "autonomic_stress",
+    "age_group": "35-49",
+    "indicator": "工作恢復力",
+    "question": "最近一個月，您是否下班或下課後仍一直想著待辦事項？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_017",
+    "dimension": "autonomic_stress",
+    "age_group": "50-64",
+    "indicator": "壓力後疲憊",
+    "question": "最近一個月，您是否壓力一大就明顯疲倦或提不起勁？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_018",
+    "dimension": "autonomic_stress",
+    "age_group": "65-99",
+    "indicator": "焦慮體感",
+    "question": "最近一個月，您是否在安靜時也感到胸口悶或呼吸淺？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_019",
+    "dimension": "autonomic_stress",
+    "age_group": "all",
+    "indicator": "社交壓力",
+    "question": "最近一個月，您是否因人際互動而持續消耗能量？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_020",
+    "dimension": "autonomic_stress",
+    "age_group": "12-18",
+    "indicator": "決策壓力",
+    "question": "最近一個月，您是否面對選擇時容易卡住並反覆擔心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_021",
+    "dimension": "autonomic_stress",
+    "age_group": "19-34",
+    "indicator": "壓力感知",
+    "question": "在壓力較大時，您是否覺得時間總是不夠用而緊繃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_022",
+    "dimension": "autonomic_stress",
+    "age_group": "35-49",
+    "indicator": "交感神經活化",
+    "question": "在壓力較大時，您是否遇到突發狀況時心跳變快或手心冒汗？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_023",
+    "dimension": "autonomic_stress",
+    "age_group": "50-64",
+    "indicator": "肌肉緊繃",
+    "question": "在壓力較大時，您是否肩頸僵硬到休息後仍不容易放鬆？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_024",
+    "dimension": "autonomic_stress",
+    "age_group": "65-99",
+    "indicator": "情緒耐受",
+    "question": "在壓力較大時，您是否因小事對身邊的人不耐煩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_025",
+    "dimension": "autonomic_stress",
+    "age_group": "all",
+    "indicator": "思緒停不下來",
+    "question": "在壓力較大時，您是否身體很累但腦袋停不下來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_026",
+    "dimension": "autonomic_stress",
+    "age_group": "12-18",
+    "indicator": "工作恢復力",
+    "question": "在壓力較大時，您是否下班或下課後仍一直想著待辦事項？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_027",
+    "dimension": "autonomic_stress",
+    "age_group": "19-34",
+    "indicator": "壓力後疲憊",
+    "question": "在壓力較大時，您是否壓力一大就明顯疲倦或提不起勁？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_028",
+    "dimension": "autonomic_stress",
+    "age_group": "35-49",
+    "indicator": "焦慮體感",
+    "question": "在壓力較大時，您是否在安靜時也感到胸口悶或呼吸淺？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_029",
+    "dimension": "autonomic_stress",
+    "age_group": "50-64",
+    "indicator": "社交壓力",
+    "question": "在壓力較大時，您是否因人際互動而持續消耗能量？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "autonomic_stress_030",
+    "dimension": "autonomic_stress",
+    "age_group": "65-99",
+    "indicator": "決策壓力",
+    "question": "在壓力較大時，您是否面對選擇時容易卡住並反覆擔心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_001",
+    "dimension": "sleep_circadian",
+    "age_group": "all",
+    "indicator": "入睡時間",
+    "question": "過去兩週，您是否躺上床後超過三十分鐘仍難以入睡？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_002",
+    "dimension": "sleep_circadian",
+    "age_group": "12-18",
+    "indicator": "夜間中斷",
+    "question": "過去兩週，您是否半夜醒來後很難再次睡著？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_003",
+    "dimension": "sleep_circadian",
+    "age_group": "19-34",
+    "indicator": "起床修復感",
+    "question": "過去兩週，您是否睡滿七小時仍覺得沒有恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_004",
+    "dimension": "sleep_circadian",
+    "age_group": "35-49",
+    "indicator": "補眠依賴",
+    "question": "過去兩週，您是否需要靠週末補眠才覺得比較正常？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_005",
+    "dimension": "sleep_circadian",
+    "age_group": "50-64",
+    "indicator": "日間嗜睡",
+    "question": "過去兩週，您是否下午容易昏沉到想喝咖啡或提神飲料？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_006",
+    "dimension": "sleep_circadian",
+    "age_group": "65-99",
+    "indicator": "睡前光暴露",
+    "question": "過去兩週，您是否睡前一小時仍長時間滑手機或看螢幕？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_007",
+    "dimension": "sleep_circadian",
+    "age_group": "all",
+    "indicator": "作息穩定",
+    "question": "過去兩週，您是否每天入睡與起床時間差異很大？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_008",
+    "dimension": "sleep_circadian",
+    "age_group": "12-18",
+    "indicator": "夢境負荷",
+    "question": "過去兩週，您是否睡眠中多夢醒來後覺得疲累？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_009",
+    "dimension": "sleep_circadian",
+    "age_group": "19-34",
+    "indicator": "晨間精神",
+    "question": "過去兩週，您是否早上起床時需要很久才清醒？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_010",
+    "dimension": "sleep_circadian",
+    "age_group": "35-49",
+    "indicator": "咖啡因依賴",
+    "question": "過去兩週，您是否沒有咖啡因就很難維持白天精神？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_011",
+    "dimension": "sleep_circadian",
+    "age_group": "50-64",
+    "indicator": "入睡時間",
+    "question": "最近一個月，您是否躺上床後超過三十分鐘仍難以入睡？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_012",
+    "dimension": "sleep_circadian",
+    "age_group": "65-99",
+    "indicator": "夜間中斷",
+    "question": "最近一個月，您是否半夜醒來後很難再次睡著？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_013",
+    "dimension": "sleep_circadian",
+    "age_group": "all",
+    "indicator": "起床修復感",
+    "question": "最近一個月，您是否睡滿七小時仍覺得沒有恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_014",
+    "dimension": "sleep_circadian",
+    "age_group": "12-18",
+    "indicator": "補眠依賴",
+    "question": "最近一個月，您是否需要靠週末補眠才覺得比較正常？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_015",
+    "dimension": "sleep_circadian",
+    "age_group": "19-34",
+    "indicator": "日間嗜睡",
+    "question": "最近一個月，您是否下午容易昏沉到想喝咖啡或提神飲料？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_016",
+    "dimension": "sleep_circadian",
+    "age_group": "35-49",
+    "indicator": "睡前光暴露",
+    "question": "最近一個月，您是否睡前一小時仍長時間滑手機或看螢幕？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_017",
+    "dimension": "sleep_circadian",
+    "age_group": "50-64",
+    "indicator": "作息穩定",
+    "question": "最近一個月，您是否每天入睡與起床時間差異很大？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_018",
+    "dimension": "sleep_circadian",
+    "age_group": "65-99",
+    "indicator": "夢境負荷",
+    "question": "最近一個月，您是否睡眠中多夢醒來後覺得疲累？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_019",
+    "dimension": "sleep_circadian",
+    "age_group": "all",
+    "indicator": "晨間精神",
+    "question": "最近一個月，您是否早上起床時需要很久才清醒？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_020",
+    "dimension": "sleep_circadian",
+    "age_group": "12-18",
+    "indicator": "咖啡因依賴",
+    "question": "最近一個月，您是否沒有咖啡因就很難維持白天精神？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_021",
+    "dimension": "sleep_circadian",
+    "age_group": "19-34",
+    "indicator": "入睡時間",
+    "question": "在壓力較大時，您是否躺上床後超過三十分鐘仍難以入睡？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_022",
+    "dimension": "sleep_circadian",
+    "age_group": "35-49",
+    "indicator": "夜間中斷",
+    "question": "在壓力較大時，您是否半夜醒來後很難再次睡著？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_023",
+    "dimension": "sleep_circadian",
+    "age_group": "50-64",
+    "indicator": "起床修復感",
+    "question": "在壓力較大時，您是否睡滿七小時仍覺得沒有恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_024",
+    "dimension": "sleep_circadian",
+    "age_group": "65-99",
+    "indicator": "補眠依賴",
+    "question": "在壓力較大時，您是否需要靠週末補眠才覺得比較正常？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_025",
+    "dimension": "sleep_circadian",
+    "age_group": "all",
+    "indicator": "日間嗜睡",
+    "question": "在壓力較大時，您是否下午容易昏沉到想喝咖啡或提神飲料？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_026",
+    "dimension": "sleep_circadian",
+    "age_group": "12-18",
+    "indicator": "睡前光暴露",
+    "question": "在壓力較大時，您是否睡前一小時仍長時間滑手機或看螢幕？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_027",
+    "dimension": "sleep_circadian",
+    "age_group": "19-34",
+    "indicator": "作息穩定",
+    "question": "在壓力較大時，您是否每天入睡與起床時間差異很大？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_028",
+    "dimension": "sleep_circadian",
+    "age_group": "35-49",
+    "indicator": "夢境負荷",
+    "question": "在壓力較大時，您是否睡眠中多夢醒來後覺得疲累？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_029",
+    "dimension": "sleep_circadian",
+    "age_group": "50-64",
+    "indicator": "晨間精神",
+    "question": "在壓力較大時，您是否早上起床時需要很久才清醒？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "sleep_circadian_030",
+    "dimension": "sleep_circadian",
+    "age_group": "65-99",
+    "indicator": "咖啡因依賴",
+    "question": "在壓力較大時，您是否沒有咖啡因就很難維持白天精神？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_001",
+    "dimension": "gut_digestive",
+    "age_group": "all",
+    "indicator": "飯後脹氣",
+    "question": "過去兩週，您是否飯後容易腹脹打嗝或有灼熱感？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_002",
+    "dimension": "gut_digestive",
+    "age_group": "12-18",
+    "indicator": "排便規律",
+    "question": "過去兩週，您是否排便時常便秘或稀軟不成形？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_003",
+    "dimension": "gut_digestive",
+    "age_group": "19-34",
+    "indicator": "食物敏感",
+    "question": "過去兩週，您是否吃特定食物後肚子不舒服或皮膚癢？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_004",
+    "dimension": "gut_digestive",
+    "age_group": "35-49",
+    "indicator": "胃藥依賴",
+    "question": "過去兩週，您是否需要靠胃藥益生菌或軟便產品維持腸胃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_005",
+    "dimension": "gut_digestive",
+    "age_group": "50-64",
+    "indicator": "糞便型態",
+    "question": "過去兩週，您是否糞便常黏馬桶或看到未消化食物？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_006",
+    "dimension": "gut_digestive",
+    "age_group": "65-99",
+    "indicator": "腹部疼痛",
+    "question": "過去兩週，您是否腹部常有悶痛絞痛或不明不適？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_007",
+    "dimension": "gut_digestive",
+    "age_group": "all",
+    "indicator": "排氣氣味",
+    "question": "過去兩週，您是否排氣頻繁且氣味明顯影響生活？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_008",
+    "dimension": "gut_digestive",
+    "age_group": "12-18",
+    "indicator": "口氣舌苔",
+    "question": "過去兩週，您是否口氣偏重或舌苔厚膩感明顯？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_009",
+    "dimension": "gut_digestive",
+    "age_group": "19-34",
+    "indicator": "飢餓訊號",
+    "question": "過去兩週，您是否常分不清是真的餓還是嘴饞？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_010",
+    "dimension": "gut_digestive",
+    "age_group": "35-49",
+    "indicator": "暴食傾向",
+    "question": "過去兩週，您是否壓力大時容易暴食或吃到過飽？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_011",
+    "dimension": "gut_digestive",
+    "age_group": "50-64",
+    "indicator": "飯後脹氣",
+    "question": "最近一個月，您是否飯後容易腹脹打嗝或有灼熱感？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_012",
+    "dimension": "gut_digestive",
+    "age_group": "65-99",
+    "indicator": "排便規律",
+    "question": "最近一個月，您是否排便時常便秘或稀軟不成形？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_013",
+    "dimension": "gut_digestive",
+    "age_group": "all",
+    "indicator": "食物敏感",
+    "question": "最近一個月，您是否吃特定食物後肚子不舒服或皮膚癢？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_014",
+    "dimension": "gut_digestive",
+    "age_group": "12-18",
+    "indicator": "胃藥依賴",
+    "question": "最近一個月，您是否需要靠胃藥益生菌或軟便產品維持腸胃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_015",
+    "dimension": "gut_digestive",
+    "age_group": "19-34",
+    "indicator": "糞便型態",
+    "question": "最近一個月，您是否糞便常黏馬桶或看到未消化食物？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_016",
+    "dimension": "gut_digestive",
+    "age_group": "35-49",
+    "indicator": "腹部疼痛",
+    "question": "最近一個月，您是否腹部常有悶痛絞痛或不明不適？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_017",
+    "dimension": "gut_digestive",
+    "age_group": "50-64",
+    "indicator": "排氣氣味",
+    "question": "最近一個月，您是否排氣頻繁且氣味明顯影響生活？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_018",
+    "dimension": "gut_digestive",
+    "age_group": "65-99",
+    "indicator": "口氣舌苔",
+    "question": "最近一個月，您是否口氣偏重或舌苔厚膩感明顯？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_019",
+    "dimension": "gut_digestive",
+    "age_group": "all",
+    "indicator": "飢餓訊號",
+    "question": "最近一個月，您是否常分不清是真的餓還是嘴饞？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_020",
+    "dimension": "gut_digestive",
+    "age_group": "12-18",
+    "indicator": "暴食傾向",
+    "question": "最近一個月，您是否壓力大時容易暴食或吃到過飽？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_021",
+    "dimension": "gut_digestive",
+    "age_group": "19-34",
+    "indicator": "飯後脹氣",
+    "question": "在壓力較大時，您是否飯後容易腹脹打嗝或有灼熱感？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_022",
+    "dimension": "gut_digestive",
+    "age_group": "35-49",
+    "indicator": "排便規律",
+    "question": "在壓力較大時，您是否排便時常便秘或稀軟不成形？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_023",
+    "dimension": "gut_digestive",
+    "age_group": "50-64",
+    "indicator": "食物敏感",
+    "question": "在壓力較大時，您是否吃特定食物後肚子不舒服或皮膚癢？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_024",
+    "dimension": "gut_digestive",
+    "age_group": "65-99",
+    "indicator": "胃藥依賴",
+    "question": "在壓力較大時，您是否需要靠胃藥益生菌或軟便產品維持腸胃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_025",
+    "dimension": "gut_digestive",
+    "age_group": "all",
+    "indicator": "糞便型態",
+    "question": "在壓力較大時，您是否糞便常黏馬桶或看到未消化食物？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_026",
+    "dimension": "gut_digestive",
+    "age_group": "12-18",
+    "indicator": "腹部疼痛",
+    "question": "在壓力較大時，您是否腹部常有悶痛絞痛或不明不適？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_027",
+    "dimension": "gut_digestive",
+    "age_group": "19-34",
+    "indicator": "排氣氣味",
+    "question": "在壓力較大時，您是否排氣頻繁且氣味明顯影響生活？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_028",
+    "dimension": "gut_digestive",
+    "age_group": "35-49",
+    "indicator": "口氣舌苔",
+    "question": "在壓力較大時，您是否口氣偏重或舌苔厚膩感明顯？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_029",
+    "dimension": "gut_digestive",
+    "age_group": "50-64",
+    "indicator": "飢餓訊號",
+    "question": "在壓力較大時，您是否常分不清是真的餓還是嘴饞？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "gut_digestive_030",
+    "dimension": "gut_digestive",
+    "age_group": "65-99",
+    "indicator": "暴食傾向",
+    "question": "在壓力較大時，您是否壓力大時容易暴食或吃到過飽？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_001",
+    "dimension": "diet_inflammation",
+    "age_group": "all",
+    "indicator": "炸烤加工",
+    "question": "過去兩週，您是否每週常吃炸物燒烤或加工肉品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_002",
+    "dimension": "diet_inflammation",
+    "age_group": "12-18",
+    "indicator": "精緻糖",
+    "question": "過去兩週，您是否經常喝含糖飲料或吃甜點麵包？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_003",
+    "dimension": "diet_inflammation",
+    "age_group": "19-34",
+    "indicator": "蔬果不足",
+    "question": "過去兩週，您是否每天蔬菜與水果總量明顯不足？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_004",
+    "dimension": "diet_inflammation",
+    "age_group": "35-49",
+    "indicator": "好油不足",
+    "question": "過去兩週，您是否很少攝取堅果種子或優質脂肪來源？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_005",
+    "dimension": "diet_inflammation",
+    "age_group": "50-64",
+    "indicator": "外食用油",
+    "question": "過去兩週，您是否外食比例高且常吃重油料理？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_006",
+    "dimension": "diet_inflammation",
+    "age_group": "65-99",
+    "indicator": "飲水不足",
+    "question": "過去兩週，您是否一天飲水量少於身體需要並常口渴？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_007",
+    "dimension": "diet_inflammation",
+    "age_group": "all",
+    "indicator": "酒精頻率",
+    "question": "過去兩週，您是否喝酒或含酒精飲品的頻率偏高？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_008",
+    "dimension": "diet_inflammation",
+    "age_group": "12-18",
+    "indicator": "宵夜習慣",
+    "question": "過去兩週，您是否睡前兩小時內常吃宵夜或點心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_009",
+    "dimension": "diet_inflammation",
+    "age_group": "19-34",
+    "indicator": "高鹽飲食",
+    "question": "過去兩週，您是否口味偏鹹或常吃醬料加工食品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_010",
+    "dimension": "diet_inflammation",
+    "age_group": "35-49",
+    "indicator": "蛋白質品質",
+    "question": "過去兩週，您是否餐食常以澱粉為主且蛋白質不足？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_011",
+    "dimension": "diet_inflammation",
+    "age_group": "50-64",
+    "indicator": "炸烤加工",
+    "question": "最近一個月，您是否每週常吃炸物燒烤或加工肉品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_012",
+    "dimension": "diet_inflammation",
+    "age_group": "65-99",
+    "indicator": "精緻糖",
+    "question": "最近一個月，您是否經常喝含糖飲料或吃甜點麵包？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_013",
+    "dimension": "diet_inflammation",
+    "age_group": "all",
+    "indicator": "蔬果不足",
+    "question": "最近一個月，您是否每天蔬菜與水果總量明顯不足？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_014",
+    "dimension": "diet_inflammation",
+    "age_group": "12-18",
+    "indicator": "好油不足",
+    "question": "最近一個月，您是否很少攝取堅果種子或優質脂肪來源？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_015",
+    "dimension": "diet_inflammation",
+    "age_group": "19-34",
+    "indicator": "外食用油",
+    "question": "最近一個月，您是否外食比例高且常吃重油料理？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_016",
+    "dimension": "diet_inflammation",
+    "age_group": "35-49",
+    "indicator": "飲水不足",
+    "question": "最近一個月，您是否一天飲水量少於身體需要並常口渴？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_017",
+    "dimension": "diet_inflammation",
+    "age_group": "50-64",
+    "indicator": "酒精頻率",
+    "question": "最近一個月，您是否喝酒或含酒精飲品的頻率偏高？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_018",
+    "dimension": "diet_inflammation",
+    "age_group": "65-99",
+    "indicator": "宵夜習慣",
+    "question": "最近一個月，您是否睡前兩小時內常吃宵夜或點心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_019",
+    "dimension": "diet_inflammation",
+    "age_group": "all",
+    "indicator": "高鹽飲食",
+    "question": "最近一個月，您是否口味偏鹹或常吃醬料加工食品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_020",
+    "dimension": "diet_inflammation",
+    "age_group": "12-18",
+    "indicator": "蛋白質品質",
+    "question": "最近一個月，您是否餐食常以澱粉為主且蛋白質不足？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_021",
+    "dimension": "diet_inflammation",
+    "age_group": "19-34",
+    "indicator": "炸烤加工",
+    "question": "在壓力較大時，您是否每週常吃炸物燒烤或加工肉品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_022",
+    "dimension": "diet_inflammation",
+    "age_group": "35-49",
+    "indicator": "精緻糖",
+    "question": "在壓力較大時，您是否經常喝含糖飲料或吃甜點麵包？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_023",
+    "dimension": "diet_inflammation",
+    "age_group": "50-64",
+    "indicator": "蔬果不足",
+    "question": "在壓力較大時，您是否每天蔬菜與水果總量明顯不足？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_024",
+    "dimension": "diet_inflammation",
+    "age_group": "65-99",
+    "indicator": "好油不足",
+    "question": "在壓力較大時，您是否很少攝取堅果種子或優質脂肪來源？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_025",
+    "dimension": "diet_inflammation",
+    "age_group": "all",
+    "indicator": "外食用油",
+    "question": "在壓力較大時，您是否外食比例高且常吃重油料理？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_026",
+    "dimension": "diet_inflammation",
+    "age_group": "12-18",
+    "indicator": "飲水不足",
+    "question": "在壓力較大時，您是否一天飲水量少於身體需要並常口渴？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_027",
+    "dimension": "diet_inflammation",
+    "age_group": "19-34",
+    "indicator": "酒精頻率",
+    "question": "在壓力較大時，您是否喝酒或含酒精飲品的頻率偏高？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_028",
+    "dimension": "diet_inflammation",
+    "age_group": "35-49",
+    "indicator": "宵夜習慣",
+    "question": "在壓力較大時，您是否睡前兩小時內常吃宵夜或點心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_029",
+    "dimension": "diet_inflammation",
+    "age_group": "50-64",
+    "indicator": "高鹽飲食",
+    "question": "在壓力較大時，您是否口味偏鹹或常吃醬料加工食品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "diet_inflammation_030",
+    "dimension": "diet_inflammation",
+    "age_group": "65-99",
+    "indicator": "蛋白質品質",
+    "question": "在壓力較大時，您是否餐食常以澱粉為主且蛋白質不足？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_001",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "all",
+    "indicator": "晨間僵硬",
+    "question": "過去兩週，您是否早上起床時手指腳底或關節僵硬？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_002",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "12-18",
+    "indicator": "肌肉酸痛",
+    "question": "過去兩週，您是否沒有劇烈運動也常全身肌肉酸痛？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_003",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "19-34",
+    "indicator": "天氣關節感",
+    "question": "過去兩週，您是否天氣變化時腰膝或手腕隱隱不適？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_004",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "35-49",
+    "indicator": "反覆拉傷",
+    "question": "過去兩週，您是否容易落枕閃到腰或反覆拉傷？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_005",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "50-64",
+    "indicator": "姿勢負荷",
+    "question": "過去兩週，您是否長期低頭駝背造成局部不舒服？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_006",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "65-99",
+    "indicator": "活動度下降",
+    "question": "過去兩週，您是否轉身蹲下或伸展時覺得活動度下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_007",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "all",
+    "indicator": "久坐不適",
+    "question": "過去兩週，您是否久坐後起身會覺得腰臀緊繃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_008",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "12-18",
+    "indicator": "運動恢復",
+    "question": "過去兩週，您是否運動後酸痛恢復時間比以前久？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_009",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "19-34",
+    "indicator": "足底緊繃",
+    "question": "過去兩週，您是否足底或小腿經常緊到影響走路？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_010",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "35-49",
+    "indicator": "手腕負荷",
+    "question": "過去兩週，您是否打字滑手機後手腕或手指容易痠？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_011",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "50-64",
+    "indicator": "晨間僵硬",
+    "question": "最近一個月，您是否早上起床時手指腳底或關節僵硬？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_012",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "65-99",
+    "indicator": "肌肉酸痛",
+    "question": "最近一個月，您是否沒有劇烈運動也常全身肌肉酸痛？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_013",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "all",
+    "indicator": "天氣關節感",
+    "question": "最近一個月，您是否天氣變化時腰膝或手腕隱隱不適？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_014",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "12-18",
+    "indicator": "反覆拉傷",
+    "question": "最近一個月，您是否容易落枕閃到腰或反覆拉傷？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_015",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "19-34",
+    "indicator": "姿勢負荷",
+    "question": "最近一個月，您是否長期低頭駝背造成局部不舒服？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_016",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "35-49",
+    "indicator": "活動度下降",
+    "question": "最近一個月，您是否轉身蹲下或伸展時覺得活動度下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_017",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "50-64",
+    "indicator": "久坐不適",
+    "question": "最近一個月，您是否久坐後起身會覺得腰臀緊繃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_018",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "65-99",
+    "indicator": "運動恢復",
+    "question": "最近一個月，您是否運動後酸痛恢復時間比以前久？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_019",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "all",
+    "indicator": "足底緊繃",
+    "question": "最近一個月，您是否足底或小腿經常緊到影響走路？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_020",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "12-18",
+    "indicator": "手腕負荷",
+    "question": "最近一個月，您是否打字滑手機後手腕或手指容易痠？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_021",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "19-34",
+    "indicator": "晨間僵硬",
+    "question": "在壓力較大時，您是否早上起床時手指腳底或關節僵硬？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_022",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "35-49",
+    "indicator": "肌肉酸痛",
+    "question": "在壓力較大時，您是否沒有劇烈運動也常全身肌肉酸痛？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_023",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "50-64",
+    "indicator": "天氣關節感",
+    "question": "在壓力較大時，您是否天氣變化時腰膝或手腕隱隱不適？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_024",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "65-99",
+    "indicator": "反覆拉傷",
+    "question": "在壓力較大時，您是否容易落枕閃到腰或反覆拉傷？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_025",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "all",
+    "indicator": "姿勢負荷",
+    "question": "在壓力較大時，您是否長期低頭駝背造成局部不舒服？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_026",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "12-18",
+    "indicator": "活動度下降",
+    "question": "在壓力較大時，您是否轉身蹲下或伸展時覺得活動度下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_027",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "19-34",
+    "indicator": "久坐不適",
+    "question": "在壓力較大時，您是否久坐後起身會覺得腰臀緊繃？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_028",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "35-49",
+    "indicator": "運動恢復",
+    "question": "在壓力較大時，您是否運動後酸痛恢復時間比以前久？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_029",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "50-64",
+    "indicator": "足底緊繃",
+    "question": "在壓力較大時，您是否足底或小腿經常緊到影響走路？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "musculoskeletal_joint_030",
+    "dimension": "musculoskeletal_joint",
+    "age_group": "65-99",
+    "indicator": "手腕負荷",
+    "question": "在壓力較大時，您是否打字滑手機後手腕或手指容易痠？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_001",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "all",
+    "indicator": "皮膚搔癢",
+    "question": "過去兩週，您是否皮膚無故發癢泛紅或起疹？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_002",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "12-18",
+    "indicator": "口腔黏膜",
+    "question": "過去兩週，您是否容易嘴破牙齦敏感或刷牙流血？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_003",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "19-34",
+    "indicator": "痘痘發炎",
+    "question": "過去兩週，您是否臉部或身體反覆出現紅腫痘痘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_004",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "35-49",
+    "indicator": "眼睛乾癢",
+    "question": "過去兩週，您是否眼睛常乾澀發癢或血絲明顯？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_005",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "50-64",
+    "indicator": "鼻過敏",
+    "question": "過去兩週，您是否季節交替時容易鼻塞流鼻水打噴嚏？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_006",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "65-99",
+    "indicator": "皮膚乾燥",
+    "question": "過去兩週，您是否皮膚乾燥脫屑且保濕後仍不穩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_007",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "all",
+    "indicator": "傷口反應",
+    "question": "過去兩週，您是否小抓傷或蚊蟲叮咬會紅很久？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_008",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "12-18",
+    "indicator": "頭皮狀態",
+    "question": "過去兩週，您是否頭皮容易癢出油或有明顯屑屑？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_009",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "19-34",
+    "indicator": "唇部乾裂",
+    "question": "過去兩週，您是否嘴唇口角常乾裂不易恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_010",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "35-49",
+    "indicator": "環境敏感",
+    "question": "過去兩週，您是否接觸灰塵寵物或清潔用品後不舒服？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_011",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "50-64",
+    "indicator": "皮膚搔癢",
+    "question": "最近一個月，您是否皮膚無故發癢泛紅或起疹？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_012",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "65-99",
+    "indicator": "口腔黏膜",
+    "question": "最近一個月，您是否容易嘴破牙齦敏感或刷牙流血？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_013",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "all",
+    "indicator": "痘痘發炎",
+    "question": "最近一個月，您是否臉部或身體反覆出現紅腫痘痘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_014",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "12-18",
+    "indicator": "眼睛乾癢",
+    "question": "最近一個月，您是否眼睛常乾澀發癢或血絲明顯？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_015",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "19-34",
+    "indicator": "鼻過敏",
+    "question": "最近一個月，您是否季節交替時容易鼻塞流鼻水打噴嚏？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_016",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "35-49",
+    "indicator": "皮膚乾燥",
+    "question": "最近一個月，您是否皮膚乾燥脫屑且保濕後仍不穩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_017",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "50-64",
+    "indicator": "傷口反應",
+    "question": "最近一個月，您是否小抓傷或蚊蟲叮咬會紅很久？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_018",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "65-99",
+    "indicator": "頭皮狀態",
+    "question": "最近一個月，您是否頭皮容易癢出油或有明顯屑屑？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_019",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "all",
+    "indicator": "唇部乾裂",
+    "question": "最近一個月，您是否嘴唇口角常乾裂不易恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_020",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "12-18",
+    "indicator": "環境敏感",
+    "question": "最近一個月，您是否接觸灰塵寵物或清潔用品後不舒服？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_021",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "19-34",
+    "indicator": "皮膚搔癢",
+    "question": "在壓力較大時，您是否皮膚無故發癢泛紅或起疹？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_022",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "35-49",
+    "indicator": "口腔黏膜",
+    "question": "在壓力較大時，您是否容易嘴破牙齦敏感或刷牙流血？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_023",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "50-64",
+    "indicator": "痘痘發炎",
+    "question": "在壓力較大時，您是否臉部或身體反覆出現紅腫痘痘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_024",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "65-99",
+    "indicator": "眼睛乾癢",
+    "question": "在壓力較大時，您是否眼睛常乾澀發癢或血絲明顯？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_025",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "all",
+    "indicator": "鼻過敏",
+    "question": "在壓力較大時，您是否季節交替時容易鼻塞流鼻水打噴嚏？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_026",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "12-18",
+    "indicator": "皮膚乾燥",
+    "question": "在壓力較大時，您是否皮膚乾燥脫屑且保濕後仍不穩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_027",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "19-34",
+    "indicator": "傷口反應",
+    "question": "在壓力較大時，您是否小抓傷或蚊蟲叮咬會紅很久？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_028",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "35-49",
+    "indicator": "頭皮狀態",
+    "question": "在壓力較大時，您是否頭皮容易癢出油或有明顯屑屑？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_029",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "50-64",
+    "indicator": "唇部乾裂",
+    "question": "在壓力較大時，您是否嘴唇口角常乾裂不易恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "skin_mucosal_barrier_030",
+    "dimension": "skin_mucosal_barrier",
+    "age_group": "65-99",
+    "indicator": "環境敏感",
+    "question": "在壓力較大時，您是否接觸灰塵寵物或清潔用品後不舒服？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_001",
+    "dimension": "immune_metabolic",
+    "age_group": "all",
+    "indicator": "感冒頻率",
+    "question": "過去兩週，您是否比身邊的人更容易感冒或喉嚨痛？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_002",
+    "dimension": "immune_metabolic",
+    "age_group": "12-18",
+    "indicator": "傷口癒合",
+    "question": "過去兩週，您是否小傷口常紅腫很久才恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_003",
+    "dimension": "immune_metabolic",
+    "age_group": "19-34",
+    "indicator": "三高警訊",
+    "question": "過去兩週，您是否健檢曾被提醒血壓血糖或血脂偏高？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_004",
+    "dimension": "immune_metabolic",
+    "age_group": "35-49",
+    "indicator": "腹部脂肪",
+    "question": "過去兩週，您是否腹部脂肪增加且很難減下來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_005",
+    "dimension": "immune_metabolic",
+    "age_group": "50-64",
+    "indicator": "體溫循環",
+    "question": "過去兩週，您是否常手腳冰冷或覺得身體燥熱？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_006",
+    "dimension": "immune_metabolic",
+    "age_group": "65-99",
+    "indicator": "餐後血糖感",
+    "question": "過去兩週，您是否飯後容易昏沉想睡或想吃甜食？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_007",
+    "dimension": "immune_metabolic",
+    "age_group": "all",
+    "indicator": "水腫狀態",
+    "question": "過去兩週，您是否下午或晚上容易臉腫手腫腳腫？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_008",
+    "dimension": "immune_metabolic",
+    "age_group": "12-18",
+    "indicator": "疲勞恢復",
+    "question": "過去兩週，您是否忙碌幾天後需要很久才能恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_009",
+    "dimension": "immune_metabolic",
+    "age_group": "19-34",
+    "indicator": "運動耐力",
+    "question": "過去兩週，您是否爬樓梯或快走時耐力明顯下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_010",
+    "dimension": "immune_metabolic",
+    "age_group": "35-49",
+    "indicator": "夜間盜汗",
+    "question": "過去兩週，您是否夜間容易盜汗或醒來覺得熱？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_011",
+    "dimension": "immune_metabolic",
+    "age_group": "50-64",
+    "indicator": "感冒頻率",
+    "question": "最近一個月，您是否比身邊的人更容易感冒或喉嚨痛？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_012",
+    "dimension": "immune_metabolic",
+    "age_group": "65-99",
+    "indicator": "傷口癒合",
+    "question": "最近一個月，您是否小傷口常紅腫很久才恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_013",
+    "dimension": "immune_metabolic",
+    "age_group": "all",
+    "indicator": "三高警訊",
+    "question": "最近一個月，您是否健檢曾被提醒血壓血糖或血脂偏高？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_014",
+    "dimension": "immune_metabolic",
+    "age_group": "12-18",
+    "indicator": "腹部脂肪",
+    "question": "最近一個月，您是否腹部脂肪增加且很難減下來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_015",
+    "dimension": "immune_metabolic",
+    "age_group": "19-34",
+    "indicator": "體溫循環",
+    "question": "最近一個月，您是否常手腳冰冷或覺得身體燥熱？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_016",
+    "dimension": "immune_metabolic",
+    "age_group": "35-49",
+    "indicator": "餐後血糖感",
+    "question": "最近一個月，您是否飯後容易昏沉想睡或想吃甜食？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_017",
+    "dimension": "immune_metabolic",
+    "age_group": "50-64",
+    "indicator": "水腫狀態",
+    "question": "最近一個月，您是否下午或晚上容易臉腫手腫腳腫？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_018",
+    "dimension": "immune_metabolic",
+    "age_group": "65-99",
+    "indicator": "疲勞恢復",
+    "question": "最近一個月，您是否忙碌幾天後需要很久才能恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_019",
+    "dimension": "immune_metabolic",
+    "age_group": "all",
+    "indicator": "運動耐力",
+    "question": "最近一個月，您是否爬樓梯或快走時耐力明顯下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_020",
+    "dimension": "immune_metabolic",
+    "age_group": "12-18",
+    "indicator": "夜間盜汗",
+    "question": "最近一個月，您是否夜間容易盜汗或醒來覺得熱？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_021",
+    "dimension": "immune_metabolic",
+    "age_group": "19-34",
+    "indicator": "感冒頻率",
+    "question": "在壓力較大時，您是否比身邊的人更容易感冒或喉嚨痛？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_022",
+    "dimension": "immune_metabolic",
+    "age_group": "35-49",
+    "indicator": "傷口癒合",
+    "question": "在壓力較大時，您是否小傷口常紅腫很久才恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_023",
+    "dimension": "immune_metabolic",
+    "age_group": "50-64",
+    "indicator": "三高警訊",
+    "question": "在壓力較大時，您是否健檢曾被提醒血壓血糖或血脂偏高？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_024",
+    "dimension": "immune_metabolic",
+    "age_group": "65-99",
+    "indicator": "腹部脂肪",
+    "question": "在壓力較大時，您是否腹部脂肪增加且很難減下來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_025",
+    "dimension": "immune_metabolic",
+    "age_group": "all",
+    "indicator": "體溫循環",
+    "question": "在壓力較大時，您是否常手腳冰冷或覺得身體燥熱？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_026",
+    "dimension": "immune_metabolic",
+    "age_group": "12-18",
+    "indicator": "餐後血糖感",
+    "question": "在壓力較大時，您是否飯後容易昏沉想睡或想吃甜食？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_027",
+    "dimension": "immune_metabolic",
+    "age_group": "19-34",
+    "indicator": "水腫狀態",
+    "question": "在壓力較大時，您是否下午或晚上容易臉腫手腫腳腫？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_028",
+    "dimension": "immune_metabolic",
+    "age_group": "35-49",
+    "indicator": "疲勞恢復",
+    "question": "在壓力較大時，您是否忙碌幾天後需要很久才能恢復？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_029",
+    "dimension": "immune_metabolic",
+    "age_group": "50-64",
+    "indicator": "運動耐力",
+    "question": "在壓力較大時，您是否爬樓梯或快走時耐力明顯下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "immune_metabolic_030",
+    "dimension": "immune_metabolic",
+    "age_group": "65-99",
+    "indicator": "夜間盜汗",
+    "question": "在壓力較大時，您是否夜間容易盜汗或醒來覺得熱？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_001",
+    "dimension": "environmental_exposure",
+    "age_group": "all",
+    "indicator": "空氣污染",
+    "question": "過去兩週，您是否常待在二手菸油煙或裝潢味環境？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_002",
+    "dimension": "environmental_exposure",
+    "age_group": "12-18",
+    "indicator": "塑膠加熱",
+    "question": "過去兩週，您是否常用塑膠容器加熱食物或熱飲？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_003",
+    "dimension": "environmental_exposure",
+    "age_group": "19-34",
+    "indicator": "交通工業暴露",
+    "question": "過去兩週，您是否住家或工作地點靠近車流或工廠？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_004",
+    "dimension": "environmental_exposure",
+    "age_group": "35-49",
+    "indicator": "香精清潔劑",
+    "question": "過去兩週，您是否頻繁使用香水芳香劑或強效清潔劑？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_005",
+    "dimension": "environmental_exposure",
+    "age_group": "50-64",
+    "indicator": "螢幕藍光",
+    "question": "過去兩週，您是否每天看手機電腦超過八小時？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_006",
+    "dimension": "environmental_exposure",
+    "age_group": "65-99",
+    "indicator": "室內通風",
+    "question": "過去兩週，您是否室內通風不足常覺得空氣悶？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_007",
+    "dimension": "environmental_exposure",
+    "age_group": "all",
+    "indicator": "農藥殘留",
+    "question": "過去兩週，您是否蔬果較少清洗或常吃來源不明食材？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_008",
+    "dimension": "environmental_exposure",
+    "age_group": "12-18",
+    "indicator": "水質疑慮",
+    "question": "過去兩週，您是否飲用水來源或濾水習慣讓你不放心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_009",
+    "dimension": "environmental_exposure",
+    "age_group": "19-34",
+    "indicator": "職場化學品",
+    "question": "過去兩週，您是否工作會接觸溶劑染劑粉塵或化學品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_010",
+    "dimension": "environmental_exposure",
+    "age_group": "35-49",
+    "indicator": "噪音壓力",
+    "question": "過去兩週，您是否長時間處在噪音或高刺激環境？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_011",
+    "dimension": "environmental_exposure",
+    "age_group": "50-64",
+    "indicator": "空氣污染",
+    "question": "最近一個月，您是否常待在二手菸油煙或裝潢味環境？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_012",
+    "dimension": "environmental_exposure",
+    "age_group": "65-99",
+    "indicator": "塑膠加熱",
+    "question": "最近一個月，您是否常用塑膠容器加熱食物或熱飲？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_013",
+    "dimension": "environmental_exposure",
+    "age_group": "all",
+    "indicator": "交通工業暴露",
+    "question": "最近一個月，您是否住家或工作地點靠近車流或工廠？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_014",
+    "dimension": "environmental_exposure",
+    "age_group": "12-18",
+    "indicator": "香精清潔劑",
+    "question": "最近一個月，您是否頻繁使用香水芳香劑或強效清潔劑？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_015",
+    "dimension": "environmental_exposure",
+    "age_group": "19-34",
+    "indicator": "螢幕藍光",
+    "question": "最近一個月，您是否每天看手機電腦超過八小時？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_016",
+    "dimension": "environmental_exposure",
+    "age_group": "35-49",
+    "indicator": "室內通風",
+    "question": "最近一個月，您是否室內通風不足常覺得空氣悶？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_017",
+    "dimension": "environmental_exposure",
+    "age_group": "50-64",
+    "indicator": "農藥殘留",
+    "question": "最近一個月，您是否蔬果較少清洗或常吃來源不明食材？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_018",
+    "dimension": "environmental_exposure",
+    "age_group": "65-99",
+    "indicator": "水質疑慮",
+    "question": "最近一個月，您是否飲用水來源或濾水習慣讓你不放心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_019",
+    "dimension": "environmental_exposure",
+    "age_group": "all",
+    "indicator": "職場化學品",
+    "question": "最近一個月，您是否工作會接觸溶劑染劑粉塵或化學品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_020",
+    "dimension": "environmental_exposure",
+    "age_group": "12-18",
+    "indicator": "噪音壓力",
+    "question": "最近一個月，您是否長時間處在噪音或高刺激環境？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_021",
+    "dimension": "environmental_exposure",
+    "age_group": "19-34",
+    "indicator": "空氣污染",
+    "question": "在壓力較大時，您是否常待在二手菸油煙或裝潢味環境？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_022",
+    "dimension": "environmental_exposure",
+    "age_group": "35-49",
+    "indicator": "塑膠加熱",
+    "question": "在壓力較大時，您是否常用塑膠容器加熱食物或熱飲？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_023",
+    "dimension": "environmental_exposure",
+    "age_group": "50-64",
+    "indicator": "交通工業暴露",
+    "question": "在壓力較大時，您是否住家或工作地點靠近車流或工廠？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_024",
+    "dimension": "environmental_exposure",
+    "age_group": "65-99",
+    "indicator": "香精清潔劑",
+    "question": "在壓力較大時，您是否頻繁使用香水芳香劑或強效清潔劑？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_025",
+    "dimension": "environmental_exposure",
+    "age_group": "all",
+    "indicator": "螢幕藍光",
+    "question": "在壓力較大時，您是否每天看手機電腦超過八小時？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_026",
+    "dimension": "environmental_exposure",
+    "age_group": "12-18",
+    "indicator": "室內通風",
+    "question": "在壓力較大時，您是否室內通風不足常覺得空氣悶？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_027",
+    "dimension": "environmental_exposure",
+    "age_group": "19-34",
+    "indicator": "農藥殘留",
+    "question": "在壓力較大時，您是否蔬果較少清洗或常吃來源不明食材？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_028",
+    "dimension": "environmental_exposure",
+    "age_group": "35-49",
+    "indicator": "水質疑慮",
+    "question": "在壓力較大時，您是否飲用水來源或濾水習慣讓你不放心？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_029",
+    "dimension": "environmental_exposure",
+    "age_group": "50-64",
+    "indicator": "職場化學品",
+    "question": "在壓力較大時，您是否工作會接觸溶劑染劑粉塵或化學品？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "environmental_exposure_030",
+    "dimension": "environmental_exposure",
+    "age_group": "65-99",
+    "indicator": "噪音壓力",
+    "question": "在壓力較大時，您是否長時間處在噪音或高刺激環境？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_001",
+    "dimension": "brain_mood_energy",
+    "age_group": "all",
+    "indicator": "腦霧記憶",
+    "question": "過去兩週，您是否常覺得腦霧或話到嘴邊想不起來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_002",
+    "dimension": "brain_mood_energy",
+    "age_group": "12-18",
+    "indicator": "專注維持",
+    "question": "過去兩週，您是否專注很難維持十五到二十分鐘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_003",
+    "dimension": "brain_mood_energy",
+    "age_group": "19-34",
+    "indicator": "情緒低落",
+    "question": "過去兩週，您是否對原本喜歡的事突然提不起興趣？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_004",
+    "dimension": "brain_mood_energy",
+    "age_group": "35-49",
+    "indicator": "情緒波動",
+    "question": "過去兩週，您是否情緒容易從亢奮快速轉成疲憊？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_005",
+    "dimension": "brain_mood_energy",
+    "age_group": "50-64",
+    "indicator": "決策清晰",
+    "question": "過去兩週，您是否做決定時覺得腦袋混亂不清楚？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_006",
+    "dimension": "brain_mood_energy",
+    "age_group": "65-99",
+    "indicator": "動機下降",
+    "question": "過去兩週，您是否明知道該做卻缺乏啟動的能量？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_007",
+    "dimension": "brain_mood_energy",
+    "age_group": "all",
+    "indicator": "資訊過載",
+    "question": "過去兩週，您是否接收太多訊息後覺得大腦過載？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_008",
+    "dimension": "brain_mood_energy",
+    "age_group": "12-18",
+    "indicator": "壓力性進食",
+    "question": "過去兩週，您是否心情差時特別想吃甜食或重口味？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_009",
+    "dimension": "brain_mood_energy",
+    "age_group": "19-34",
+    "indicator": "社交耗竭",
+    "question": "過去兩週，您是否社交後需要很久才能恢復精神？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_010",
+    "dimension": "brain_mood_energy",
+    "age_group": "35-49",
+    "indicator": "晨間意志力",
+    "question": "過去兩週，您是否早上常覺得意志力不足難以開始？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_011",
+    "dimension": "brain_mood_energy",
+    "age_group": "50-64",
+    "indicator": "腦霧記憶",
+    "question": "最近一個月，您是否常覺得腦霧或話到嘴邊想不起來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_012",
+    "dimension": "brain_mood_energy",
+    "age_group": "65-99",
+    "indicator": "專注維持",
+    "question": "最近一個月，您是否專注很難維持十五到二十分鐘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_013",
+    "dimension": "brain_mood_energy",
+    "age_group": "all",
+    "indicator": "情緒低落",
+    "question": "最近一個月，您是否對原本喜歡的事突然提不起興趣？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_014",
+    "dimension": "brain_mood_energy",
+    "age_group": "12-18",
+    "indicator": "情緒波動",
+    "question": "最近一個月，您是否情緒容易從亢奮快速轉成疲憊？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_015",
+    "dimension": "brain_mood_energy",
+    "age_group": "19-34",
+    "indicator": "決策清晰",
+    "question": "最近一個月，您是否做決定時覺得腦袋混亂不清楚？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_016",
+    "dimension": "brain_mood_energy",
+    "age_group": "35-49",
+    "indicator": "動機下降",
+    "question": "最近一個月，您是否明知道該做卻缺乏啟動的能量？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_017",
+    "dimension": "brain_mood_energy",
+    "age_group": "50-64",
+    "indicator": "資訊過載",
+    "question": "最近一個月，您是否接收太多訊息後覺得大腦過載？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_018",
+    "dimension": "brain_mood_energy",
+    "age_group": "65-99",
+    "indicator": "壓力性進食",
+    "question": "最近一個月，您是否心情差時特別想吃甜食或重口味？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_019",
+    "dimension": "brain_mood_energy",
+    "age_group": "all",
+    "indicator": "社交耗竭",
+    "question": "最近一個月，您是否社交後需要很久才能恢復精神？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_020",
+    "dimension": "brain_mood_energy",
+    "age_group": "12-18",
+    "indicator": "晨間意志力",
+    "question": "最近一個月，您是否早上常覺得意志力不足難以開始？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_021",
+    "dimension": "brain_mood_energy",
+    "age_group": "19-34",
+    "indicator": "腦霧記憶",
+    "question": "在壓力較大時，您是否常覺得腦霧或話到嘴邊想不起來？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_022",
+    "dimension": "brain_mood_energy",
+    "age_group": "35-49",
+    "indicator": "專注維持",
+    "question": "在壓力較大時，您是否專注很難維持十五到二十分鐘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_023",
+    "dimension": "brain_mood_energy",
+    "age_group": "50-64",
+    "indicator": "情緒低落",
+    "question": "在壓力較大時，您是否對原本喜歡的事突然提不起興趣？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_024",
+    "dimension": "brain_mood_energy",
+    "age_group": "65-99",
+    "indicator": "情緒波動",
+    "question": "在壓力較大時，您是否情緒容易從亢奮快速轉成疲憊？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_025",
+    "dimension": "brain_mood_energy",
+    "age_group": "all",
+    "indicator": "決策清晰",
+    "question": "在壓力較大時，您是否做決定時覺得腦袋混亂不清楚？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_026",
+    "dimension": "brain_mood_energy",
+    "age_group": "12-18",
+    "indicator": "動機下降",
+    "question": "在壓力較大時，您是否明知道該做卻缺乏啟動的能量？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_027",
+    "dimension": "brain_mood_energy",
+    "age_group": "19-34",
+    "indicator": "資訊過載",
+    "question": "在壓力較大時，您是否接收太多訊息後覺得大腦過載？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_028",
+    "dimension": "brain_mood_energy",
+    "age_group": "35-49",
+    "indicator": "壓力性進食",
+    "question": "在壓力較大時，您是否心情差時特別想吃甜食或重口味？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_029",
+    "dimension": "brain_mood_energy",
+    "age_group": "50-64",
+    "indicator": "社交耗竭",
+    "question": "在壓力較大時，您是否社交後需要很久才能恢復精神？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "brain_mood_energy_030",
+    "dimension": "brain_mood_energy",
+    "age_group": "65-99",
+    "indicator": "晨間意志力",
+    "question": "在壓力較大時，您是否早上常覺得意志力不足難以開始？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_001",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "all",
+    "indicator": "青少年課業",
+    "question": "過去兩週，您是否因課業升學工作或家庭責任感到壓力累積？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_002",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "12-18",
+    "indicator": "青年工時",
+    "question": "過去兩週，您是否長時間工作學習後很難保留自己的休息時間？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_003",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "19-34",
+    "indicator": "中年照護",
+    "question": "過去兩週，您是否同時照顧工作家庭或長輩讓你身心消耗？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_004",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "35-49",
+    "indicator": "熟齡肌力",
+    "question": "過去兩週，您是否覺得肌力體力或步行速度比以前下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_005",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "50-64",
+    "indicator": "久坐久站",
+    "question": "過去兩週，您是否日常需要久坐或久站超過六小時？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_006",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "65-99",
+    "indicator": "社交支持",
+    "question": "過去兩週，您是否覺得社交支持不足或常感到孤單？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_007",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "all",
+    "indicator": "運動不足",
+    "question": "過去兩週，您是否每週規律活動少於三次每次三十分鐘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_008",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "12-18",
+    "indicator": "荷爾蒙變化",
+    "question": "過去兩週，您是否因生理週期更年期或年齡變化感到不穩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_009",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "19-34",
+    "indicator": "生活節奏",
+    "question": "過去兩週，您是否生活節奏常被他人需求打亂？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_010",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "35-49",
+    "indicator": "自我照顧",
+    "question": "過去兩週，您是否很少安排真正能恢復身心的自我照顧？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_011",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "50-64",
+    "indicator": "青少年課業",
+    "question": "最近一個月，您是否因課業升學工作或家庭責任感到壓力累積？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_012",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "65-99",
+    "indicator": "青年工時",
+    "question": "最近一個月，您是否長時間工作學習後很難保留自己的休息時間？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_013",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "all",
+    "indicator": "中年照護",
+    "question": "最近一個月，您是否同時照顧工作家庭或長輩讓你身心消耗？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_014",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "12-18",
+    "indicator": "熟齡肌力",
+    "question": "最近一個月，您是否覺得肌力體力或步行速度比以前下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_015",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "19-34",
+    "indicator": "久坐久站",
+    "question": "最近一個月，您是否日常需要久坐或久站超過六小時？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_016",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "35-49",
+    "indicator": "社交支持",
+    "question": "最近一個月，您是否覺得社交支持不足或常感到孤單？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_017",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "50-64",
+    "indicator": "運動不足",
+    "question": "最近一個月，您是否每週規律活動少於三次每次三十分鐘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_018",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "65-99",
+    "indicator": "荷爾蒙變化",
+    "question": "最近一個月，您是否因生理週期更年期或年齡變化感到不穩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_019",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "all",
+    "indicator": "生活節奏",
+    "question": "最近一個月，您是否生活節奏常被他人需求打亂？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_020",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "12-18",
+    "indicator": "自我照顧",
+    "question": "最近一個月，您是否很少安排真正能恢復身心的自我照顧？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_021",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "19-34",
+    "indicator": "青少年課業",
+    "question": "在壓力較大時，您是否因課業升學工作或家庭責任感到壓力累積？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_022",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "35-49",
+    "indicator": "青年工時",
+    "question": "在壓力較大時，您是否長時間工作學習後很難保留自己的休息時間？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_023",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "50-64",
+    "indicator": "中年照護",
+    "question": "在壓力較大時，您是否同時照顧工作家庭或長輩讓你身心消耗？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_024",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "65-99",
+    "indicator": "熟齡肌力",
+    "question": "在壓力較大時，您是否覺得肌力體力或步行速度比以前下降？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_025",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "all",
+    "indicator": "久坐久站",
+    "question": "在壓力較大時，您是否日常需要久坐或久站超過六小時？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_026",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "12-18",
+    "indicator": "社交支持",
+    "question": "在壓力較大時，您是否覺得社交支持不足或常感到孤單？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_027",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "19-34",
+    "indicator": "運動不足",
+    "question": "在壓力較大時，您是否每週規律活動少於三次每次三十分鐘？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_028",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "35-49",
+    "indicator": "荷爾蒙變化",
+    "question": "在壓力較大時，您是否因生理週期更年期或年齡變化感到不穩？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_029",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "50-64",
+    "indicator": "生活節奏",
+    "question": "在壓力較大時，您是否生活節奏常被他人需求打亂？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  },
+  {
+    "id": "age_lifestyle_adaptation_030",
+    "dimension": "age_lifestyle_adaptation",
+    "age_group": "65-99",
+    "indicator": "自我照顧",
+    "question": "在壓力較大時，您是否很少安排真正能恢復身心的自我照顧？",
+    "scale_min": 1,
+    "scale_max": 5,
+    "risk_direction": "higher_score_higher_risk"
+  }
+]

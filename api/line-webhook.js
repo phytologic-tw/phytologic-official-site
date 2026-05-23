@@ -4,13 +4,24 @@
 
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import {
+  buildFullReportPrompt,
+  calcLifeNumber,
+  calcZodiac,
+  getBloodTypeTrait,
+  getLifeNumberTrait,
+} from "./prompts.js";
 
 const CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_KEY;
+const LIFF_ENTRY_URL =
+  process.env.LINE_LIFF_ENTRY_URL ||
+  (process.env.VITE_LINE_LIFF_ID ? `https://liff.line.me/${process.env.VITE_LINE_LIFF_ID}` : "https://www.phytologic.tw/line/entry");
 const REPORT_SELECT = "id, inflammation_level, total_score, recommended_products, ai_analysis";
 const REPORT_SELECT_WITH_SHORT_CODE = `${REPORT_SELECT}, short_code`;
 
@@ -174,6 +185,298 @@ async function replyMessage(replyToken, messages) {
   }
 }
 
+async function pushMessage(to, messages) {
+  if (!CHANNEL_ACCESS_TOKEN) {
+    throw new Error("Missing LINE_CHANNEL_ACCESS_TOKEN.");
+  }
+
+  const response = await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({ to, messages }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`LINE push failed: ${response.status} ${text}`);
+  }
+}
+
+function getTaiwanToday() {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei" }).format(new Date());
+}
+
+function extractJson(text) {
+  const clean = String(text || "").replace(/```json|```/g, "").trim();
+  const start = clean.indexOf("{");
+  const end = clean.lastIndexOf("}");
+  if (start === -1 || end === -1) throw new Error("AI response did not contain JSON.");
+  return JSON.parse(clean.slice(start, end + 1));
+}
+
+async function callAnthropicJson(prompt, maxTokens = 4000) {
+  if (!ANTHROPIC_API_KEY) throw new Error("Missing ANTHROPIC_API_KEY.");
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(`Anthropic failed: ${JSON.stringify(data)}`);
+  const text = data.content?.map((content) => content.text || "").join("") || "";
+  return extractJson(text);
+}
+
+function compact(value, fallback = "資料整理中") {
+  if (value == null) return fallback;
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" ? item : Object.values(item || {}).filter(Boolean).join("：")))
+      .filter(Boolean)
+      .join("\n");
+  }
+  if (typeof value === "object") {
+    return Object.entries(value)
+      .filter(([, item]) => item != null && item !== "")
+      .map(([key, item]) => `${key}：${compact(item, "")}`)
+      .filter(Boolean)
+      .join("\n");
+  }
+  return String(value);
+}
+
+function textBlock(text, size = "sm", weight = "regular") {
+  return {
+    type: "text",
+    text: String(text || "資料整理中").slice(0, 900),
+    wrap: true,
+    size,
+    weight,
+    color: weight === "bold" ? "#123828" : "#49675A",
+  };
+}
+
+function buildFlex(title, blocks, button) {
+  const contents = [
+    textBlock(title, "lg", "bold"),
+    { type: "separator", margin: "md", color: "#E7DDBF" },
+    ...blocks.flatMap((block) => [textBlock(block.title, "sm", "bold"), textBlock(block.text, "sm")]),
+  ];
+
+  const bubble = {
+    type: "bubble",
+    styles: { body: { backgroundColor: "#F9F5EA" } },
+    body: {
+      type: "box",
+      layout: "vertical",
+      spacing: "md",
+      contents,
+    },
+  };
+
+  if (button) {
+    bubble.footer = {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "button",
+          style: "primary",
+          color: "#123828",
+          action: button,
+        },
+      ],
+    };
+  }
+
+  return { type: "flex", altText: title, contents: bubble };
+}
+
+function buildReportFlexMessages(reportJson) {
+  const plan = reportJson.section7_seven_day_plan || {};
+  const planDays = Array.isArray(plan.days) ? plan.days : [];
+  const planText = planDays
+    .map((day) => `Day ${day.day} ${day.theme}｜${day.product_name || ""}`)
+    .join("\n");
+
+  return [
+    buildFlex("生命能量解讀", [
+      { title: "你的能量線索", text: compact(reportJson.section1_energy?.life_number_insight) },
+      { title: "今日提醒", text: compact(reportJson.section1_energy?.today_energy_tip) },
+    ]),
+    buildFlex("發炎與體重管理", [
+      { title: "發炎現況", text: compact(reportJson.section2_inflammation?.overall) },
+      { title: "BMI 方向", text: compact(reportJson.section3_bmi) },
+    ]),
+    buildFlex("飲食、運動與生活", [
+      { title: "飲食建議", text: compact(reportJson.section4_diet?.main_advice) },
+      { title: "運動建議", text: compact(reportJson.section5_exercise?.recommended_types) },
+      { title: "生活規律", text: compact(reportJson.section6_lifestyle) },
+    ]),
+    buildFlex("七天定製修補計畫", [
+      { title: "計畫目標", text: compact(plan.intro) },
+      { title: "七天總覽", text: planText || compact(plan.days) },
+    ], {
+      type: "uri",
+      label: "前往今日打卡",
+      uri: "https://www.phytologic.tw/line/checkin",
+    }),
+  ];
+}
+
+async function findLatestReportByLineUserId(supabase, lineUserId) {
+  const { data, error } = await supabase
+    .from("assessment_reports")
+    .select("*")
+    .eq("line_user_id", lineUserId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+async function getCityClimate(supabase, city) {
+  if (!city) return null;
+
+  const { data, error } = await supabase
+    .from("city_climate")
+    .select("*")
+    .eq("city", city)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+function buildWebAnswerSummary(report) {
+  const candidates = [
+    report.full_report?.answerSummary,
+    report.full_report?.answer_summary,
+    report.answer_summary,
+    report.ai_analysis,
+  ];
+  return candidates.find(Boolean) || "使用者已完成官網派森快篩，詳細作答資料請依現有報告摘要推論。";
+}
+
+async function generateFullReport(supabase, profile, assessmentReport, cityClimate) {
+  const lifeNumber = profile.life_number || calcLifeNumber(profile.birthdate);
+  const zodiac = profile.zodiac && profile.zodiac_element
+    ? { sign: profile.zodiac, element: profile.zodiac_element }
+    : calcZodiac(profile.birthdate);
+  const lifeNumberTrait = getLifeNumberTrait(lifeNumber);
+  const bloodTypeTrait = getBloodTypeTrait(profile.blood_type);
+  const recommendedProducts = assessmentReport.recommended_products;
+  const recommendedProductId = Array.isArray(recommendedProducts) ? recommendedProducts[0] : recommendedProducts;
+
+  const prompt = buildFullReportPrompt({
+    gender: assessmentReport.gender || profile.gender || "未填寫",
+    ageGroup: assessmentReport.age_group || profile.age_group || "未填寫",
+    bmi: assessmentReport.bmi || profile.bmi || "未計算",
+    workType: assessmentReport.work_type || profile.work_type || "未填寫",
+    sleepQuality: assessmentReport.sleep_quality || profile.sleep_quality || "未填寫",
+    exerciseHabit: assessmentReport.exercise_habit || profile.exercise_habit || "未填寫",
+    nickname: profile.nickname || profile.line_display_name || "健康夥伴",
+    birthdate: profile.birthdate,
+    bloodType: profile.blood_type,
+    city: profile.city,
+    sleepHours: profile.sleep_hours,
+    dietPattern: profile.diet_pattern,
+    stressLevel: profile.stress_level,
+    lifeNumber,
+    lifeNumberTrait,
+    zodiac: zodiac.sign,
+    zodiacElement: zodiac.element,
+    bloodTypeTrait,
+    cityClimate: cityClimate || profile.city_climate || {},
+    webSurveyTotal: assessmentReport.total_score || "未提供",
+    webSurveyLevel: assessmentReport.inflammation_level || "未提供",
+    webCategorySummary: compact(assessmentReport.system_scores || assessmentReport.full_report?.topSignals || assessmentReport.full_report?.top_signals),
+    webAnswerSummary: buildWebAnswerSummary(assessmentReport),
+    lineSurveyAnswers: assessmentReport.second_survey || {},
+    recommendedProductId: recommendedProductId || profile.recommended_product || "snow",
+    recommendedProductName: recommendedProductId || profile.recommended_product || "雪山植萃",
+  });
+
+  const reportJson = await callAnthropicJson(prompt, 4000);
+  const memberData = reportJson.member_data_to_save || {};
+  const sevenDayPlan = reportJson.section7_seven_day_plan || {};
+  const today = getTaiwanToday();
+
+  const profileUpdate = {
+    ...memberData,
+    city_climate: cityClimate || profile.city_climate || {},
+    seven_day_plan: sevenDayPlan,
+    last_report_id: assessmentReport.id,
+    seven_day_start_date: today,
+  };
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update(profileUpdate)
+    .eq("id", profile.id);
+
+  if (profileError) throw profileError;
+
+  const reportUpdate = {
+    full_ai_report: reportJson,
+    seven_day_plan: sevenDayPlan,
+    report_sent_at: new Date().toISOString(),
+  };
+
+  const { error: reportError } = await supabase
+    .from("assessment_reports")
+    .update(reportUpdate)
+    .eq("id", assessmentReport.id);
+
+  if (reportError) throw reportError;
+
+  return reportJson;
+}
+
+async function handleProfileComplete(event) {
+  const userId = event.source?.userId;
+  if (!userId) return;
+
+  const supabase = getSupabaseAdmin();
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("line_user_id", userId)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+  if (!profile) {
+    await replyMessage(event.replyToken, [{ type: "text", text: "尚未找到您的會員資料，請先完成 LINE 建檔。" }]);
+    return;
+  }
+
+  const assessmentReport = await findLatestReportByLineUserId(supabase, userId);
+  if (!assessmentReport) {
+    await replyMessage(event.replyToken, [{ type: "text", text: "尚未找到您的派森快篩報告。請先到官網完成快篩，再回到 LINE 會員中心。" }]);
+    return;
+  }
+
+  const cityClimate = await getCityClimate(supabase, profile.city);
+  await replyMessage(event.replyToken, [{ type: "text", text: "派森正在整合你的建檔資料與快篩報告，完整分析稍後送上。" }]);
+  const reportJson = await generateFullReport(supabase, profile, assessmentReport, cityClimate);
+  await pushMessage(userId, buildReportFlexMessages(reportJson));
+}
+
 // 格式化完整健康報告訊息
 function formatReport(report) {
   const level = report.inflammation_level || "未知";
@@ -236,10 +539,37 @@ export default async function handler(req, res) {
     if (event.type === "follow") {
       await replyMessage(event.replyToken, [
         {
-          type: "text",
-          text: "🌿 歡迎加入植本邏輯！\n\n您好，我是派森 AI 健康顧問。\n\n如果您已完成官網快篩，請直接傳送您的 8 碼報告編號（例如：A1B2C3D4），即可收到完整個人化健康報告。\n\n輸入「報告」可重新查詢。",
+          type: "template",
+          altText: "歡迎加入植本邏輯",
+          template: {
+            type: "buttons",
+            title: "歡迎加入植本邏輯",
+            text: "我是派森 AI 健康顧問。先完成 LINE 會員建檔，讓我把快篩報告變成你的七天修補計畫。",
+            actions: [
+              {
+                type: "uri",
+                label: "開始會員建檔",
+                uri: LIFF_ENTRY_URL,
+              },
+            ],
+          },
         },
       ]);
+      continue;
+    }
+
+    if (event.type === "postback") {
+      const params = new URLSearchParams(event.postback?.data || "");
+      if (params.get("action") === "profile_complete") {
+        try {
+          await handleProfileComplete(event);
+        } catch (err) {
+          console.error("[Webhook] profile_complete failed:", err);
+          await replyMessage(event.replyToken, [
+            { type: "text", text: "完整報告生成暫時失敗，請稍後再試或聯繫植本邏輯客服。" },
+          ]);
+        }
+      }
       continue;
     }
 

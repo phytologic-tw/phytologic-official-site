@@ -53,7 +53,7 @@ const SCORE_STYLES = {
   2: { backgroundColor: "#EEF0E6", borderColor: "#D9DFC9", color: "#5F765F" },
   3: { backgroundColor: "#DDE7D7", borderColor: "#C4D2BB", color: "#46664C" },
   4: { backgroundColor: "#B9CBB2", borderColor: "#9EB294", color: "#254B34" },
-  5: { backgroundColor: "#1C3D2B", borderColor: "#1C3D2B", color: "#FFFFFF" },
+  5: { backgroundColor: "rgb(var(--brand-dark-rgb))", borderColor: "rgb(var(--brand-dark-rgb))", color: "#FFFFFF" },
 };
 
 const CATEGORY_LABELS = {
@@ -413,29 +413,29 @@ export default function HealthAssessment({ onComplete } = {}) {
   };
 
   return (
-    <div className="mx-auto max-w-5xl text-[#1C3D2B]">
+    <div className="mx-auto max-w-5xl text-brand-dark">
       <div className="mb-10 text-center">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.32em] text-[#C8A96E]">DR.MARVIN HEALTH CHECK</p>
+        <p className="mb-3 text-sm font-semibold uppercase tracking-brand-wider text-brand-gold">DR.MARVIN HEALTH CHECK</p>
         <h3 className="text-3xl font-semibold md:text-5xl">Dr.Marvin 生理狀態快篩</h3>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#49675A]">依您的基本資料，完成 7 題快速評估，了解目前的發炎風險與最適合的植物機能飲品。</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-brand-mid">依您的基本資料，完成 7 題快速評估，了解目前的發炎風險與最適合的植物機能飲品。</p>
       </div>
 
       {step === 0 && (
-        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-6 md:p-8">
+        <div className="rounded-2xl border border-brand-border bg-white p-6 md:p-8">
           <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C3D2B] text-white"><Leaf className="h-5 w-5" /></div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-dark text-white"><Leaf className="h-5 w-5" /></div>
             <div>
-              <p className="text-sm text-[#8B7A4C]">步驟 1 / 3</p>
+              <p className="text-sm text-brand-gold-deep">步驟 1 / 3</p>
               <h4 className="text-2xl font-semibold">輸入基本資料</h4>
             </div>
           </div>
 
           <div className="mb-7 space-y-6">
             <div>
-              <span className="mb-3 block text-sm text-[#8B7A4C]">性別</span>
+              <span className="mb-3 block text-sm text-brand-gold-deep">性別</span>
               <div className="grid grid-cols-3 gap-3">
                 {["男", "女", "其他"].map((gender) => (
-                  <button key={gender} type="button" onClick={() => setProfile((prev) => ({ ...prev, gender }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.gender === gender ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                  <button key={gender} type="button" onClick={() => setProfile((prev) => ({ ...prev, gender }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.gender === gender ? "border-brand-dark bg-brand-dark text-white" : "border-brand-border bg-white text-brand-dark hover:border-brand-gold"}`}>
                     {gender}
                   </button>
                 ))}
@@ -443,18 +443,18 @@ export default function HealthAssessment({ onComplete } = {}) {
             </div>
 
             <div>
-              <span className="mb-3 block text-sm text-[#8B7A4C]">年齡</span>
+              <span className="mb-3 block text-sm text-brand-gold-deep">年齡</span>
               <div className="flex items-center gap-3">
-                <input type="number" min="1" max="119" value={profile.age} onChange={(event) => setProfile((prev) => ({ ...prev, age: event.target.value }))} placeholder="請輸入您的年齡" className="flex-1 rounded-2xl border border-[#E5E0D5] bg-white px-5 py-4 outline-none focus:border-[#C8A96E]" />
-                <span className="text-sm text-[#8B7A4C]">歲</span>
+                <input type="number" min="1" max="119" value={profile.age} onChange={(event) => setProfile((prev) => ({ ...prev, age: event.target.value }))} placeholder="請輸入您的年齡" className="flex-1 rounded-2xl border border-brand-border bg-white px-5 py-4 outline-none focus:border-brand-gold" />
+                <span className="text-sm text-brand-gold-deep">歲</span>
               </div>
             </div>
 
             <div>
-              <span className="mb-3 block text-sm text-[#8B7A4C]">職業類型</span>
+              <span className="mb-3 block text-sm text-brand-gold-deep">職業類型</span>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                 {WORK_TYPES.map((workType) => (
-                  <button key={workType} type="button" onClick={() => setProfile((prev) => ({ ...prev, workType }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.workType === workType ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                  <button key={workType} type="button" onClick={() => setProfile((prev) => ({ ...prev, workType }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.workType === workType ? "border-brand-dark bg-brand-dark text-white" : "border-brand-border bg-white text-brand-dark hover:border-brand-gold"}`}>
                     {workType}
                   </button>
                 ))}
@@ -463,26 +463,26 @@ export default function HealthAssessment({ onComplete } = {}) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="mb-3 block text-sm text-[#8B7A4C]">身高</span>
+                <span className="mb-3 block text-sm text-brand-gold-deep">身高</span>
                 <div className="flex items-center gap-2">
-                  <input type="number" min="1" value={profile.heightCm} onChange={(event) => setProfile((prev) => ({ ...prev, heightCm: event.target.value }))} placeholder="170" className="flex-1 rounded-2xl border border-[#E5E0D5] bg-white px-4 py-4 outline-none focus:border-[#C8A96E]" />
-                  <span className="text-sm text-[#8B7A4C]">公分</span>
+                  <input type="number" min="1" value={profile.heightCm} onChange={(event) => setProfile((prev) => ({ ...prev, heightCm: event.target.value }))} placeholder="170" className="flex-1 rounded-2xl border border-brand-border bg-white px-4 py-4 outline-none focus:border-brand-gold" />
+                  <span className="text-sm text-brand-gold-deep">公分</span>
                 </div>
               </div>
               <div>
-                <span className="mb-3 block text-sm text-[#8B7A4C]">體重</span>
+                <span className="mb-3 block text-sm text-brand-gold-deep">體重</span>
                 <div className="flex items-center gap-2">
-                  <input type="number" min="1" value={profile.weightKg} onChange={(event) => setProfile((prev) => ({ ...prev, weightKg: event.target.value }))} placeholder="65" className="flex-1 rounded-2xl border border-[#E5E0D5] bg-white px-4 py-4 outline-none focus:border-[#C8A96E]" />
-                  <span className="text-sm text-[#8B7A4C]">公斤</span>
+                  <input type="number" min="1" value={profile.weightKg} onChange={(event) => setProfile((prev) => ({ ...prev, weightKg: event.target.value }))} placeholder="65" className="flex-1 rounded-2xl border border-brand-border bg-white px-4 py-4 outline-none focus:border-brand-gold" />
+                  <span className="text-sm text-brand-gold-deep">公斤</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <span className="mb-3 block text-sm text-[#8B7A4C]">運動習慣</span>
+              <span className="mb-3 block text-sm text-brand-gold-deep">運動習慣</span>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {EXERCISE_HABITS.map((exerciseHabit) => (
-                  <button key={exerciseHabit} type="button" onClick={() => setProfile((prev) => ({ ...prev, exerciseHabit }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.exerciseHabit === exerciseHabit ? "border-[#1C3D2B] bg-[#1C3D2B] text-white" : "border-[#E5E0D5] bg-white text-[#1C3D2B] hover:border-[#C8A96E]"}`}>
+                  <button key={exerciseHabit} type="button" onClick={() => setProfile((prev) => ({ ...prev, exerciseHabit }))} className={`rounded-2xl border py-4 text-sm font-medium transition ${profile.exerciseHabit === exerciseHabit ? "border-brand-dark bg-brand-dark text-white" : "border-brand-border bg-white text-brand-dark hover:border-brand-gold"}`}>
                     {exerciseHabit}
                   </button>
                 ))}
@@ -490,28 +490,28 @@ export default function HealthAssessment({ onComplete } = {}) {
             </div>
           </div>
 
-          {bmi && <p className="mb-4 text-sm text-[#49675A]">BMI 將納入 AI 分析：<span className="font-semibold text-[#1C3D2B]">{bmi}</span></p>}
+          {bmi && <p className="mb-4 text-sm text-brand-mid">BMI 將納入 AI 分析：<span className="font-semibold text-brand-dark">{bmi}</span></p>}
 
-          <button type="button" disabled={!profileCompleted} onClick={startAssessment} className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
+          <button type="button" disabled={!profileCompleted} onClick={startAssessment} className="mt-2 inline-flex items-center gap-2 rounded-full bg-brand-dark px-7 py-4 font-medium text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
             下一步：開始健康分析 <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {step === 1 && (
-        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-6 md:p-8">
+        <div className="rounded-2xl border border-brand-border bg-white p-6 md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C3D2B] text-white"><Sparkles className="h-5 w-5" /></div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-dark text-white"><Sparkles className="h-5 w-5" /></div>
               <div>
-                <p className="text-sm text-[#8B7A4C]">步驟 2 / 3</p>
+                <p className="text-sm text-brand-gold-deep">步驟 2 / 3</p>
                 <h4 className="text-2xl font-semibold">健康評估 7 題</h4>
               </div>
             </div>
-            <div className="text-sm text-[#49675A]">{answeredCount} / {QUESTION_COUNT} 題完成</div>
+            <div className="text-sm text-brand-mid">{answeredCount} / {QUESTION_COUNT} 題完成</div>
           </div>
           <div className="mt-6 h-3 overflow-hidden rounded-full bg-[#EFEAE0]">
-            <div className="h-full rounded-full bg-[#C8A96E] transition-all duration-500" style={{ width: `${progress}%` }} />
+            <div className="h-full rounded-full bg-brand-gold transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
           <div className="mt-6 rounded-2xl border border-[#DCD1B8] bg-[#F8F5EC] px-5 py-4 text-[#3F5B49] shadow-sm md:flex md:items-center md:justify-between md:gap-6">
             <div>
@@ -531,7 +531,7 @@ export default function HealthAssessment({ onComplete } = {}) {
             {questions.map((question, index) => {
               const currentScore = answers[question.id];
               return (
-                <div key={question.id} className="rounded-2xl border border-[#E5E0D5] bg-[#FDFBF6] p-5">
+                <div key={question.id} className="rounded-2xl border border-brand-border bg-brand-surface p-5">
                   <p className="font-medium leading-7">{index + 1}. {question.text}</p>
                   <div className="mt-4 flex gap-3">
                     {ANSWER_OPTIONS.map((score) => {
@@ -541,7 +541,7 @@ export default function HealthAssessment({ onComplete } = {}) {
                           key={score}
                           type="button"
                           onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: score }))}
-                          className="h-11 w-11 rounded-full border text-sm font-semibold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#C8A96E]/50"
+                          className="h-11 w-11 rounded-full border text-sm font-semibold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand-gold/50"
                           style={{
                             ...SCORE_STYLES[score],
                             boxShadow: active ? "0 0 0 3px rgba(200, 169, 110, 0.32), 0 10px 24px rgba(28, 61, 43, 0.12)" : "none",
@@ -554,7 +554,7 @@ export default function HealthAssessment({ onComplete } = {}) {
                       );
                     })}
                   </div>
-                  <div className="mt-3 text-right text-xs text-[#8B7A4C]">
+                  <div className="mt-3 text-right text-xs text-brand-gold-deep">
                     目前分數：{currentScore != null ? currentScore : "–"} / 5
                   </div>
                 </div>
@@ -562,8 +562,8 @@ export default function HealthAssessment({ onComplete } = {}) {
             })}
           </div>
           <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
-            <button type="button" onClick={resetAssessment} className="rounded-full border border-[#C8A96E] bg-white px-6 py-3 font-medium text-[#1C3D2B] transition hover:bg-[#F5F2EB]">重新抽題</button>
-            <button type="button" disabled={!completed} onClick={runAnalysis} className="inline-flex items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-3 font-medium text-white transition hover:bg-[#28583F] disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
+            <button type="button" onClick={resetAssessment} className="rounded-full border border-brand-gold bg-white px-6 py-3 font-medium text-brand-dark transition hover:bg-brand-surface-2">重新抽題</button>
+            <button type="button" disabled={!completed} onClick={runAnalysis} className="inline-flex items-center gap-2 rounded-full bg-brand-dark px-7 py-3 font-medium text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-[#A9B5AF]">
               交給 AI 分析 <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -571,68 +571,68 @@ export default function HealthAssessment({ onComplete } = {}) {
       )}
 
       {step === 2 && (
-        <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-[#E5E0D5] bg-white p-8 text-center shadow-xl shadow-[#123828]/5">
-          <Loader2 className="h-12 w-12 animate-spin text-[#C8A96E]" />
+        <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-brand-border bg-white p-8 text-center shadow-xl shadow-brand-dark/5">
+          <Loader2 className="h-12 w-12 animate-spin text-brand-gold" />
           <h4 className="mt-6 text-3xl font-semibold">Dr.Marvin 正在生成個人化分析</h4>
-          <p className="mt-4 max-w-lg leading-8 text-[#49675A]">{statusText || "AI 正在比對生活型態、分類分數與植物機能飲品特性。"}</p>
+          <p className="mt-4 max-w-lg leading-8 text-brand-mid">{statusText || "AI 正在比對生活型態、分類分數與植物機能飲品特性。"}</p>
         </div>
       )}
 
       {step === 3 && result && aiResult && (
         <div ref={resultRef} className="space-y-6 scroll-mt-24">
           <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-2xl border border-[#E5E0D5] bg-[#1C3D2B] p-7 text-white shadow-xl shadow-[#123828]/10">
-              <p className="text-sm tracking-[0.24em] text-[#C8A96E]">PHYSIOLOGIC SCORE</p>
+            <div className="rounded-2xl border border-brand-border bg-brand-dark p-7 text-white shadow-xl shadow-brand-dark/10">
+              <p className="text-sm tracking-brand-wider text-brand-gold">PHYSIOLOGIC SCORE</p>
               <div className="mt-4 text-6xl font-semibold">{result.total}<span className="text-xl text-white/50">/{QUESTION_COUNT * 5}</span></div>
-              <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1C3D2B]">{result.levelLabel}</div>
+              <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-dark">{result.levelLabel}</div>
               <p className="mt-5 leading-8 text-white/70">{profile.age} 歲｜{profile.gender}｜7 題健康評估</p>
             </div>
-            <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7 shadow-xl shadow-[#123828]/5">
+            <div className="rounded-2xl border border-brand-border bg-white p-7 shadow-xl shadow-brand-dark/5">
               <h4 className="text-2xl font-semibold">AI 判讀重點</h4>
-              <p className="mt-4 text-lg leading-9 text-[#49675A]">{aiResult.analysis}</p>
+              <p className="mt-4 text-lg leading-9 text-brand-mid">{aiResult.analysis}</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7">
+          <div className="rounded-2xl border border-brand-border bg-white p-7">
             <h4 className="text-2xl font-semibold">基本資料摘要</h4>
-            <div className="mt-5 grid gap-3 text-sm text-[#49675A] md:grid-cols-4">
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">年齡</span><strong className="mt-2 block text-[#1C3D2B]">{profile.age} 歲</strong></div>
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">BMI</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.bmi}</strong></div>
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">職業類型</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.workType}</strong></div>
-              <div className="rounded-2xl bg-[#FDFBF6] p-4"><span className="block text-[#8B7A4C]">運動習慣</span><strong className="mt-2 block text-[#1C3D2B]">{profileSummary.exercise}</strong></div>
+            <div className="mt-5 grid gap-3 text-sm text-brand-mid md:grid-cols-4">
+              <div className="rounded-2xl bg-brand-surface p-4"><span className="block text-brand-gold-deep">年齡</span><strong className="mt-2 block text-brand-dark">{profile.age} 歲</strong></div>
+              <div className="rounded-2xl bg-brand-surface p-4"><span className="block text-brand-gold-deep">BMI</span><strong className="mt-2 block text-brand-dark">{profileSummary.bmi}</strong></div>
+              <div className="rounded-2xl bg-brand-surface p-4"><span className="block text-brand-gold-deep">職業類型</span><strong className="mt-2 block text-brand-dark">{profileSummary.workType}</strong></div>
+              <div className="rounded-2xl bg-brand-surface p-4"><span className="block text-brand-gold-deep">運動習慣</span><strong className="mt-2 block text-brand-dark">{profileSummary.exercise}</strong></div>
             </div>
           </div>
           <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-2xl border border-[#E5E0D5] bg-white p-7 shadow-xl shadow-[#123828]/5">
-              <span className="rounded-full bg-[#1C3D2B] px-4 py-2 text-sm font-medium text-white">AI 首選推薦</span>
+            <div className="rounded-2xl border border-brand-border bg-white p-7 shadow-xl shadow-brand-dark/5">
+              <span className="rounded-full bg-brand-dark px-4 py-2 text-sm font-medium text-white">AI 首選推薦</span>
               <div className="mt-6 h-3 w-24 rounded-full" style={{ backgroundColor: aiResult.product.color }} />
               <h4 className="mt-5 text-3xl font-semibold">{aiResult.product.name}</h4>
-              <p className="mt-3 leading-7 text-[#49675A]">{aiResult.product.desc}</p>
+              <p className="mt-3 leading-7 text-brand-mid">{aiResult.product.desc}</p>
               {aiResult.secondaryProduct && (
-                <div className="mt-5 rounded-2xl bg-[#FDFBF6] p-4">
-                  <div className="text-sm font-semibold text-[#8B7A4C]">輔助推薦</div>
-                  <div className="mt-2 text-xl font-semibold text-[#1C3D2B]">{aiResult.secondaryProduct.name}</div>
-                  <p className="mt-2 text-sm leading-6 text-[#49675A]">{aiResult.secondaryProduct.desc}</p>
+                <div className="mt-5 rounded-2xl bg-brand-surface p-4">
+                  <div className="text-sm font-semibold text-brand-gold-deep">輔助推薦</div>
+                  <div className="mt-2 text-xl font-semibold text-brand-dark">{aiResult.secondaryProduct.name}</div>
+                  <p className="mt-2 text-sm leading-6 text-brand-mid">{aiResult.secondaryProduct.desc}</p>
                 </div>
               )}
             </div>
-            <div className="rounded-2xl border border-[#E5E0D5] bg-[#FDFBF6] p-7">
+            <div className="rounded-2xl border border-brand-border bg-brand-surface p-7">
               <h4 className="text-2xl font-semibold">今天開始的生活改變</h4>
-              <p className="mt-4 text-lg leading-9 text-[#49675A]">{aiResult.lifestyleChange}</p>
-              {saveNotice && <p className={`mt-5 rounded-2xl px-5 py-4 text-sm ${saveStatus === "error" ? "bg-[#FFF7F5] text-[#9A3C2D]" : "bg-white text-[#8B7A4C]"}`}>{saveStatus === "loading" ? "測驗結果儲存中..." : saveNotice}</p>}
+              <p className="mt-4 text-lg leading-9 text-brand-mid">{aiResult.lifestyleChange}</p>
+              {saveNotice && <p className={`mt-5 rounded-2xl px-5 py-4 text-sm ${saveStatus === "error" ? "bg-brand-error-bg text-brand-error" : "bg-white text-brand-gold-deep"}`}>{saveStatus === "loading" ? "測驗結果儲存中..." : saveNotice}</p>}
             </div>
           </div>
-          {!hasJoinedLine && <div className="rounded-[2rem] border-2 border-[#06C755]/50 bg-[#06C755]/5 p-2 shadow-2xl shadow-[#06C755]/15"><UnlockFullReportCard assessmentId={assessmentId} /></div>}
+          {!hasJoinedLine && <div className="rounded-[2rem] border-2 border-line/50 bg-line/5 p-2 shadow-2xl shadow-line/15"><UnlockFullReportCard assessmentId={assessmentId} /></div>}
           <div className={`${hasJoinedLine ? "" : "pointer-events-none select-none blur-sm"} grid gap-5 md:grid-cols-2`}>
             {CATEGORY_ORDER.map((key) => (
-              <div key={key} className="rounded-2xl border border-[#E5E0D5] bg-white p-5">
-                <div className="text-sm text-[#8B7A4C]">{CATEGORY_LABELS[key]}</div>
-                <div className="mt-3 text-3xl font-semibold">{result.categoryScores[key] || 0}<span className="text-sm text-[#7D8D7F]"> / 5 分</span></div>
+              <div key={key} className="rounded-2xl border border-brand-border bg-white p-5">
+                <div className="text-sm text-brand-gold-deep">{CATEGORY_LABELS[key]}</div>
+                <div className="mt-3 text-3xl font-semibold">{result.categoryScores[key] || 0}<span className="text-sm text-brand-muted"> / 5 分</span></div>
               </div>
             ))}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <p className="max-w-3xl text-sm leading-7 text-[#7D8D7F]">本檢測為健康管理與產品建議參考，不能取代專業評估或合格專業人員建議。如有明顯或長期不適，請尋求專業協助。</p>
-            <button type="button" onClick={resetAssessment} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#1C3D2B] px-7 py-4 font-medium text-white transition hover:bg-[#28583F]">
+            <p className="max-w-3xl text-sm leading-7 text-brand-muted">本檢測為健康管理與產品建議參考，不能取代專業評估或合格專業人員建議。如有明顯或長期不適，請尋求專業協助。</p>
+            <button type="button" onClick={resetAssessment} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-brand-dark px-7 py-4 font-medium text-white transition hover:bg-brand-dark">
               <RotateCcw className="h-4 w-4" /> 重新評估
             </button>
           </div>

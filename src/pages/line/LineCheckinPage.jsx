@@ -50,31 +50,31 @@ export default function LineCheckinPage({ route, go }) {
     <LineMemberLayout route={route} go={go} member={member}>
       <div className="px-4 py-8">
 
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8B7A4C]">今日飲用</p>
-        <h1 className="mb-6 text-2xl font-semibold text-[#123828]">今天喝了嗎？</h1>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">今日飲用</p>
+        <h1 className="mb-6 text-2xl font-semibold text-brand-dark">今天喝了嗎？</h1>
 
         {/* 推薦飲品展示 */}
-        <div className="mb-6 rounded-2xl border border-[#E7DDBF] bg-white p-6 text-center">
-          <p className="mb-1 text-xs text-[#8B7A4C]">今日推薦飲品</p>
-          <p className="text-2xl font-semibold text-[#123828]">{drink}</p>
-          <p className="mt-2 text-sm text-[#49675A]">每一口都是給身體的一次修復</p>
+        <div className="mb-6 rounded-2xl border border-brand-border-warm bg-white p-6 text-center">
+          <p className="mb-1 text-xs text-brand-gold-deep">今日推薦飲品</p>
+          <p className="text-2xl font-semibold text-brand-dark">{drink}</p>
+          <p className="mt-2 text-sm text-brand-mid">每一口都是給身體的一次修復</p>
         </div>
 
         {/* 打卡積分預告 */}
         <div className="mb-6 grid grid-cols-3 gap-3 text-center">
-          <div className="rounded-2xl border border-[#E7DDBF] bg-white py-4">
-            <p className="text-lg font-semibold text-[#123828]">+10</p>
-            <p className="text-[10px] text-[#8B7A4C]">生命能量 LE</p>
+          <div className="rounded-2xl border border-brand-border-warm bg-white py-4">
+            <p className="text-lg font-semibold text-brand-dark">+10</p>
+            <p className="text-[10px] text-brand-gold-deep">生命能量 LE</p>
           </div>
-          <div className="rounded-2xl border border-[#E7DDBF] bg-white py-4">
-            <p className="text-lg font-semibold text-[#123828]">+3</p>
-            <p className="text-[10px] text-[#8B7A4C]">健康值</p>
+          <div className="rounded-2xl border border-brand-border-warm bg-white py-4">
+            <p className="text-lg font-semibold text-brand-dark">+3</p>
+            <p className="text-[10px] text-brand-gold-deep">健康值</p>
           </div>
-          <div className="rounded-2xl border border-[#E7DDBF] bg-white py-4">
-            <p className="text-lg font-semibold text-[#123828]">
+          <div className="rounded-2xl border border-brand-border-warm bg-white py-4">
+            <p className="text-lg font-semibold text-brand-dark">
               {member?.streak_days != null ? member.streak_days + 1 : "?"}
             </p>
-            <p className="text-[10px] text-[#8B7A4C]">連續天數</p>
+            <p className="text-[10px] text-brand-gold-deep">連續天數</p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default function LineCheckinPage({ route, go }) {
           <button
             onClick={handleCheckin}
             disabled={state === "loading"}
-            className="w-full rounded-2xl bg-[#123828] py-4 text-sm font-semibold text-white transition disabled:opacity-60 active:scale-98"
+            className="w-full rounded-2xl bg-brand-dark py-4 text-sm font-semibold text-white transition disabled:opacity-60 active:scale-98"
           >
             {state === "loading" ? "記錄中..." : "今天已飲用，完成打卡"}
           </button>
@@ -112,7 +112,7 @@ export default function LineCheckinPage({ route, go }) {
         {(state === "done" || state === "already") && (
           <button
             onClick={() => go("/line/today")}
-            className="mt-3 w-full rounded-2xl border border-[#E7DDBF] bg-white py-4 text-sm font-semibold text-[#123828] transition"
+            className="mt-3 w-full rounded-2xl border border-brand-border-warm bg-white py-4 text-sm font-semibold text-brand-dark transition"
           >
             回到今日狀態
           </button>

@@ -1,4 +1,7 @@
 {
+  "crons": [
+    { "path": "/api/daily-push", "schedule": "0 0 * * *" }
+  ],
   "rewrites": [
     { "source": "/about", "destination": "/" },
     { "source": "/products", "destination": "/" },
