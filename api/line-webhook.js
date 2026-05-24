@@ -24,6 +24,7 @@ const DEFAULT_LIFF_ID = process.env.VITE_LINE_LIFF_ID || "2010068530-ddmtwm5t";
 const LIFF_ENTRY_URL =
   process.env.LINE_LIFF_ENTRY_URL ||
   `https://liff.line.me/${DEFAULT_LIFF_ID}`;
+const MEMBER_RICH_MENU_ID = process.env.LINE_MEMBER_RICH_MENU_ID || "";
 const REPORT_SELECT = "id, inflammation_level, total_score, recommended_products, ai_analysis";
 const REPORT_SELECT_WITH_SHORT_CODE = `${REPORT_SELECT}, short_code`;
 
@@ -81,6 +82,63 @@ function buildLiffUrl(pathname = "/line/entry", attribution = {}) {
   const state = query ? `${pathname}?${query}` : pathname;
   return `${LIFF_ENTRY_URL}?liff.state=${encodeURIComponent(state)}`;
 }
+
+const LIFF_ACTIONS = {
+  member_home: {
+    title: "植本邏輯會員專區",
+    body: "查看今日洞察、LE / CP、打卡入口與 My Dr. Marvin 的最新狀態。",
+    label: "前往會員專區",
+    path: "/line/member-home",
+  },
+  assessment: {
+    title: "My Dr. Marvin",
+    body: "完成 15 題深度檢測，整理你的五維健康分數、生活線索與植萃方向。",
+    label: "開始深度檢測",
+    path: "/line/assessment",
+  },
+  events: {
+    title: "最新活動",
+    body: "查看植本邏輯近期活動、會員優惠與體驗資訊。",
+    label: "查看最新活動",
+    path: "/line/events",
+  },
+  checkin: {
+    title: "今日打卡",
+    body: "記錄今天的飲用、心情、活力與身體感受，累積 LE 幸運能量值。",
+    label: "前往今日打卡",
+    path: "/line/checkin",
+  },
+  reports: {
+    title: "我的報告",
+    body: "查看最新 Dr. Marvin 報告、五維分數與歷史健康紀錄。",
+    label: "查看我的報告",
+    path: "/line/reports",
+  },
+  tasks: {
+    title: "任務中心",
+    body: "完成每日、每週與七日啟動任務，累積 LE 與會員成長進度。",
+    label: "查看任務中心",
+    path: "/line/tasks",
+  },
+  profile: {
+    title: "我的帳戶",
+    body: "查看會員身份、點數、健康資料、加入來源與推薦資訊。",
+    label: "查看我的帳戶",
+    path: "/line/profile",
+  },
+  referral: {
+    title: "推薦好友",
+    body: "取得你的推薦碼與 LINE 分享連結，邀請朋友一起開始健康旅程。",
+    label: "取得推薦連結",
+    path: "/line/referral",
+  },
+  shop: {
+    title: "植萃商城",
+    body: "查看五色植萃與冷鏈訂購資訊，後續可串接 P 點消費流程。",
+    label: "前往植萃商城",
+    path: "/line/shop",
+  },
+};
 
 function getWelcomeCopy(attribution = {}) {
   const source = String(attribution.referral_source || "").trim();
@@ -218,6 +276,79 @@ function buildMemberHomeMessage() {
               type: "uri",
               label: "前往會員專區",
               uri: buildLiffUrl("/line/member-home"),
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
+function buildOpenLiffMessage(actionKey, attribution = {}) {
+  const action = LIFF_ACTIONS[actionKey] || LIFF_ACTIONS.member_home;
+  return buildFlex(action.title, [
+    { title: "LINE 會員入口", text: action.body },
+  ], {
+    type: "uri",
+    label: action.label,
+    uri: buildLiffUrl(action.path, attribution),
+  });
+}
+
+function buildMemberMenuMessage(attribution = {}) {
+  const primaryRows = [
+    ["member_home", "assessment"],
+    ["checkin", "reports"],
+    ["tasks", "profile"],
+    ["referral", "events"],
+  ];
+
+  return {
+    type: "flex",
+    altText: "植本邏輯會員選單",
+    contents: {
+      type: "bubble",
+      styles: {
+        body: { backgroundColor: "#F9F5EA" },
+        footer: { backgroundColor: "#F9F5EA" },
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          textBlock("植本邏輯會員選單", "lg", "bold"),
+          textBlock("選擇你現在要前往的會員功能。", "sm"),
+          { type: "separator", margin: "md", color: "#E7DDBF" },
+          ...primaryRows.map((row) => ({
+            type: "box",
+            layout: "horizontal",
+            spacing: "sm",
+            contents: row.map((key) => ({
+              type: "button",
+              style: "secondary",
+              height: "sm",
+              action: {
+                type: "uri",
+                label: LIFF_ACTIONS[key].label.replace("前往", "").replace("查看", "").slice(0, 12),
+                uri: buildLiffUrl(LIFF_ACTIONS[key].path, attribution),
+              },
+            })),
+          })),
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "button",
+            style: "primary",
+            color: "#243A33",
+            action: {
+              type: "uri",
+              label: "前往植萃商城",
+              uri: buildLiffUrl(LIFF_ACTIONS.shop.path, attribution),
             },
           },
         ],
@@ -467,6 +598,28 @@ async function pushMessage(to, messages) {
   if (!response.ok) {
     const text = await response.text();
     throw new Error(`LINE push failed: ${response.status} ${text}`);
+  }
+}
+
+async function linkMemberRichMenu(userId) {
+  if (!CHANNEL_ACCESS_TOKEN || !MEMBER_RICH_MENU_ID || !userId) return false;
+
+  try {
+    const response = await fetch(`https://api.line.me/v2/bot/user/${userId}/richmenu/${MEMBER_RICH_MENU_ID}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}` },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("[Webhook] member rich menu link failed:", response.status, text);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("[Webhook] member rich menu link failed:", error.message);
+    return false;
   }
 }
 
@@ -738,8 +891,59 @@ async function handleProfileComplete(event) {
 
   const cityClimate = await getCityClimate(supabase, profile.city);
   await replyMessage(event.replyToken, [{ type: "text", text: "派森正在整合你的建檔資料與快篩報告，完整分析稍後送上。" }]);
+  await linkMemberRichMenu(userId);
   const reportJson = await generateFullReport(supabase, profile, assessmentReport, cityClimate);
   await pushMessage(userId, buildReportFlexMessages(reportJson));
+}
+
+async function handlePostbackEvent(event) {
+  const params = new URLSearchParams(event.postback?.data || "");
+  const action = params.get("action") || "member_menu";
+
+  if (action === "profile_complete") {
+    try {
+      await handleProfileComplete(event);
+    } catch (err) {
+      console.error("[Webhook] profile_complete failed:", err);
+      await replyMessage(event.replyToken, [
+        { type: "text", text: "完整報告生成暫時失敗，請稍後再試或聯繫植本邏輯客服。" },
+      ]);
+    }
+    return;
+  }
+
+  if (action === "my_report") {
+    await replyMessage(event.replyToken, [buildReportLookupMessage()]);
+    return;
+  }
+
+  if (action === "member_menu" || action === "help") {
+    await replyMessage(event.replyToken, [buildMemberMenuMessage()]);
+    return;
+  }
+
+  if (LIFF_ACTIONS[action]) {
+    await replyMessage(event.replyToken, [buildOpenLiffMessage(action)]);
+    return;
+  }
+
+  await replyMessage(event.replyToken, [buildMemberMenuMessage()]);
+}
+
+function getKeywordAction(message) {
+  const text = String(message || "").toLowerCase();
+  const keywordRules = [
+    { action: "assessment", keywords: ["marvin", "檢測", "深度", "問卷"] },
+    { action: "checkin", keywords: ["打卡", "飲用", "簽到"] },
+    { action: "reports", keywords: ["我的報告", "歷史紀錄", "健康分數"] },
+    { action: "tasks", keywords: ["任務", "七日", "獎勵"] },
+    { action: "profile", keywords: ["帳戶", "個人資料", "點數", "le", "cp"] },
+    { action: "referral", keywords: ["推薦好友", "推薦碼", "分享"] },
+    { action: "events", keywords: ["活動", "優惠", "公告"] },
+    { action: "shop", keywords: ["商城", "購買", "訂購"] },
+  ];
+
+  return keywordRules.find((rule) => rule.keywords.some((keyword) => text.includes(keyword)))?.action || null;
 }
 
 // 格式化完整健康報告訊息
@@ -775,6 +979,7 @@ export default async function handler(req, res) {
       supabaseJwtRole: getJwtRole(SUPABASE_SERVICE_ROLE_KEY),
       lineSecretConfigured: Boolean(CHANNEL_SECRET),
       lineTokenConfigured: Boolean(CHANNEL_ACCESS_TOKEN),
+      memberRichMenuConfigured: Boolean(MEMBER_RICH_MENU_ID),
     });
   }
 
@@ -807,19 +1012,7 @@ export default async function handler(req, res) {
     }
 
     if (event.type === "postback") {
-      const params = new URLSearchParams(event.postback?.data || "");
-      if (params.get("action") === "profile_complete") {
-        try {
-          await handleProfileComplete(event);
-        } catch (err) {
-          console.error("[Webhook] profile_complete failed:", err);
-          await replyMessage(event.replyToken, [
-            { type: "text", text: "完整報告生成暫時失敗，請稍後再試或聯繫植本邏輯客服。" },
-          ]);
-        }
-      } else if (params.get("action") === "my_report") {
-        await replyMessage(event.replyToken, [buildReportLookupMessage()]);
-      }
+      await handlePostbackEvent(event);
       continue;
     }
 
@@ -829,7 +1022,7 @@ export default async function handler(req, res) {
     const replyToken = event.replyToken;
 
     if (isMemberEntryKeyword(userMessage)) {
-      await replyMessage(replyToken, [buildMemberHomeMessage()]);
+      await replyMessage(replyToken, [buildMemberMenuMessage()]);
       continue;
     }
 
@@ -907,18 +1100,19 @@ export default async function handler(req, res) {
       continue;
     }
 
+    const keywordAction = getKeywordAction(userMessage);
+    if (keywordAction) {
+      await replyMessage(replyToken, [buildOpenLiffMessage(keywordAction)]);
+      continue;
+    }
+
     if (userMessage.includes("飲品") || userMessage.includes("推薦")) {
       await replyMessage(replyToken, [buildProductIntroMessage()]);
       continue;
     }
 
     // 預設回覆
-    await replyMessage(replyToken, [
-      {
-        type: "text",
-        text: "嗨！我是植本邏輯的健康助理 🌿\n\n您可以：\n• 輸入 8 碼報告編號查詢健康分析\n• 輸入「推薦」了解各款飲品\n• 前往官網進行派森分析\n\nhttps://phytologic.tw",
-      },
-    ]);
+    await replyMessage(replyToken, [buildMemberMenuMessage()]);
   }
 
   return res.status(200).json({ status: "ok" });
