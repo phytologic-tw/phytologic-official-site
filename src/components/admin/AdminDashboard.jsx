@@ -21,6 +21,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { supabase } from "../../lib/supabase";
 import {
   createRecord,
   deleteRecord,
@@ -47,6 +48,7 @@ const dangerClass = "inline-flex items-center justify-center gap-2 rounded-full 
 const nav = [
   { label: "Dashboard", title: "總覽儀表板", path: "/admin/dashboard", icon: LayoutDashboard },
   { label: "合作夥伴", title: "合作夥伴管理", path: "/admin/partners", icon: Users },
+  { label: "推廣人", title: "推廣人管理", path: "/admin/promoters", icon: BarChart3 },
   { label: "最新消息", title: "最新消息管理", path: "/admin/news", icon: Newspaper },
   { label: "精彩剪影", title: "精彩剪影管理", path: "/admin/gallery", icon: ImageIcon },
   { label: "快篩結果", title: "快篩結果查閱", path: "/admin/assessments", icon: Activity },
@@ -56,6 +58,7 @@ const nav = [
 
 const blankNews = { title: "", category: "品牌活動", summary: "", content: "", cover_image_url: "", status: "draft", is_pinned: false };
 const blankGallery = { title: "", type: "photo", category: "活動現場", media_url: "", thumbnail_url: "", description: "", status: "draft" };
+const blankPromoter = { id: "", type: "store", name: "", region: "", contact: "", cp_per_referral: 0, cp_per_first_purchase: 0, is_active: true, notes: "" };
 
 function formatDate(value) {
   return value ? new Date(value).toLocaleString("zh-TW", { dateStyle: "short", timeStyle: "short" }) : "-";
@@ -73,6 +76,29 @@ function exportJSON(table, rows) {
 
 function exportCSV(table, rows) {
   downloadText(`${table}_${new Date().toISOString().slice(0, 10)}.csv`, rowsToCSV(rows), "text/csv;charset=utf-8");
+}
+
+async function getAdminToken() {
+  if (!supabase) throw new Error("Supabase 尚未設定。");
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) throw new Error("後台登入已逾時，請重新登入。");
+  return token;
+}
+
+async function promoterRequest(path, options = {}) {
+  const token = await getAdminToken();
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {}),
+    },
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "推廣人 API 失敗");
+  return result;
 }
 
 function Notice({ type = "info", children }) {
@@ -325,6 +351,143 @@ function PartnersAdmin({ session }) {
   );
 }
 
+function PromotersAdmin() {
+  const [promoters, setPromoters] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(blankPromoter);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const refresh = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [manageResult, statsResult] = await Promise.all([
+        promoterRequest("/api/promoter/manage"),
+        promoterRequest("/api/promoter/stats"),
+      ]);
+      setPromoters(manageResult.promoters || []);
+      setStats(statsResult);
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { refresh(); }, []);
+
+  const filtered = promoters.filter((item) => matches(item, query, ["id", "name", "type", "region", "contact"]));
+  const statsById = new Map((stats?.promoters || []).map((item) => [item.id, item]));
+
+  function edit(row) {
+    setEditing(row);
+    setForm({ ...blankPromoter, ...row });
+  }
+
+  async function save(event) {
+    event.preventDefault();
+    const method = editing ? "PATCH" : "POST";
+    await promoterRequest("/api/promoter/manage", {
+      method,
+      body: JSON.stringify(form),
+    });
+    setEditing(null);
+    setForm(blankPromoter);
+    refresh();
+  }
+
+  async function remove(row) {
+    if (!window.confirm(`確定刪除推廣人 ${row.id}？`)) return;
+    await promoterRequest(`/api/promoter/manage?id=${encodeURIComponent(row.id)}`, { method: "DELETE" });
+    refresh();
+  }
+
+  async function toggle(row) {
+    await promoterRequest("/api/promoter/manage", {
+      method: "PATCH",
+      body: JSON.stringify({ ...row, is_active: row.is_active === false }),
+    });
+    refresh();
+  }
+
+  async function award(row) {
+    if (!window.confirm(`確認嘗試結算 ${row.id} 的 CP？會員型推廣人會直接入帳，其餘會回傳手動結算提示。`)) return;
+    const result = await promoterRequest("/api/promoter/award-cp", {
+      method: "POST",
+      body: JSON.stringify({ promoterId: row.id }),
+    });
+    window.alert(result.success ? `已發放 ${result.awardAmount} CP` : result.message || "此推廣人需手動結算");
+    refresh();
+  }
+
+  async function copyLink(row) {
+    const link = row.line_url || `https://line.me/R/ti/p/@phytologic?ref=${encodeURIComponent(row.id)}&src=referral`;
+    await navigator.clipboard.writeText(link);
+    window.alert("已複製推廣連結。");
+  }
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
+      <form onSubmit={save} className="rounded-lg border border-brand-border-warm bg-white/85 p-5">
+        <h2 className="text-xl font-semibold">{editing ? "編輯推廣人" : "新增推廣人"}</h2>
+        <div className="mt-5 grid gap-4">
+          <Field label="推廣人 ID"><input className={inputClass} value={form.id} onChange={(e) => setForm({ ...form, id: e.target.value.toUpperCase() })} placeholder="P_STORE_KH01" required disabled={Boolean(editing)} /></Field>
+          <Field label="類型"><select className={inputClass} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>{["store", "partner", "member", "kol", "event"].map((x) => <option key={x}>{x}</option>)}</select></Field>
+          <Field label="名稱"><input className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
+          <Field label="區域"><input className={inputClass} value={form.region || ""} onChange={(e) => setForm({ ...form, region: e.target.value })} placeholder="KH / Taipei / Event" /></Field>
+          <Field label="聯絡資訊"><input className={inputClass} value={form.contact || ""} onChange={(e) => setForm({ ...form, contact: e.target.value })} /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="推薦 CP"><input className={inputClass} type="number" min="0" value={form.cp_per_referral || 0} onChange={(e) => setForm({ ...form, cp_per_referral: Number(e.target.value) })} /></Field>
+            <Field label="首購 CP"><input className={inputClass} type="number" min="0" value={form.cp_per_first_purchase || 0} onChange={(e) => setForm({ ...form, cp_per_first_purchase: Number(e.target.value) })} /></Field>
+          </div>
+          <Field label="備註"><textarea className={inputClass} rows="3" value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_active !== false} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} /> 啟用</label>
+          <button className={buttonClass}><Plus className="h-4 w-4" />儲存</button>
+          {editing && <button type="button" className={ghostClass} onClick={() => { setEditing(null); setForm(blankPromoter); }}>取消</button>}
+        </div>
+      </form>
+
+      <section>
+        <div className="mb-5 grid gap-3 md:grid-cols-4">
+          <StatCard label="推廣人數" value={stats?.summary?.promoters_count || 0} />
+          <StatCard label="啟用中" value={stats?.summary?.active_promoters_count || 0} />
+          <StatCard label="帶入會員" value={stats?.summary?.referred_members_count || 0} />
+          <StatCard label="未建檔來源" value={stats?.orphan_promoters?.length || 0} />
+        </div>
+        <Toolbar search={query} setSearch={setQuery} onExport={() => exportCSV("promoters", filtered)} />
+        {loading && <Notice>推廣人資料載入中...</Notice>}
+        {error && <Notice type="error">{error}</Notice>}
+        <AdminTable data={filtered} columns={[
+          { key: "id", label: "ID" },
+          { key: "name", label: "名稱" },
+          { key: "type", label: "類型" },
+          { key: "region", label: "區域" },
+          { key: "is_active", label: "狀態", render: (v) => <StatusBadge status={v === false ? "archived" : "approved"} /> },
+          { key: "referred", label: "帶入", render: (_v, row) => `${statsById.get(row.id)?.referred_count || 0} 人` },
+          { key: "cp_per_referral", label: "CP/推薦" },
+        ]} actions={(row) => [
+          <button key="edit" className={ghostClass} onClick={() => edit(row)}><Pencil className="h-4 w-4" />編輯</button>,
+          <button key="copy" className={ghostClass} onClick={() => copyLink(row)}><Download className="h-4 w-4" />複製連結</button>,
+          <button key="toggle" className={ghostClass} onClick={() => toggle(row)}>{row.is_active === false ? "啟用" : "停用"}</button>,
+          <button key="award" className={ghostClass} onClick={() => award(row)}>結算 CP</button>,
+          <button key="del" className={dangerClass} onClick={() => remove(row)}><Trash2 className="h-4 w-4" />刪除</button>,
+        ]} />
+      </section>
+    </div>
+  );
+}
+
+function StatCard({ label, value }) {
+  return (
+    <article className="rounded-lg border border-brand-border-warm bg-white/85 p-4">
+      <p className="text-2xl font-semibold text-brand-dark">{value}</p>
+      <p className="mt-1 text-xs text-brand-gold-deep">{label}</p>
+    </article>
+  );
+}
+
 function NewsAdmin({ session }) {
   const { items, loading, error, refresh } = useAdminRecords("announcements", session);
   const [query, setQuery] = useState("");
@@ -473,6 +636,7 @@ function Shell({ route, go, session, setSession }) {
     go("/admin");
   }
   const page = currentPath === "/admin/partners" ? <PartnersAdmin session={session} />
+    : currentPath === "/admin/promoters" ? <PromotersAdmin session={session} />
     : currentPath === "/admin/news" ? <NewsAdmin session={session} />
     : currentPath === "/admin/gallery" ? <GalleryAdmin session={session} />
     : currentPath === "/admin/assessments" ? <AssessmentsAdmin session={session} />
