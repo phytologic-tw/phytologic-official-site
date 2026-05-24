@@ -7,7 +7,7 @@ const logo = "/logo.png";
 
 const NAV_ITEMS = [
   { path: "/line/today",      label: "今日",   icon: "☀️" },
-  { path: "/line/assessment", label: "分析",   icon: "🌿" },
+  { path: "/line/analysis",   label: "分析",   icon: "🌿" },
   { path: "/line/checkin",    label: "飲用",   icon: "✓"  },
   { path: "/line/profile",    label: "我的",   icon: "⊙"  },
   { path: "/line/tasks",      label: "任務",   icon: "◈"  },

@@ -13,12 +13,7 @@
     { "source": "/gallery", "destination": "/" },
     { "source": "/admin", "destination": "/" },
     { "source": "/admin/:path*", "destination": "/" },
-    { "source": "/line/entry", "destination": "/" },
-    { "source": "/line/today", "destination": "/" },
-    { "source": "/line/checkin", "destination": "/" },
-    { "source": "/line/profile", "destination": "/" },
-    { "source": "/line/tasks", "destination": "/" },
-    { "source": "/line/shop", "destination": "/" },
-    { "source": "/line/assessment", "destination": "/" }
+    { "source": "/line", "destination": "/" },
+    { "source": "/line/:path*", "destination": "/" }
   ]
 }

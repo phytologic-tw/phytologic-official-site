@@ -14,6 +14,14 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
+-- 舊版 admin schema 曾把 profiles.id 綁到 auth.users(id)。
+-- LINE/LIFF 會員不是 Supabase Auth user，必須移除這個 FK 才能自動建檔。
+alter table public.profiles
+  drop constraint if exists profiles_id_fkey;
+
+alter table public.profiles
+  alter column id set default gen_random_uuid();
+
 -- ------------------------------------------------------------
 -- STEP 2：LINE 身份欄位
 -- ------------------------------------------------------------

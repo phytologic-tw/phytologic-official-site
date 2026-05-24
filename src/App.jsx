@@ -26,12 +26,14 @@ import FloatingLineButton from "./components/line/FloatingLineButton";
 import LineQRCode from "./components/line/LineQRCode";
 import { handleOpenLine } from "./components/line/lineConfig";
 import { listPublicRecords, submitPublicRecord } from "./lib/adminData";
-import LineEntry from "./pages/line/LineEntry";
-import LineTodayPage from "./pages/line/LineTodayPage";
-import LineCheckinPage from "./pages/line/LineCheckinPage";
-import LineProfilePage from "./pages/line/LineProfilePage";
-import LineTasksPage from "./pages/line/LineTasksPage";
-import LineShopPage from "./pages/line/LineShopPage";
+
+const LineEntry = React.lazy(() => import("./pages/line/LineEntry"));
+const LineTodayPage = React.lazy(() => import("./pages/line/LineTodayPage"));
+const LineAnalysisPage = React.lazy(() => import("./pages/line/LineAnalysisPage"));
+const LineCheckinPage = React.lazy(() => import("./pages/line/LineCheckinPage"));
+const LineProfilePage = React.lazy(() => import("./pages/line/LineProfilePage"));
+const LineTasksPage = React.lazy(() => import("./pages/line/LineTasksPage"));
+const LineShopPage = React.lazy(() => import("./pages/line/LineShopPage"));
 
 const logo = "/logo.png";
 const lineId = "@phytologic";
@@ -713,9 +715,13 @@ function useRoute() {
 
     try {
       const decodedPath = decodeURIComponent(liffState);
-      if (decodedPath.startsWith("/line/")) {
-        window.history.replaceState({}, "", decodedPath);
-        return decodedPath;
+      const nextPath = decodedPath.startsWith("http")
+        ? new URL(decodedPath).pathname
+        : decodedPath.split("?")[0];
+
+      if (nextPath === "/line" || nextPath.startsWith("/line/")) {
+        window.history.replaceState({}, "", nextPath);
+        return nextPath;
       }
     } catch {
       return window.location.pathname;
@@ -1532,53 +1538,72 @@ function Footer({ go }) {
 export default function PhytologicWebsite() {
   const [route, go] = useRoute();
   const isAdminRoute = route === "/admin" || route.startsWith("/admin/");
-  const isLineRoute = route.startsWith("/line/");
+  const isLineRoute = route === "/line" || route.startsWith("/line/");
+
+  if (isLineRoute) {
+    const linePage = route === "/line" || route === "/line/entry"
+      ? <LineEntry go={go} />
+      : route === "/line/today"
+      ? <LineTodayPage route={route} go={go} />
+      : route === "/line/analysis"
+      ? <LineAnalysisPage route={route} go={go} />
+      : route === "/line/checkin"
+      ? <LineCheckinPage route={route} go={go} />
+      : route === "/line/profile"
+      ? <LineProfilePage route={route} go={go} />
+      : route === "/line/tasks"
+      ? <LineTasksPage route={route} go={go} />
+      : route === "/line/shop"
+      ? <LineShopPage route={route} go={go} />
+      : route === "/line/assessment"
+      ? (
+        <div>
+          <div className="bg-brand-bg px-4 py-3">
+            <button
+              onClick={() => go("/line/today")}
+              className="bg-transparent text-sm font-medium text-brand-dark"
+            >
+              ← 返回今日
+            </button>
+          </div>
+          <HealthAssessment
+            lineMode={true}
+            onComplete={async (assessmentResult) => {
+              const stored = sessionStorage.getItem("line_member");
+              if (stored) {
+                const member = JSON.parse(stored);
+                const { updateMemberHealth, getMemberByLineId } = await import("./lib/memberProfile");
+                await updateMemberHealth(member.line_user_id, {
+                  healthType: assessmentResult?.recommendations?.primary?.name || "抗發炎修復",
+                  recommendedDrink: assessmentResult?.recommendations?.primary?.name || "雪山植萃",
+                  ageGroup: member.age_group,
+                });
+                const updated = await getMemberByLineId(member.line_user_id);
+                if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
+              }
+              go("/line/today");
+            }}
+          />
+        </div>
+      )
+      : <LineEntry go={go} />;
+
+    return (
+      <React.Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center bg-brand-bg text-sm text-brand-mid">
+            載入中...
+          </div>
+        }
+      >
+        {linePage}
+      </React.Suspense>
+    );
+  }
+
   const productMatch = route.match(/^\/products\/([^/]+)$/);
   const page = isAdminRoute
     ? <AdminDashboard route={route} go={go} />
-    : route === "/line/entry"
-    ? <LineEntry go={go} />
-    : route === "/line/today"
-    ? <LineTodayPage route={route} go={go} />
-    : route === "/line/checkin"
-    ? <LineCheckinPage route={route} go={go} />
-    : route === "/line/profile"
-    ? <LineProfilePage route={route} go={go} />
-    : route === "/line/tasks"
-    ? <LineTasksPage route={route} go={go} />
-    : route === "/line/shop"
-    ? <LineShopPage route={route} go={go} />
-    : route === "/line/assessment"
-    ? (
-      <div>
-        <div className="bg-brand-bg px-4 py-3">
-          <button
-            onClick={() => go("/line/today")}
-            className="bg-transparent text-sm font-medium text-brand-dark"
-          >
-            ← 返回今日
-          </button>
-        </div>
-        <HealthAssessment
-          lineMode={true}
-          onComplete={async (assessmentResult) => {
-            const stored = sessionStorage.getItem("line_member");
-            if (stored) {
-              const member = JSON.parse(stored);
-              const { updateMemberHealth, getMemberByLineId } = await import("./lib/memberProfile");
-              await updateMemberHealth(member.line_user_id, {
-                healthType: assessmentResult?.recommendations?.primary?.name || "抗發炎修復",
-                recommendedDrink: assessmentResult?.recommendations?.primary?.name || "雪山植萃",
-                ageGroup: member.age_group,
-              });
-              const updated = await getMemberByLineId(member.line_user_id);
-              if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
-            }
-            go("/line/today");
-          }}
-        />
-      </div>
-    )
     : route === "/about"
     ? <AboutPage />
     : route === "/products"

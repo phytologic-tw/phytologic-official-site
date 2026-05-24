@@ -112,7 +112,7 @@ export default function LineProfilePage({ route, go }) {
         {/* 重新做分析 */}
         {!member.health_type && (
           <button
-            onClick={() => go("/line/assessment")}
+            onClick={() => go("/line/analysis")}
             className="mt-5 w-full rounded-2xl border border-brand-border-gold bg-white py-4 text-sm font-semibold text-brand-dark"
           >
             完成派森分析，了解你的健康特質
