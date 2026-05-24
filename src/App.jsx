@@ -31,8 +31,10 @@ const LineEntry = React.lazy(() => import("./pages/line/LineEntry"));
 const LineMemberHomePage = React.lazy(() => import("./pages/line/LineMemberHomePage"));
 const LineTodayPage = React.lazy(() => import("./pages/line/LineTodayPage"));
 const LineAnalysisPage = React.lazy(() => import("./pages/line/LineAnalysisPage"));
+const LineAssessmentPage = React.lazy(() => import("./pages/line/LineAssessmentPage"));
 const LineCheckinPage = React.lazy(() => import("./pages/line/LineCheckinPage"));
 const LineProfilePage = React.lazy(() => import("./pages/line/LineProfilePage"));
+const LineReportsPage = React.lazy(() => import("./pages/line/LineReportsPage"));
 const LineTasksPage = React.lazy(() => import("./pages/line/LineTasksPage"));
 const LineShopPage = React.lazy(() => import("./pages/line/LineShopPage"));
 
@@ -1552,6 +1554,8 @@ export default function PhytologicWebsite() {
       ? <LineTodayPage route={route} go={go} />
       : route === "/line/analysis"
       ? <LineAnalysisPage route={route} go={go} />
+      : route === "/line/reports"
+      ? <LineReportsPage route={route} go={go} />
       : route === "/line/checkin"
       ? <LineCheckinPage route={route} go={go} />
       : route === "/line/profile"
@@ -1561,36 +1565,7 @@ export default function PhytologicWebsite() {
       : route === "/line/shop"
       ? <LineShopPage route={route} go={go} />
       : route === "/line/assessment"
-      ? (
-        <div>
-          <div className="bg-brand-bg px-4 py-3">
-            <button
-              onClick={() => go("/line/member-home")}
-              className="bg-transparent text-sm font-medium text-brand-dark"
-            >
-              ← 返回今日
-            </button>
-          </div>
-          <HealthAssessment
-            lineMode={true}
-            onComplete={async (assessmentResult) => {
-              const stored = sessionStorage.getItem("line_member");
-              if (stored) {
-                const member = JSON.parse(stored);
-                const { updateMemberHealth, getMemberByLineId } = await import("./lib/memberProfile");
-                await updateMemberHealth(member.line_user_id, {
-                  healthType: assessmentResult?.recommendations?.primary?.name || "抗發炎修復",
-                  recommendedDrink: assessmentResult?.recommendations?.primary?.name || "雪山植萃",
-                  ageGroup: member.age_group,
-                });
-                const updated = await getMemberByLineId(member.line_user_id);
-                if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
-              }
-              go("/line/member-home");
-            }}
-          />
-        </div>
-      )
+      ? <LineAssessmentPage route={route} go={go} />
       : <LineEntry go={go} />;
 
     return (
