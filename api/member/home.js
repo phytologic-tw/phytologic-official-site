@@ -108,6 +108,7 @@ export default async function handler(req, res) {
       today_checkin: todayCheckin,
       has_checked_in_today: Boolean(todayCheckin),
       daily_insight: profile.daily_insight || buildFallbackInsight(profile),
+      daily_insight_generated: Boolean(profile.daily_insight),
       reports_count: reportsResult.error ? 0 : reportsResult.count || 0,
       latest_report: latestReport,
       announcements,

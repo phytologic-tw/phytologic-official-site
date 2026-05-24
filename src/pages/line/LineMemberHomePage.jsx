@@ -63,6 +63,30 @@ export default function LineMemberHomePage({ route, go }) {
         setHomeData(result);
         setMember(result.profile);
         sessionStorage.setItem("line_member", JSON.stringify(result.profile));
+
+        if (!result.daily_insight_generated) {
+          fetch("/api/dr-marvin/insight", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lineUserId: storedMember.line_user_id }),
+          })
+            .then((response) => response.json())
+            .then((insightResult) => {
+              if (!insightResult?.daily_insight) return;
+              setHomeData((current) => current ? {
+                ...current,
+                daily_insight: insightResult.daily_insight,
+                daily_insight_generated: true,
+              } : current);
+              if (insightResult.profile) {
+                setMember(insightResult.profile);
+                sessionStorage.setItem("line_member", JSON.stringify(insightResult.profile));
+              }
+            })
+            .catch((insightError) => {
+              console.error("[LineMemberHomePage] insight generation failed:", insightError);
+            });
+        }
       } catch (error) {
         console.error("[LineMemberHomePage] load failed:", error);
         setErrorMsg(error.message);
