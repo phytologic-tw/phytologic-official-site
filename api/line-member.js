@@ -1,4 +1,4 @@
-import { calcLifeNumber, calcZodiac } from "./prompts.js";
+import { calcLifeNumber, calcZodiac } from "./_prompts.js";
 import {
   getSupabaseAdmin,
   normalizeAttribution,

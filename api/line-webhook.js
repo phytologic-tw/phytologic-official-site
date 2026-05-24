@@ -10,7 +10,7 @@ import {
   calcZodiac,
   getBloodTypeTrait,
   getLifeNumberTrait,
-} from "./prompts.js";
+} from "./_prompts.js";
 import { normalizeAttribution, pickDefinedEntries } from "./_member-utils.js";
 
 const CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;

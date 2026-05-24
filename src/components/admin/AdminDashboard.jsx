@@ -365,8 +365,8 @@ function PromotersAdmin() {
     setError("");
     try {
       const [manageResult, statsResult] = await Promise.all([
-        promoterRequest("/api/promoter/manage"),
-        promoterRequest("/api/promoter/stats"),
+        promoterRequest("/api/promoter?action=manage"),
+        promoterRequest("/api/promoter?action=stats"),
       ]);
       setPromoters(manageResult.promoters || []);
       setStats(statsResult);
@@ -389,7 +389,7 @@ function PromotersAdmin() {
   async function save(event) {
     event.preventDefault();
     const method = editing ? "PATCH" : "POST";
-    await promoterRequest("/api/promoter/manage", {
+    await promoterRequest("/api/promoter?action=manage", {
       method,
       body: JSON.stringify(form),
     });
@@ -400,12 +400,12 @@ function PromotersAdmin() {
 
   async function remove(row) {
     if (!window.confirm(`確定刪除推廣人 ${row.id}？`)) return;
-    await promoterRequest(`/api/promoter/manage?id=${encodeURIComponent(row.id)}`, { method: "DELETE" });
+    await promoterRequest(`/api/promoter?action=manage&id=${encodeURIComponent(row.id)}`, { method: "DELETE" });
     refresh();
   }
 
   async function toggle(row) {
-    await promoterRequest("/api/promoter/manage", {
+    await promoterRequest("/api/promoter?action=manage", {
       method: "PATCH",
       body: JSON.stringify({ ...row, is_active: row.is_active === false }),
     });
@@ -414,7 +414,7 @@ function PromotersAdmin() {
 
   async function award(row) {
     if (!window.confirm(`確認嘗試結算 ${row.id} 的 CP？會員型推廣人會直接入帳，其餘會回傳手動結算提示。`)) return;
-    const result = await promoterRequest("/api/promoter/award-cp", {
+    const result = await promoterRequest("/api/promoter?action=award-cp", {
       method: "POST",
       body: JSON.stringify({ promoterId: row.id }),
     });

@@ -6,7 +6,7 @@ import {
   calcLifeNumber,
   getBloodTypeTrait,
   getLifeNumberTrait,
-} from "../prompts.js";
+} from "../_prompts.js";
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
