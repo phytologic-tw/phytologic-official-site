@@ -6,7 +6,6 @@ const LIFF_APP_ID = process.env.VITE_LINE_LIFF_ID || "2010068530-ddmtwm5t";
 const LIFF_ENTRY_URL = process.env.LINE_LIFF_ENTRY_URL || `https://liff.line.me/${LIFF_APP_ID}`;
 const SITE_URL = "https://www.phytologic.tw";
 const RICH_MENU_IMAGE_PATH = path.join(process.cwd(), "public", "phytologic_richmenu_v4.png");
-const ROW_HEIGHT = 281;
 
 export const richMenuConfig = {
   size: {
@@ -18,27 +17,27 @@ export const richMenuConfig = {
   chatBarText: "植本邏輯選單",
   areas: [
     {
-      bounds: { x: 0, y: 0, width: 2500, height: ROW_HEIGHT },
+      bounds: { x: 0, y: 0, width: 833, height: 843 },
       action: { type: "uri", label: "健康快篩", uri: `${SITE_URL}/assessment` },
     },
     {
-      bounds: { x: 0, y: ROW_HEIGHT, width: 2500, height: ROW_HEIGHT },
+      bounds: { x: 833, y: 0, width: 834, height: 843 },
       action: { type: "uri", label: "我的會員", uri: LIFF_ENTRY_URL },
     },
     {
-      bounds: { x: 0, y: ROW_HEIGHT * 2, width: 2500, height: ROW_HEIGHT },
+      bounds: { x: 1667, y: 0, width: 833, height: 843 },
       action: { type: "postback", label: "我的報告", data: "action=my_report" },
     },
     {
-      bounds: { x: 0, y: ROW_HEIGHT * 3, width: 2500, height: ROW_HEIGHT },
+      bounds: { x: 0, y: 843, width: 833, height: 843 },
       action: { type: "uri", label: "今日打卡", uri: `${LIFF_ENTRY_URL}?liff.state=/line/checkin` },
     },
     {
-      bounds: { x: 0, y: ROW_HEIGHT * 4, width: 2500, height: ROW_HEIGHT },
+      bounds: { x: 833, y: 843, width: 834, height: 843 },
       action: { type: "uri", label: "訂購植萃", uri: SITE_URL },
     },
     {
-      bounds: { x: 0, y: ROW_HEIGHT * 5, width: 2500, height: ROW_HEIGHT },
+      bounds: { x: 1667, y: 843, width: 833, height: 843 },
       action: { type: "uri", label: "聯絡我們", uri: SITE_URL },
     },
   ],
