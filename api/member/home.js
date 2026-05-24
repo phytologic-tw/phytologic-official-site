@@ -116,7 +116,7 @@ export default async function handler(req, res) {
         { id: "checkin", label: "今日打卡", path: "/line/checkin", status: todayCheckin ? "done" : "ready" },
         { id: "reports", label: "我的報告", path: "/line/reports", status: latestReport ? "ready" : "empty" },
         { id: "assessment", label: "My Dr. Marvin", path: "/line/assessment", status: "ready" },
-        { id: "shop", label: "植萃商城", path: "/line/shop", status: "preview" },
+        { id: "shop", label: "植萃商城", path: "/line/shop", status: "ready" },
         { id: "tasks", label: "任務中心", path: "/line/tasks", status: "preview" },
         { id: "profile", label: "我的帳戶", path: "/line/profile", status: "ready" },
         { id: "referral", label: "推薦好友", path: "/line/referral", status: "ready" },
