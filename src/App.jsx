@@ -36,6 +36,7 @@ const LineCheckinPage = React.lazy(() => import("./pages/line/LineCheckinPage"))
 const LineProfilePage = React.lazy(() => import("./pages/line/LineProfilePage"));
 const LineReportsPage = React.lazy(() => import("./pages/line/LineReportsPage"));
 const LineTasksPage = React.lazy(() => import("./pages/line/LineTasksPage"));
+const LineEventsPage = React.lazy(() => import("./pages/line/LineEventsPage"));
 const LineShopPage = React.lazy(() => import("./pages/line/LineShopPage"));
 
 const logo = "/logo.png";
@@ -1562,6 +1563,8 @@ export default function PhytologicWebsite() {
       ? <LineProfilePage route={route} go={go} />
       : route === "/line/tasks"
       ? <LineTasksPage route={route} go={go} />
+      : route === "/line/events"
+      ? <LineEventsPage route={route} go={go} />
       : route === "/line/shop"
       ? <LineShopPage route={route} go={go} />
       : route === "/line/assessment"

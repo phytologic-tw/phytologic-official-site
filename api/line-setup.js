@@ -4,8 +4,12 @@ import path from "path";
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 const LIFF_APP_ID = process.env.VITE_LINE_LIFF_ID || "2010068530-ddmtwm5t";
 const LIFF_ENTRY_URL = process.env.LINE_LIFF_ENTRY_URL || `https://liff.line.me/${LIFF_APP_ID}`;
-const SITE_URL = "https://www.phytologic.tw";
-const RICH_MENU_IMAGE_PATH = path.join(process.cwd(), "public", "phytologic_richmenu_v4.png");
+const RICH_MENU_IMAGE_FILE = "phytologic_richmenu_v5.png";
+const RICH_MENU_IMAGE_PATH = path.join(process.cwd(), "public", RICH_MENU_IMAGE_FILE);
+
+function buildLiffUrl(pathname) {
+  return `${LIFF_ENTRY_URL}?liff.state=${encodeURIComponent(pathname)}`;
+}
 
 export const richMenuConfig = {
   size: {
@@ -13,32 +17,20 @@ export const richMenuConfig = {
     height: 1686,
   },
   selected: true,
-  name: "PHYTOLOGIC Member Menu",
+  name: "PHYTOLOGIC Member Menu V2",
   chatBarText: "植本邏輯選單",
   areas: [
     {
-      bounds: { x: 0, y: 0, width: 833, height: 843 },
-      action: { type: "uri", label: "健康快篩", uri: `${SITE_URL}/assessment` },
+      bounds: { x: 0, y: 0, width: 833, height: 1686 },
+      action: { type: "uri", label: "會員專區", uri: buildLiffUrl("/line/member-home") },
     },
     {
-      bounds: { x: 833, y: 0, width: 834, height: 843 },
-      action: { type: "uri", label: "我的會員", uri: LIFF_ENTRY_URL },
+      bounds: { x: 833, y: 0, width: 834, height: 1686 },
+      action: { type: "uri", label: "My Dr. Marvin", uri: buildLiffUrl("/line/assessment") },
     },
     {
-      bounds: { x: 1667, y: 0, width: 833, height: 843 },
-      action: { type: "postback", label: "我的報告", data: "action=my_report" },
-    },
-    {
-      bounds: { x: 0, y: 843, width: 833, height: 843 },
-      action: { type: "uri", label: "今日打卡", uri: `${LIFF_ENTRY_URL}?liff.state=/line/checkin` },
-    },
-    {
-      bounds: { x: 833, y: 843, width: 834, height: 843 },
-      action: { type: "uri", label: "訂購植萃", uri: SITE_URL },
-    },
-    {
-      bounds: { x: 1667, y: 843, width: 833, height: 843 },
-      action: { type: "uri", label: "聯絡我們", uri: SITE_URL },
+      bounds: { x: 1667, y: 0, width: 833, height: 1686 },
+      action: { type: "uri", label: "最新活動", uri: buildLiffUrl("/line/events") },
     },
   ],
 };
@@ -81,11 +73,11 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     return res.status(200).json({
       richMenu: richMenuConfig,
-      imagePath: "public/phytologic_richmenu_v4.png",
+      imagePath: `public/${RICH_MENU_IMAGE_FILE}`,
       trigger: {
         method: "POST",
         path: "/api/line-setup",
-        note: "Creates the Rich Menu, uploads public/phytologic_richmenu_v4.png, then sets it as default.",
+        note: `Creates the Rich Menu, uploads public/${RICH_MENU_IMAGE_FILE}, then sets it as default.`,
       },
       cleanup: {
         method: "DELETE",
@@ -142,7 +134,7 @@ export default async function handler(req, res) {
     if (!fs.existsSync(RICH_MENU_IMAGE_PATH)) {
       return res.status(400).json({
         success: false,
-        error: "Missing public/phytologic_richmenu_v4.png",
+        error: `Missing public/${RICH_MENU_IMAGE_FILE}`,
         richMenu: richMenuConfig,
       });
     }
