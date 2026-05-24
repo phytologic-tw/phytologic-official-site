@@ -118,7 +118,7 @@ export default async function handler(req, res) {
         { id: "shop", label: "植萃商城", path: "/line/shop", status: "preview" },
         { id: "tasks", label: "任務中心", path: "/line/tasks", status: "preview" },
         { id: "profile", label: "我的帳戶", path: "/line/profile", status: "ready" },
-        { id: "referral", label: "推薦好友", path: "/line/referral", status: "preview" },
+        { id: "referral", label: "推薦好友", path: "/line/referral", status: "ready" },
         { id: "events", label: "最新活動", path: "/line/events", status: "preview" },
       ],
     });
