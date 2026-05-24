@@ -1,26 +1,81 @@
 // src/pages/line/LineTasksPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Check, ClipboardCheck, FileText, Leaf, Medal, Sparkles, Trophy } from "lucide-react";
 import LineMemberLayout from "./LineMemberLayout";
-import { getCheckinHistory } from "../../lib/memberProfile";
+import { getCheckinHistory, getTaiwanToday } from "../../lib/memberProfile";
+
+const TASK_LABELS = [
+  "第一天，開始改變",
+  "第二天，身體在感受",
+  "第三天，習慣正在形成",
+  "第四天，過了一半",
+  "第五天，觀察自己的節奏",
+  "第六天，穩定正在累積",
+  "第七天，你做到了",
+];
+
+function getPastDates(days) {
+  const today = new Date(`${getTaiwanToday()}T00:00:00+08:00`);
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - index);
+    return new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei" }).format(date);
+  }).reverse();
+}
 
 export default function LineTasksPage({ route, go }) {
   const [member, setMember] = useState(null);
+  const [home, setHome] = useState(null);
   const [checkinDates, setCheckinDates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
+    let mounted = true;
+
     async function load() {
       const stored = sessionStorage.getItem("line_member");
-      if (!stored) { go("/line/entry"); return; }
-      const m = JSON.parse(stored);
-      setMember(m);
+      if (!stored) {
+        go("/line/entry");
+        return;
+      }
 
-      const history = await getCheckinHistory(m.id, 7);
-      setCheckinDates(history.map(h => h.checkin_date));
-      setLoading(false);
+      const cached = JSON.parse(stored);
+      setMember(cached);
+
+      try {
+        const [history, homeResponse] = await Promise.all([
+          getCheckinHistory(cached.id, 14),
+          cached.line_user_id
+            ? fetch(`/api/member/home?lineUserId=${encodeURIComponent(cached.line_user_id)}`)
+            : Promise.resolve(null),
+        ]);
+
+        if (!mounted) return;
+        setCheckinDates(history.map((item) => item.checkin_date));
+
+        if (homeResponse) {
+          const result = await homeResponse.json();
+          if (!homeResponse.ok) throw new Error(result.error || "任務資料讀取失敗");
+          setHome(result);
+          setMember(result.profile);
+          sessionStorage.setItem("line_member", JSON.stringify(result.profile));
+        }
+      } catch (error) {
+        console.error("[LineTasksPage] load failed:", error);
+        if (mounted) setErrorMsg(error.message);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     }
+
     load();
+    return () => {
+      mounted = false;
+    };
   }, [go]);
+
+  const dateSet = useMemo(() => new Set(checkinDates), [checkinDates]);
 
   if (loading || !member) {
     return (
@@ -34,97 +89,183 @@ export default function LineTasksPage({ route, go }) {
 
   const completedDays = Math.min(member.streak_days || 0, 7);
   const allDone = completedDays >= 7;
+  const todayDone = Boolean(home?.has_checked_in_today || dateSet.has(getTaiwanToday()));
+  const reportsCount = home?.reports_count || 0;
+  const profileComplete = Boolean(member.registration_completed_at || (member.birth_date && member.gender && member.health_concerns));
+  const sevenDates = getPastDates(7);
+  const weeklyCheckins = sevenDates.filter((date) => dateSet.has(date)).length;
 
-  const TASK_LABELS = [
-    "第一天，開始改變",
-    "第二天，身體在感受",
-    "第三天，習慣正在形成",
-    "第四天，過了一半",
-    "第五天，感受身體的變化",
-    "第六天，快到了",
-    "第七天，你做到了",
+  const dailyTasks = [
+    {
+      id: "checkin",
+      label: "完成今日飲用打卡",
+      desc: "記錄飲品、心情與活力，累積 LE。",
+      done: todayDone,
+      action: () => go("/line/checkin"),
+      Icon: ClipboardCheck,
+    },
+    {
+      id: "assessment",
+      label: "完成 My Dr. Marvin",
+      desc: "取得五維健康分數與推薦飲品。",
+      done: reportsCount > 0 || Boolean(member.last_report_id),
+      action: () => go("/line/assessment"),
+      Icon: FileText,
+    },
+    {
+      id: "profile",
+      label: "完善會員資料",
+      desc: "生日、血型與健康偏好會影響個人化洞察。",
+      done: profileComplete,
+      action: () => go("/line/profile"),
+      Icon: Leaf,
+    },
+  ];
+
+  const weeklyTasks = [
+    { label: "本週完成 3 次打卡", value: weeklyCheckins, target: 3 },
+    { label: "本週完成 5 次打卡", value: weeklyCheckins, target: 5 },
+    { label: "維持七日啟動進度", value: completedDays, target: 7 },
+  ];
+
+  const badges = [
+    { label: "啟動者", unlocked: completedDays >= 1, desc: "完成第一次打卡" },
+    { label: "穩定者", unlocked: completedDays >= 3, desc: "連續三天打卡" },
+    { label: "七日實踐者", unlocked: allDone, desc: "完成七日啟動" },
   ];
 
   return (
     <LineMemberLayout route={route} go={go} member={member}>
       <div className="px-4 py-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">活動任務</p>
-        <h1 className="mb-1 text-2xl font-semibold text-brand-dark">七日啟動任務</h1>
-        <p className="mb-6 text-sm text-brand-mid">連續七天飲用，建立你的健康日常。</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">Tasks</p>
+        <h1 className="mb-1 text-2xl font-semibold text-brand-dark">任務中心</h1>
+        <p className="mb-6 text-sm text-brand-mid">把健康變成每天都做得到的小行動。</p>
 
-        {/* 進度條 */}
-        <div className="mb-6 rounded-2xl border border-brand-border-warm bg-white p-5">
-          <div className="mb-3 flex justify-between text-sm">
-            <span className="font-medium text-brand-dark">完成進度</span>
-            <span className="text-brand-gold-deep">{completedDays} / 7 天</span>
+        {errorMsg && (
+          <div className="mb-4 rounded-2xl border border-[#E8C0A8] bg-white p-4 text-sm leading-6 text-brand-error">
+            {errorMsg}
           </div>
-          <div className="grid grid-cols-7 gap-1.5">
-            {Array.from({ length: 7 }, (_, i) => {
-              const done = i < completedDays;
+        )}
+
+        <section className="mb-5 rounded-2xl border border-brand-border-warm bg-white p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">7 Day Start</p>
+              <h2 className="text-lg font-semibold text-brand-dark">七日啟動計畫</h2>
+            </div>
+            <Trophy className="h-7 w-7 text-brand-gold-deep" strokeWidth={1.6} />
+          </div>
+          <div className="mb-3 grid grid-cols-7 gap-1.5">
+            {TASK_LABELS.map((label, index) => {
+              const done = index < completedDays;
+              const current = index === completedDays && !allDone;
               return (
-                <div
-                  key={i}
-                  className={`flex h-9 items-center justify-center rounded-xl text-xs font-semibold transition ${
-                    done
-                      ? "bg-brand-dark text-white"
-                      : "bg-[#F0EBE0] text-[#9A8C68]"
-                  }`}
-                >
-                  {done ? "✓" : i + 1}
+                <div key={label} className="text-center">
+                  <div
+                    className={`flex h-9 items-center justify-center rounded-xl text-xs font-semibold ${
+                      done
+                        ? "bg-brand-dark text-white"
+                        : current
+                        ? "border border-brand-border-gold bg-white text-brand-dark"
+                        : "bg-[#F0EBE0] text-[#9A8C68]"
+                    }`}
+                  >
+                    {done ? <Check className="h-4 w-4" strokeWidth={2} /> : index + 1}
+                  </div>
                 </div>
               );
             })}
           </div>
-        </div>
+          <p className="text-sm leading-6 text-brand-mid">
+            {allDone ? "七日啟動已完成，接下來維持每週穩定打卡。" : TASK_LABELS[completedDays] || TASK_LABELS[0]}
+          </p>
+        </section>
 
-        {/* 每天任務列表 */}
-        <div className="mb-6 space-y-3">
-          {TASK_LABELS.map((label, i) => {
-            const done = i < completedDays;
-            const isCurrent = i === completedDays && !allDone;
-            return (
+        <section className="mb-5">
+          <SectionHeader icon={Sparkles} title="今日任務" />
+          <div className="space-y-3">
+            {dailyTasks.map(({ id, label, desc, done, action, Icon }) => (
+              <TaskCard key={id} label={label} desc={desc} done={done} onClick={action} Icon={Icon} />
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-5">
+          <SectionHeader icon={Medal} title="週任務" />
+          <div className="space-y-3">
+            {weeklyTasks.map((task) => (
+              <ProgressTask key={task.label} {...task} />
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <SectionHeader icon={Trophy} title="徽章" />
+          <div className="grid grid-cols-3 gap-3">
+            {badges.map((badge) => (
               <div
-                key={i}
-                className={`flex items-center gap-3 rounded-2xl border p-4 ${
-                  done
-                    ? "border-[#BFDABC] bg-[#DDEEDB]"
-                    : isCurrent
-                    ? "border-brand-border-gold bg-white shadow-sm"
+                key={badge.label}
+                className={`rounded-2xl border p-4 text-center ${
+                  badge.unlocked
+                    ? "border-brand-border-gold bg-[#F7F4EE]"
                     : "border-brand-border-warm bg-white opacity-60"
                 }`}
               >
-                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                  done ? "bg-[#1E6B43] text-white" : isCurrent ? "bg-brand-dark text-white" : "bg-[#F0EBE0] text-[#9A8C68]"
-                }`}>
-                  {done ? "✓" : i + 1}
-                </div>
-                <div>
-                  <p className={`text-sm font-medium ${done ? "text-[#1E6B43]" : isCurrent ? "text-brand-dark" : "text-[#9A8C68]"}`}>
-                    {label}
-                  </p>
-                  {isCurrent && (
-                    <p className="text-xs text-brand-gold-deep">今天完成打卡即可完成</p>
-                  )}
-                </div>
+                <Medal className={`mx-auto mb-2 h-6 w-6 ${badge.unlocked ? "text-brand-gold-deep" : "text-[#9A8C68]"}`} strokeWidth={1.7} />
+                <p className="text-xs font-semibold text-brand-dark">{badge.label}</p>
+                <p className="mt-1 text-[10px] leading-4 text-brand-mid">{badge.desc}</p>
               </div>
-            );
-          })}
-        </div>
-
-        {/* 完成獎勵 */}
-        {allDone && (
-          <div className="rounded-2xl border border-brand-border-gold bg-[#F8E6AD] p-5 text-center">
-            <p className="mb-1 text-lg font-semibold text-[#B8871B]">🎉 七日任務完成！</p>
-            <p className="text-sm text-[#7B6229]">你已經建立了屬於自己的健康日常。繼續保持，讓改變成為一生的習慣。</p>
+            ))}
           </div>
-        )}
-
-        {!allDone && (
-          <button onClick={() => go("/line/checkin")} className="w-full rounded-2xl bg-brand-dark py-4 text-sm font-semibold text-white">
-            前往今日打卡
-          </button>
-        )}
+        </section>
       </div>
     </LineMemberLayout>
+  );
+}
+
+function SectionHeader({ icon: Icon, title }) {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <Icon className="h-5 w-5 text-brand-gold-deep" strokeWidth={1.7} />
+      <h2 className="text-base font-semibold text-brand-dark">{title}</h2>
+    </div>
+  );
+}
+
+function TaskCard({ label, desc, done, onClick, Icon }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left ${
+        done ? "border-[#BFDABC] bg-[#DDEEDB]" : "border-brand-border-warm bg-white"
+      }`}
+    >
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${done ? "bg-[#1E6B43]" : "bg-brand-dark"}`}>
+        {done ? <Check className="h-5 w-5 text-white" strokeWidth={2} /> : <Icon className="h-5 w-5 text-white" strokeWidth={1.8} />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-brand-dark">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-brand-mid">{desc}</p>
+      </div>
+      <span className="text-xs font-semibold text-brand-gold-deep">{done ? "完成" : "前往"}</span>
+    </button>
+  );
+}
+
+function ProgressTask({ label, value, target }) {
+  const done = value >= target;
+  const progress = Math.min((value / target) * 100, 100);
+
+  return (
+    <div className="rounded-2xl border border-brand-border-warm bg-white p-4">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-brand-dark">{label}</p>
+        <p className="text-xs text-brand-gold-deep">{Math.min(value, target)} / {target}</p>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-[#F0EBE0]">
+        <div className={`h-full rounded-full ${done ? "bg-[#1E6B43]" : "bg-brand-dark"}`} style={{ width: `${progress}%` }} />
+      </div>
+    </div>
   );
 }
