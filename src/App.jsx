@@ -28,6 +28,7 @@ import { handleOpenLine } from "./components/line/lineConfig";
 import { listPublicRecords, submitPublicRecord } from "./lib/adminData";
 
 const LineEntry = React.lazy(() => import("./pages/line/LineEntry"));
+const LineMemberHomePage = React.lazy(() => import("./pages/line/LineMemberHomePage"));
 const LineTodayPage = React.lazy(() => import("./pages/line/LineTodayPage"));
 const LineAnalysisPage = React.lazy(() => import("./pages/line/LineAnalysisPage"));
 const LineCheckinPage = React.lazy(() => import("./pages/line/LineCheckinPage"));
@@ -715,12 +716,14 @@ function useRoute() {
 
     try {
       const decodedPath = decodeURIComponent(liffState);
-      const nextPath = decodedPath.startsWith("http")
-        ? new URL(decodedPath).pathname
-        : decodedPath.split("?")[0];
+      const decodedUrl = decodedPath.startsWith("http")
+        ? new URL(decodedPath)
+        : null;
+      const nextPath = decodedUrl ? decodedUrl.pathname : decodedPath.split("?")[0];
+      const nextSearch = decodedUrl ? decodedUrl.search : decodedPath.includes("?") ? `?${decodedPath.split("?").slice(1).join("?")}` : "";
 
       if (nextPath === "/line" || nextPath.startsWith("/line/")) {
-        window.history.replaceState({}, "", nextPath);
+        window.history.replaceState({}, "", `${nextPath}${nextSearch}`);
         return nextPath;
       }
     } catch {
@@ -1543,6 +1546,8 @@ export default function PhytologicWebsite() {
   if (isLineRoute) {
     const linePage = route === "/line" || route === "/line/entry"
       ? <LineEntry go={go} />
+      : route === "/line/member-home"
+      ? <LineMemberHomePage route={route} go={go} />
       : route === "/line/today"
       ? <LineTodayPage route={route} go={go} />
       : route === "/line/analysis"
@@ -1560,7 +1565,7 @@ export default function PhytologicWebsite() {
         <div>
           <div className="bg-brand-bg px-4 py-3">
             <button
-              onClick={() => go("/line/today")}
+              onClick={() => go("/line/member-home")}
               className="bg-transparent text-sm font-medium text-brand-dark"
             >
               ← 返回今日
@@ -1581,7 +1586,7 @@ export default function PhytologicWebsite() {
                 const updated = await getMemberByLineId(member.line_user_id);
                 if (updated) sessionStorage.setItem("line_member", JSON.stringify(updated));
               }
-              go("/line/today");
+              go("/line/member-home");
             }}
           />
         </div>

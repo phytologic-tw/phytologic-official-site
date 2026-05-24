@@ -34,16 +34,33 @@ const CITY_OPTIONS = [
 const SLEEP_OPTIONS = ["少於 5 小時", "5-6 小時", "6-7 小時", "7-8 小時", "8 小時以上", "作息不固定"];
 const DIET_OPTIONS = ["外食為主", "自煮為主", "蔬食為主", "高蛋白飲食", "甜食/手搖較多", "飲食不固定"];
 const STRESS_OPTIONS = ["低", "中等", "偏高", "高", "非常高"];
+const GENDER_OPTIONS = [
+  { label: "女性", value: "female" },
+  { label: "男性", value: "male" },
+  { label: "其他", value: "other" },
+];
+const HEALTH_CONCERNS = ["頭部", "消化系統", "體態", "四肢", "皮膚", "能量", "情緒"];
+
+function getEntryAttribution() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    ref: params.get("ref") || "",
+    src: params.get("src") || "",
+    evt: params.get("evt") || "",
+  };
+}
 
 function buildInitialForm(member, profile) {
   return {
     nickname: member?.nickname || member?.line_display_name || profile?.displayName || "",
     birthdate: member?.birthdate || "",
+    gender: member?.gender || "",
     bloodType: member?.blood_type || "",
     city: member?.city || "",
     sleepHours: member?.sleep_hours || "",
     dietPattern: member?.diet_pattern || "",
     stressLevel: member?.stress_level || "",
+    healthConcerns: member?.health_concerns || [],
   };
 }
 
@@ -52,6 +69,7 @@ export default function LineEntry({ go }) {
   const [member, setMember] = useState(null);
   const [form, setForm] = useState(buildInitialForm());
   const [errorMsg, setErrorMsg] = useState("");
+  const [attribution] = useState(getEntryAttribution);
 
   useEffect(() => {
     async function init() {
@@ -71,7 +89,7 @@ export default function LineEntry({ go }) {
         }
 
         // 3. 建立或讀取 Supabase 會員
-        const { member: nextMember, error, isNew } = await findOrCreateMember(profile);
+        const { member: nextMember, error, isNew } = await findOrCreateMember(profile, attribution);
         if (error || !nextMember) {
           setErrorMsg("錯誤：" + (error?.message || error?.code || JSON.stringify(error) || "未知錯誤"));
           setStatus("error");
@@ -90,7 +108,7 @@ export default function LineEntry({ go }) {
         if (isNew) {
           setStatus("form");
         } else {
-          go("/line/today");
+          go("/line/member-home");
         }
       } catch (err) {
         console.error("[LineEntry] 初始化失敗:", err);
@@ -106,11 +124,22 @@ export default function LineEntry({ go }) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function toggleConcern(concern) {
+    setForm((current) => {
+      const selected = new Set(current.healthConcerns || []);
+      if (selected.has(concern)) selected.delete(concern);
+      else selected.add(concern);
+      return { ...current, healthConcerns: Array.from(selected) };
+    });
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     if (!member?.line_user_id || status === "saving") return;
 
-    const missing = Object.values(form).some((value) => !String(value || "").trim());
+    const missing = Object.entries(form).some(([, value]) => (
+      Array.isArray(value) ? value.length === 0 : !String(value || "").trim()
+    ));
     if (missing) {
       setErrorMsg("請完成所有建檔資料，讓派森可以建立你的個人化健康背景。");
       setStatus("form");
@@ -118,7 +147,7 @@ export default function LineEntry({ go }) {
     }
 
     setStatus("saving");
-    const { member: updated, error } = await updateMemberProfile(member.line_user_id, form);
+    const { member: updated, error } = await updateMemberProfile(member.line_user_id, form, attribution);
     if (error || !updated) {
       setErrorMsg("建檔儲存失敗：" + (error || "未知錯誤"));
       setStatus("error");
@@ -127,7 +156,7 @@ export default function LineEntry({ go }) {
 
     setMember(updated);
     setStatus("redirecting");
-    go("/line/today");
+    go("/line/member-home");
   }
 
   return (
@@ -160,7 +189,7 @@ export default function LineEntry({ go }) {
             <div className="mb-5">
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">Profile</p>
               <h1 className="text-2xl font-semibold text-brand-dark">先讓派森認識你</h1>
-              <p className="mt-2 text-sm leading-6 text-brand-mid">完成 7 項建檔資料後，之後的健康建議會依你的生活背景調整。</p>
+              <p className="mt-2 text-sm leading-6 text-brand-mid">完成基本資料後，之後的健康建議會依你的生活背景調整。</p>
             </div>
 
             {errorMsg && (
@@ -170,6 +199,13 @@ export default function LineEntry({ go }) {
             )}
 
             <div className="grid gap-4">
+              {(attribution.ref || attribution.src || attribution.evt) && (
+                <div className="border border-brand-border-warm bg-white px-4 py-3 text-xs leading-6 text-brand-mid">
+                  已識別加入來源
+                  {attribution.ref ? `：${attribution.ref}` : ""}
+                </div>
+              )}
+
               <Field label="暱稱">
                 <input
                   value={form.nickname}
@@ -190,6 +226,10 @@ export default function LineEntry({ go }) {
                 />
               </Field>
 
+              <Field label="性別">
+                <Select value={form.gender} onChange={(value) => updateField("gender", value)} options={GENDER_OPTIONS} placeholder="選擇性別" />
+              </Field>
+
               <Field label="血型">
                 <Select value={form.bloodType} onChange={(value) => updateField("bloodType", value)} options={BLOOD_TYPES} placeholder="選擇血型" />
               </Field>
@@ -208,6 +248,28 @@ export default function LineEntry({ go }) {
 
               <Field label="壓力感受">
                 <Select value={form.stressLevel} onChange={(value) => updateField("stressLevel", value)} options={STRESS_OPTIONS} placeholder="最近壓力程度" />
+              </Field>
+
+              <Field label="在意部位">
+                <div className="grid grid-cols-2 gap-2">
+                  {HEALTH_CONCERNS.map((concern) => {
+                    const active = form.healthConcerns.includes(concern);
+                    return (
+                      <button
+                        key={concern}
+                        type="button"
+                        onClick={() => toggleConcern(concern)}
+                        className={`border px-3 py-3 text-left text-sm transition ${
+                          active
+                            ? "border-brand-dark bg-brand-dark text-white"
+                            : "border-brand-border-warm bg-white text-brand-dark"
+                        }`}
+                      >
+                        {concern}
+                      </button>
+                    );
+                  })}
+                </div>
               </Field>
             </div>
 
@@ -256,7 +318,9 @@ function Select({ value, onChange, options, placeholder }) {
     <select value={value} onChange={(e) => onChange(e.target.value)} className="line-entry-input" required>
       <option value="">{placeholder}</option>
       {options.map((option) => (
-        <option key={option} value={option}>{option}</option>
+        <option key={typeof option === "string" ? option : option.value} value={typeof option === "string" ? option : option.value}>
+          {typeof option === "string" ? option : option.label}
+        </option>
       ))}
     </select>
   );

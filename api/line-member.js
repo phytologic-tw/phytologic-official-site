@@ -1,43 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
 import { calcLifeNumber, calcZodiac } from "./prompts.js";
-
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
-let supabaseAdmin;
-
-function getSupabaseAdmin() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Missing Supabase server configuration.");
-  }
-
-  if (!supabaseAdmin) {
-    supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-  }
-
-  return supabaseAdmin;
-}
-
-function normalizeProfile(profile) {
-  if (!profile) return profile;
-  const lePoints = profile.le_points ?? 0;
-  const pPoints = profile.p_points ?? 0;
-  const cpPoints = profile.cp_points ?? 0;
-  const level = profile.level || "L1";
-
-  return {
-    ...profile,
-    display_name: profile.nickname || profile.line_display_name,
-    picture_url: profile.line_picture_url,
-    level,
-    level_number: Number(String(level).replace("L", "")) || 1,
-    le: lePoints,
-    p: pPoints,
-    cp: cpPoints,
-  };
-}
+import {
+  getSupabaseAdmin,
+  normalizeAttribution,
+  normalizeProfile,
+  pickDefinedEntries,
+} from "./_member-utils.js";
 
 function normalizeLevelForWrite(level) {
   if (typeof level === "string" && /^L[1-4]$/.test(level)) return level;
@@ -46,8 +13,28 @@ function normalizeLevelForWrite(level) {
   return "L1";
 }
 
+function normalizeStressScore(value) {
+  if (typeof value === "number") return value >= 1 && value <= 5 ? value : null;
+  const numeric = Number(value);
+  if (Number.isInteger(numeric) && numeric >= 1 && numeric <= 5) return numeric;
+
+  const map = {
+    低: 1,
+    中等: 2,
+    偏高: 3,
+    高: 4,
+    非常高: 5,
+  };
+  return map[value] || null;
+}
+
 function buildProfilePayload(body) {
   const profileData = body.profileData || {};
+  const attribution = normalizeAttribution({
+    ...(body.attribution || {}),
+    ...body,
+    ...profileData,
+  });
   const payload = {
     line_user_id: body.lineUserId,
     line_linked_at: new Date().toISOString(),
@@ -60,12 +47,23 @@ function buildProfilePayload(body) {
 
   const fieldMap = {
     nickname: "nickname",
+    gender: "gender",
+    birthDate: "birth_date",
+    birth_date: "birth_date",
     birthdate: "birthdate",
     bloodType: "blood_type",
+    blood_type: "blood_type",
     city: "city",
     sleepHours: "sleep_hours",
+    sleep_hours: "sleep_hours",
+    dietType: "diet_type",
+    diet_type: "diet_type",
     dietPattern: "diet_pattern",
+    diet_pattern: "diet_pattern",
     stressLevel: "stress_level",
+    stress_level: "stress_level",
+    healthConcerns: "health_concerns",
+    health_concerns: "health_concerns",
   };
 
   Object.entries(fieldMap).forEach(([inputKey, dbKey]) => {
@@ -73,14 +71,35 @@ function buildProfilePayload(body) {
     if (value !== undefined && value !== "") payload[dbKey] = typeof value === "string" ? value.trim() : value;
   });
 
-  if (payload.birthdate) {
-    payload.life_number = calcLifeNumber(payload.birthdate);
-    const zodiac = calcZodiac(payload.birthdate);
+  if (!payload.birthdate && payload.birth_date) payload.birthdate = payload.birth_date;
+  if (!payload.birth_date && payload.birthdate) payload.birth_date = payload.birthdate;
+  if (!payload.diet_pattern && payload.diet_type) payload.diet_pattern = payload.diet_type;
+  if (!payload.diet_type && payload.diet_pattern) payload.diet_type = payload.diet_pattern;
+
+  const stressScore = normalizeStressScore(profileData.stressScore ?? profileData.stress_score ?? payload.stress_level);
+  if (stressScore) payload.stress_score = stressScore;
+
+  if (payload.birth_date || payload.birthdate) {
+    const birthday = payload.birth_date || payload.birthdate;
+    const lifeNumber = calcLifeNumber(birthday);
+    payload.life_number = lifeNumber;
+    payload.numerology_number = lifeNumber;
+    const zodiac = calcZodiac(birthday);
     payload.zodiac = zodiac.sign;
     payload.zodiac_element = zodiac.element;
   }
 
-  return payload;
+  if (Object.values(attribution).some(Boolean)) {
+    Object.assign(payload, attribution);
+    payload.joined_at = body.joinedAt || new Date().toISOString();
+  }
+
+  if (Object.keys(profileData).length > 0) {
+    payload.registration_completed_at = new Date().toISOString();
+    payload.seven_day_start_date = new Date().toISOString().slice(0, 10);
+  }
+
+  return pickDefinedEntries(payload);
 }
 
 async function attachCityClimate(supabase, payload) {

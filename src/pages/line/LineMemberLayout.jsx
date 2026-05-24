@@ -2,15 +2,16 @@
 // 所有 /line/* 頁面共用的 Layout：頂部品牌欄 + 底部導航列
 
 import React from "react";
+import { ClipboardCheck, Home, ShoppingBag, Stethoscope, UserRound } from "lucide-react";
 
 const logo = "/logo.png";
 
 const NAV_ITEMS = [
-  { path: "/line/today",      label: "今日",   icon: "☀️" },
-  { path: "/line/analysis",   label: "分析",   icon: "🌿" },
-  { path: "/line/checkin",    label: "飲用",   icon: "✓"  },
-  { path: "/line/profile",    label: "我的",   icon: "⊙"  },
-  { path: "/line/tasks",      label: "任務",   icon: "◈"  },
+  { path: "/line/member-home", label: "首頁", Icon: Home },
+  { path: "/line/assessment", label: "檢測", Icon: Stethoscope },
+  { path: "/line/checkin", label: "打卡", Icon: ClipboardCheck },
+  { path: "/line/shop", label: "商城", Icon: ShoppingBag },
+  { path: "/line/profile", label: "我的", Icon: UserRound },
 ];
 
 export default function LineMemberLayout({ children, route, go, member }) {
@@ -47,7 +48,7 @@ export default function LineMemberLayout({ children, route, go, member }) {
       {/* 底部導航列（仿 Rich Menu）*/}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-brand-border-warm bg-white/95 backdrop-blur-sm">
         <div className="grid grid-cols-5">
-          {NAV_ITEMS.map(({ path, label, icon }) => {
+          {NAV_ITEMS.map(({ path, label, Icon }) => {
             const isActive = route === path;
             return (
               <button
@@ -59,9 +60,7 @@ export default function LineMemberLayout({ children, route, go, member }) {
                     : "text-brand-gold-deep"
                 }`}
               >
-                <span className={`mb-0.5 text-lg leading-none ${isActive ? "opacity-100" : "opacity-60"}`}>
-                  {icon}
-                </span>
+                <Icon className={`mb-0.5 h-5 w-5 ${isActive ? "opacity-100" : "opacity-60"}`} strokeWidth={1.8} />
                 <span className={`text-[10px] font-medium ${isActive ? "text-brand-dark" : "text-[#9A8C68]"}`}>
                   {label}
                 </span>
