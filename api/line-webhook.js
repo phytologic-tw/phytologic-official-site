@@ -11,6 +11,7 @@ import {
   getBloodTypeTrait,
   getLifeNumberTrait,
 } from "./prompts.js";
+import { normalizeAttribution, pickDefinedEntries } from "./_member-utils.js";
 
 const CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -69,23 +70,261 @@ function getJwtRole(key) {
   }
 }
 
-function buildMemberEntryMessage() {
+function buildLiffUrl(pathname = "/line/entry", attribution = {}) {
+  const stateParams = new URLSearchParams();
+  const normalizedAttribution = normalizeAttribution(attribution);
+  if (normalizedAttribution.promoter_id) stateParams.set("ref", normalizedAttribution.promoter_id);
+  if (normalizedAttribution.referral_source) stateParams.set("src", normalizedAttribution.referral_source);
+  if (normalizedAttribution.event_id) stateParams.set("evt", normalizedAttribution.event_id);
+
+  const query = stateParams.toString();
+  const state = query ? `${pathname}?${query}` : pathname;
+  return `${LIFF_ENTRY_URL}?liff.state=${encodeURIComponent(state)}`;
+}
+
+function getWelcomeCopy(attribution = {}) {
+  const source = String(attribution.referral_source || "").trim();
+  const promoterType = String(attribution.promoter_type || "").trim();
+
+  if (source === "website") {
+    return {
+      title: "你的健康快篩報告在這裡",
+      body: "完成會員資料後，就能回到會員專區查看完整的 AI 健康分析與個人化建議。",
+      label: "完成會員資料",
+    };
+  }
+
+  if (source.startsWith("event_") || promoterType === "event" || attribution.event_id) {
+    return {
+      title: "謝謝你在活動現場與我們相遇",
+      body: "完成會員資料後，我們會保留你的活動來源，後續體驗包或活動資格也會以這份資料為準。",
+      label: "確認活動資格",
+    };
+  }
+
+  if (source.startsWith("store_") || promoterType === "store") {
+    return {
+      title: "歡迎加入植本邏輯會員",
+      body: "完成會員資料後，系統會保留你的門市來源，未來消費與會員回饋會更好追蹤。",
+      label: "建立會員資料",
+    };
+  }
+
   return {
-    type: "template",
-    altText: "建立植本邏輯會員資料",
-    template: {
-      type: "buttons",
-      title: "植本邏輯會員建檔",
-      text: "點擊下方按鈕進入 LIFF 建檔頁面，完成後即可查看今日健康狀態與七天修補計畫。",
-      actions: [
-        {
-          type: "uri",
-          label: "立即建立會員資料",
-          uri: LIFF_ENTRY_URL,
-        },
-      ],
+    title: "歡迎加入植本邏輯",
+    body: "從今天開始，讓 Dr. Marvin 陪你記錄飲用、追蹤報告，建立一套可以長期維持的健康日常。",
+    label: "開始會員旅程",
+  };
+}
+
+function buildMemberEntryMessage(attribution = {}) {
+  const copy = getWelcomeCopy(attribution);
+  return {
+    type: "flex",
+    altText: copy.title,
+    contents: {
+      type: "bubble",
+      styles: {
+        body: { backgroundColor: "#F9F5EA" },
+        footer: { backgroundColor: "#F9F5EA" },
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          {
+            type: "text",
+            text: "PHYTOLOGIC",
+            size: "xs",
+            weight: "bold",
+            color: "#8C7A53",
+          },
+          {
+            type: "text",
+            text: copy.title,
+            wrap: true,
+            size: "lg",
+            weight: "bold",
+            color: "#243A33",
+          },
+          {
+            type: "text",
+            text: copy.body,
+            wrap: true,
+            size: "sm",
+            color: "#49675A",
+            margin: "sm",
+          },
+          {
+            type: "separator",
+            margin: "md",
+            color: "#E7DDBF",
+          },
+          {
+            type: "text",
+            text: "三個入口會在下方選單開啟：會員專區、My Dr. Marvin、最新活動。",
+            wrap: true,
+            size: "xs",
+            color: "#8C7A53",
+          },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "button",
+            style: "primary",
+            color: "#243A33",
+            action: {
+              type: "uri",
+              label: copy.label,
+              uri: buildLiffUrl("/line/entry", attribution),
+            },
+          },
+        ],
+      },
     },
   };
+}
+
+function buildMemberHomeMessage() {
+  return {
+    type: "flex",
+    altText: "植本邏輯會員專區",
+    contents: {
+      type: "bubble",
+      styles: { body: { backgroundColor: "#F9F5EA" }, footer: { backgroundColor: "#F9F5EA" } },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          textBlock("植本邏輯會員專區", "lg", "bold"),
+          textBlock("進入會員首頁後，可以查看 LE / CP、今日洞察、打卡與 My Dr. Marvin。", "sm"),
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "button",
+            style: "primary",
+            color: "#243A33",
+            action: {
+              type: "uri",
+              label: "前往會員專區",
+              uri: buildLiffUrl("/line/member-home"),
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
+function buildReportLookupMessage() {
+  return buildFlex("查詢健康報告", [
+    {
+      title: "已經有報告編號",
+      text: "請直接輸入 8 碼報告編號，例如 AB12CD34。",
+    },
+    {
+      title: "想看會員報告",
+      text: "也可以進入會員專區查看 My Dr. Marvin 深度報告與歷史紀錄。",
+    },
+  ], {
+    type: "uri",
+    label: "前往我的報告",
+    uri: buildLiffUrl("/line/reports"),
+  });
+}
+
+function buildProductIntroMessage() {
+  return buildFlex("植本邏輯五款植萃", [
+    {
+      title: "五色植萃",
+      text: "雪山植萃、青檸植萃、玫瑰植萃、桂香植萃、紫莓植萃，依不同生活狀態提供日常營養補充。",
+    },
+    {
+      title: "找到適合你的方向",
+      text: "完成 My Dr. Marvin 深度檢測後，系統會整理更個人化的推薦飲品。",
+    },
+  ], {
+    type: "uri",
+    label: "開始 My Dr. Marvin",
+    uri: buildLiffUrl("/line/assessment"),
+  });
+}
+
+async function getLineProfile(userId) {
+  if (!CHANNEL_ACCESS_TOKEN || !userId) return null;
+
+  try {
+    const response = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
+      headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}` },
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error("[Webhook] LINE profile lookup failed:", error.message);
+    return null;
+  }
+}
+
+function getProfileAttribution(profile = {}) {
+  return normalizeAttribution({
+    ref: profile.promoter_id,
+    promoter_type: profile.promoter_type,
+    src: profile.referral_source,
+    evt: profile.event_id,
+  });
+}
+
+async function findOrCreateFollowProfile(supabase, userId) {
+  const { data: existing, error: existingError } = await supabase
+    .from("profiles")
+    .select("id,line_user_id,line_display_name,line_picture_url,promoter_id,promoter_type,referral_source,event_id")
+    .eq("line_user_id", userId)
+    .maybeSingle();
+
+  if (existingError) throw existingError;
+  if (existing) return existing;
+
+  const lineProfile = await getLineProfile(userId);
+  const { data: created, error: createError } = await supabase
+    .from("profiles")
+    .insert(pickDefinedEntries({
+      line_user_id: userId,
+      line_display_name: lineProfile?.displayName || null,
+      line_picture_url: lineProfile?.pictureUrl || null,
+      line_status_message: lineProfile?.statusMessage || null,
+      role: "user",
+      joined_at: new Date().toISOString(),
+      line_linked_at: new Date().toISOString(),
+    }))
+    .select("id,line_user_id,line_display_name,line_picture_url,promoter_id,promoter_type,referral_source,event_id")
+    .single();
+
+  if (createError) throw createError;
+  return created;
+}
+
+async function buildFollowWelcomeMessage(event) {
+  const userId = event.source?.userId;
+  if (!userId) return buildMemberEntryMessage();
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const profile = await findOrCreateFollowProfile(supabase, userId);
+    return buildMemberEntryMessage(getProfileAttribution(profile));
+  } catch (error) {
+    console.error("[Webhook] follow profile handling failed:", error.message);
+    return buildMemberEntryMessage();
+  }
 }
 
 function isMemberEntryKeyword(message) {
@@ -358,7 +597,7 @@ function buildReportFlexMessages(reportJson) {
     ], {
       type: "uri",
       label: "前往今日打卡",
-      uri: "https://www.phytologic.tw/line/checkin",
+      uri: buildLiffUrl("/line/checkin"),
     }),
   ];
 }
@@ -563,7 +802,7 @@ export default async function handler(req, res) {
 
   for (const event of events) {
     if (event.type === "follow") {
-      await replyMessage(event.replyToken, [buildMemberEntryMessage()]);
+      await replyMessage(event.replyToken, [await buildFollowWelcomeMessage(event)]);
       continue;
     }
 
@@ -579,9 +818,7 @@ export default async function handler(req, res) {
           ]);
         }
       } else if (params.get("action") === "my_report") {
-        await replyMessage(event.replyToken, [
-          { type: "text", text: "請輸入您的 8 碼報告編號（例如：AB12CD34），或先完成會員建檔後回到「我的會員」查看健康狀態。" },
-        ]);
+        await replyMessage(event.replyToken, [buildReportLookupMessage()]);
       }
       continue;
     }
@@ -592,7 +829,7 @@ export default async function handler(req, res) {
     const replyToken = event.replyToken;
 
     if (isMemberEntryKeyword(userMessage)) {
-      await replyMessage(replyToken, [buildMemberEntryMessage()]);
+      await replyMessage(replyToken, [buildMemberHomeMessage()]);
       continue;
     }
 
@@ -666,16 +903,12 @@ export default async function handler(req, res) {
 
     // 關鍵字回覆
     if (userMessage.includes("報告") || userMessage.includes("結果")) {
-      await replyMessage(replyToken, [
-        { type: "text", text: "請輸入您的 8 碼報告編號（例如：AB12CD34），即可查詢完整健康分析。\n\n還沒做過分析？\nhttps://phytologic.tw" },
-      ]);
+      await replyMessage(replyToken, [buildReportLookupMessage()]);
       continue;
     }
 
     if (userMessage.includes("飲品") || userMessage.includes("推薦")) {
-      await replyMessage(replyToken, [
-        { type: "text", text: "🌿 植本邏輯五款植萃飲品\n\n⬜ 雪山植萃 — 抗發炎修復\n💚 青檸植萃 — 代謝促排\n🌹 玫瑰植萃 — 女性保養\n💛 桂香植萃 — 運動增肌\n💜 紫莓植萃 — 護眼抗氧化\n\n想了解哪一款適合你？\nhttps://phytologic.tw" },
-      ]);
+      await replyMessage(replyToken, [buildProductIntroMessage()]);
       continue;
     }
 
