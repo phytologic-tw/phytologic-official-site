@@ -87,7 +87,53 @@ export default async function handler(req, res) {
         path: "/api/line-setup",
         note: "Creates the Rich Menu, uploads public/phytologic_richmenu_v4.png, then sets it as default.",
       },
+      cleanup: {
+        method: "DELETE",
+        path: "/api/line-setup",
+        note: "Unlinks the default Rich Menu, lists all Rich Menus, then deletes each one.",
+      },
     });
+  }
+
+  if (req.method === "DELETE") {
+    try {
+      const unlinkDefault = await lineApi("/user/all/richmenu", {
+        method: "DELETE",
+      }).then(
+        () => ({ success: true }),
+        (error) => ({ success: false, error: error.message })
+      );
+
+      const list = await lineApi("/richmenu/list", {
+        method: "GET",
+      });
+
+      const richMenus = Array.isArray(list.richmenus) ? list.richmenus : [];
+      const deleted = await Promise.all(
+        richMenus.map(async (menu) => {
+          try {
+            await lineApi(`/richmenu/${menu.richMenuId}`, {
+              method: "DELETE",
+            });
+            return { richMenuId: menu.richMenuId, success: true };
+          } catch (error) {
+            return { richMenuId: menu.richMenuId, success: false, error: error.message };
+          }
+        })
+      );
+
+      const hasDeleteFailure = deleted.some((item) => !item.success);
+      return res.status(hasDeleteFailure ? 207 : 200).json({
+        success: !hasDeleteFailure,
+        unlinkDefault,
+        totalFound: richMenus.length,
+        deleted,
+        message: hasDeleteFailure ? "部分 Rich Menu 刪除失敗" : "Rich Menu 已全部清除",
+      });
+    } catch (error) {
+      console.error("[line-setup] rich menu cleanup failed:", error);
+      return res.status(500).json({ success: false, error: error.message });
+    }
   }
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
