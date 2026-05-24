@@ -578,6 +578,10 @@ export default async function handler(req, res) {
             { type: "text", text: "完整報告生成暫時失敗，請稍後再試或聯繫植本邏輯客服。" },
           ]);
         }
+      } else if (params.get("action") === "my_report") {
+        await replyMessage(event.replyToken, [
+          { type: "text", text: "請輸入您的 8 碼報告編號（例如：AB12CD34），或先完成會員建檔後回到「我的會員」查看健康狀態。" },
+        ]);
       }
       continue;
     }

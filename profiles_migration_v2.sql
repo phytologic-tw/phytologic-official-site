@@ -74,6 +74,28 @@ alter table public.profiles
 -- ------------------------------------------------------------
 -- STEP 7：會員等級與點數系統
 -- ------------------------------------------------------------
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'profiles'
+      and column_name = 'level'
+  ) then
+    alter table public.profiles
+      alter column level drop default;
+
+    alter table public.profiles
+      alter column level type text
+      using case
+        when level::text in ('1', '2', '3', '4') then 'L' || level::text
+        when level::text in ('L1', 'L2', 'L3', 'L4') then level::text
+        else 'L1'
+      end;
+  end if;
+end $$;
+
 alter table public.profiles
   add column if not exists level              text not null default 'L1'
     check (level in ('L1','L2','L3','L4')),
@@ -82,6 +104,9 @@ alter table public.profiles
   add column if not exists p_points           integer not null default 0,   -- P 點數（可流通）
   add column if not exists cp_points          integer not null default 0,   -- CP 貢獻點
   add column if not exists le_points          integer not null default 0;   -- LE 幸運能量值
+
+alter table public.profiles
+  alter column level set default 'L1';
 
 -- ------------------------------------------------------------
 -- STEP 8：健康養成 / 打卡追蹤

@@ -706,7 +706,25 @@ function ProductOverviewCard({ product, go }) {
 }
 
 function useRoute() {
-  const [route, setRoute] = useState(window.location.pathname);
+  const getInitialRoute = () => {
+    const params = new URLSearchParams(window.location.search);
+    const liffState = params.get("liff.state");
+    if (!liffState) return window.location.pathname;
+
+    try {
+      const decodedPath = decodeURIComponent(liffState);
+      if (decodedPath.startsWith("/line/")) {
+        window.history.replaceState({}, "", decodedPath);
+        return decodedPath;
+      }
+    } catch {
+      return window.location.pathname;
+    }
+
+    return window.location.pathname;
+  };
+
+  const [route, setRoute] = useState(getInitialRoute);
   useEffect(() => {
     const onPop = () => setRoute(window.location.pathname);
     window.addEventListener("popstate", onPop);

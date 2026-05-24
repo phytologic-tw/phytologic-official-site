@@ -39,6 +39,13 @@ function normalizeProfile(profile) {
   };
 }
 
+function normalizeLevelForWrite(level) {
+  if (typeof level === "string" && /^L[1-4]$/.test(level)) return level;
+  if (typeof level === "number" && level >= 1 && level <= 4) return `L${level}`;
+  if (typeof level === "string" && /^[1-4]$/.test(level)) return `L${level}`;
+  return "L1";
+}
+
 function buildProfilePayload(body) {
   const profileData = body.profileData || {};
   const payload = {
@@ -150,7 +157,7 @@ export default async function handler(req, res) {
         {
           id: existing?.id,
           ...payload,
-          level: existing?.level || "L1",
+          level: normalizeLevelForWrite(existing?.level),
           title: existing?.title || "改變者",
         },
         { onConflict: "line_user_id", ignoreDuplicates: false }
