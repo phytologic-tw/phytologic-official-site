@@ -3,31 +3,31 @@
     <style>
       .label {
         font-family: "Noto Serif TC", "Songti TC", "PingFang TC", serif;
-        font-size: 116px;
+        font-size: 82px;
         letter-spacing: 0;
         fill: #F0EBE0;
       }
       .sub {
         font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
-        font-size: 36px;
-        letter-spacing: 9px;
+        font-size: 28px;
+        letter-spacing: 6px;
         fill: #CDBE9C;
       }
       .index {
         font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
-        font-size: 28px;
-        letter-spacing: 8px;
+        font-size: 22px;
+        letter-spacing: 7px;
         fill: rgba(240,235,224,.42);
       }
       .brand {
         font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
-        font-size: 24px;
-        letter-spacing: 12px;
+        font-size: 18px;
+        letter-spacing: 9px;
         fill: rgba(240,235,224,.28);
       }
       .line {
         stroke: #CDBE9C;
-        stroke-width: 4;
+        stroke-width: 3.2;
         stroke-linecap: round;
         stroke-linejoin: round;
         fill: none;
@@ -38,38 +38,38 @@
   <path d="M-80 1380 C380 1160 470 610 250 210" stroke="#87A192" stroke-width="2" opacity=".18" fill="none"/>
   <path d="M2230 -40 C2060 390 2140 765 2520 1040" stroke="#87A192" stroke-width="2" opacity=".16" fill="none"/>
   <path d="M1685 1740 C1540 1320 1660 930 1990 690" stroke="#87A192" stroke-width="2" opacity=".16" fill="none"/>
-  <line x1="833" y1="150" x2="833" y2="1536" stroke="#F0EBE0" stroke-width="2" opacity=".24"/>
-  <line x1="1667" y1="150" x2="1667" y2="1536" stroke="#F0EBE0" stroke-width="2" opacity=".24"/>
+  <line x1="833" y1="310" x2="833" y2="1376" stroke="#F0EBE0" stroke-width="2" opacity=".18"/>
+  <line x1="1667" y1="310" x2="1667" y2="1376" stroke="#F0EBE0" stroke-width="2" opacity=".18"/>
 
-  <g transform="translate(416.5 518)">
-    <text class="index" x="-310" y="-352">01</text>
-    <text class="brand" x="-141" y="520">PHYTOLOGIC</text>
-    <circle cx="0" cy="0" r="76" class="line" opacity=".74"/>
-    <path d="M-10 -82 C44 -28 54 30 0 86 C-54 30 -44 -28 -10 -82Z" class="line"/>
-    <path d="M0 -43 L0 54 M0 16 L38 -18 M0 22 L-36 -6" class="line"/>
-    <text class="label" x="0" y="290" text-anchor="middle">會員專區</text>
-    <text class="sub" x="0" y="356" text-anchor="middle">打卡 · 報告 · 商城</text>
+  <g transform="translate(416.5 660)">
+    <text class="index" x="-236" y="-284">01</text>
+    <text class="brand" x="-108" y="356">PHYTOLOGIC</text>
+    <circle cx="0" cy="-22" r="54" class="line" opacity=".72"/>
+    <path d="M-8 -80 C30 -42 42 4 0 54 C-42 4 -30 -42 -8 -80Z" class="line"/>
+    <path d="M0 -50 L0 32 M0 2 L28 -24 M0 8 L-26 -12" class="line"/>
+    <text class="label" x="0" y="180" text-anchor="middle">會員專區</text>
+    <text class="sub" x="0" y="232" text-anchor="middle">打卡 · 報告 · 商城</text>
   </g>
 
-  <g transform="translate(1250 518)">
-    <text class="index" x="-310" y="-352">02</text>
-    <text class="brand" x="-141" y="520">PHYTOLOGIC</text>
-    <circle cx="0" cy="-30" r="64" class="line" opacity=".74"/>
-    <path d="M-108 88 C-70 18 70 18 108 88" class="line"/>
-    <path d="M76 -86 L108 -118 L140 -86 L108 -54Z" class="line" opacity=".9"/>
-    <path d="M100 -110 L116 -94 M116 -110 L100 -94" class="line" opacity=".9"/>
-    <text class="label" x="0" y="290" text-anchor="middle">My Dr. Marvin</text>
-    <text class="sub" x="0" y="356" text-anchor="middle">深度健康檢測</text>
+  <g transform="translate(1250 660)">
+    <text class="index" x="-236" y="-284">02</text>
+    <text class="brand" x="-108" y="356">PHYTOLOGIC</text>
+    <circle cx="0" cy="-44" r="48" class="line" opacity=".72"/>
+    <path d="M-82 42 C-54 -8 54 -8 82 42" class="line"/>
+    <path d="M56 -92 L82 -118 L108 -92 L82 -66Z" class="line" opacity=".9"/>
+    <path d="M75 -105 L89 -91 M89 -105 L75 -91" class="line" opacity=".9"/>
+    <text class="label" x="0" y="180" text-anchor="middle">My Dr. Marvin</text>
+    <text class="sub" x="0" y="232" text-anchor="middle">深度健康檢測</text>
   </g>
 
-  <g transform="translate(2083.5 518)">
-    <text class="index" x="-310" y="-352">03</text>
-    <text class="brand" x="-141" y="520">PHYTOLOGIC</text>
-    <rect x="-78" y="-90" width="156" height="166" rx="18" class="line" opacity=".74"/>
-    <path d="M-42 -120 L-42 -54 M42 -120 L42 -54 M-78 -36 L78 -36" class="line"/>
-    <path d="M-38 26 L-8 56 L52 -10" class="line"/>
-    <circle cx="172" cy="-344" r="12" fill="#D8B07A"/>
-    <text class="label" x="0" y="290" text-anchor="middle">最新活動</text>
-    <text class="sub" x="0" y="356" text-anchor="middle">紅利 · 優惠 · 公告</text>
+  <g transform="translate(2083.5 660)">
+    <text class="index" x="-236" y="-284">03</text>
+    <text class="brand" x="-108" y="356">PHYTOLOGIC</text>
+    <rect x="-58" y="-92" width="116" height="128" rx="14" class="line" opacity=".72"/>
+    <path d="M-30 -116 L-30 -64 M30 -116 L30 -64 M-58 -52 L58 -52" class="line"/>
+    <path d="M-30 0 L-6 24 L40 -28" class="line"/>
+    <circle cx="130" cy="-276" r="9" fill="#D8B07A" opacity=".84"/>
+    <text class="label" x="0" y="180" text-anchor="middle">最新活動</text>
+    <text class="sub" x="0" y="232" text-anchor="middle">紅利 · 優惠 · 公告</text>
   </g>
 </svg>
