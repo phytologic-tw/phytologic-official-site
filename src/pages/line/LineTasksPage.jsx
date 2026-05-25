@@ -5,13 +5,23 @@ import LineMemberLayout from "./LineMemberLayout";
 import { getCheckinHistory, getTaiwanToday } from "../../lib/memberProfile";
 
 const TASK_LABELS = [
-  "第一天，開始改變",
-  "第二天，身體在感受",
-  "第三天，習慣正在形成",
-  "第四天，過了一半",
-  "第五天，觀察自己的節奏",
-  "第六天，穩定正在累積",
-  "第七天，你做到了",
+  "建立角色",
+  "第一次深測",
+  "讀懂報告",
+  "選定植萃",
+  "邀請同行",
+  "穩定累積",
+  "解鎖身份",
+];
+
+const FALLBACK_SEVEN_DAY_PLAN = [
+  { day: 1, title: "建立角色", action: "完成會員建檔，讓 Dr. Marvin 認識你的基本節奏。", path: "/line/profile" },
+  { day: 2, title: "第一次深測", action: "完成 My Dr. Marvin，取得五維健康分數。", path: "/line/assessment" },
+  { day: 3, title: "讀懂報告", action: "查看個人報告，確認目前最需要照顧的系統。", path: "/line/reports" },
+  { day: 4, title: "選定植萃", action: "依推薦飲品建立第一個固定補充節奏。", path: "/line/shop" },
+  { day: 5, title: "邀請同行", action: "分享推薦連結，讓一位重要的人一起開始。", path: "/line/referral" },
+  { day: 6, title: "穩定累積", action: "完成今日飲用打卡，觀察心情與活力變化。", path: "/line/checkin" },
+  { day: 7, title: "解鎖身份", action: "完成七日啟動，拿到第一個健康身份徽章。", path: "/line/tasks" },
 ];
 
 function getPastDates(days) {
@@ -29,6 +39,8 @@ export default function LineTasksPage({ route, go }) {
   const [checkinDates, setCheckinDates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [claimingTaskId, setClaimingTaskId] = useState("");
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -91,9 +103,59 @@ export default function LineTasksPage({ route, go }) {
   const allDone = completedDays >= 7;
   const todayDone = Boolean(home?.has_checked_in_today || dateSet.has(getTaiwanToday()));
   const reportsCount = home?.reports_count || 0;
-  const profileComplete = Boolean(member.registration_completed_at || (member.birth_date && member.gender && member.health_concerns));
+  const profileComplete = Boolean(home?.profile_completed ?? (member.registration_completed_at || (member.birth_date && member.gender && member.health_concerns)));
   const sevenDates = getPastDates(7);
   const weeklyCheckins = sevenDates.filter((date) => dateSet.has(date)).length;
+  const sevenDayPlan = home?.seven_day_plan?.days?.length ? home.seven_day_plan.days : FALLBACK_SEVEN_DAY_PLAN;
+  const currentPlanDay = home?.seven_day_plan?.current_day || Math.min(completedDays + 1, 7);
+  const currentPlan = sevenDayPlan[currentPlanDay - 1] || sevenDayPlan[0];
+  const taskStatusMap = new Map((home?.tasks || []).map((task) => [task.id, task]));
+
+  async function claimTask(taskId) {
+    if (!member?.line_user_id || claimingTaskId) return;
+    setClaimingTaskId(taskId);
+    setErrorMsg("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/api/member/home", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lineUserId: member.line_user_id, taskId }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "任務領獎失敗");
+
+      if (result.profile) {
+        setMember(result.profile);
+        sessionStorage.setItem("line_member", JSON.stringify(result.profile));
+      }
+
+      setHome((current) => {
+        if (!current) return current;
+        const tasks = (current.tasks || []).map((task) => (
+          task.id === taskId
+            ? { ...task, claimed: true, claimed_at: result.claim?.claimed_at || result.task?.claimed_at || new Date().toISOString() }
+            : task
+        ));
+        return {
+          ...current,
+          profile: result.profile || current.profile,
+          tasks,
+          task_claims: result.claim ? [...(current.task_claims || []), result.claim] : current.task_claims,
+        };
+      });
+
+      const le = result.claim?.le_awarded || 0;
+      const cp = result.claim?.cp_awarded || 0;
+      setNotice(`已領取任務獎勵：${le} LE${cp ? `、${cp} CP` : ""}`);
+    } catch (error) {
+      console.error("[LineTasksPage] claim failed:", error);
+      setErrorMsg(error.message);
+    } finally {
+      setClaimingTaskId("");
+    }
+  }
 
   const dailyTasks = [
     {
@@ -103,6 +165,7 @@ export default function LineTasksPage({ route, go }) {
       done: todayDone,
       action: () => go("/line/checkin"),
       Icon: ClipboardCheck,
+      claim: taskStatusMap.get("daily_checkin"),
     },
     {
       id: "assessment",
@@ -111,6 +174,7 @@ export default function LineTasksPage({ route, go }) {
       done: reportsCount > 0 || Boolean(member.last_report_id),
       action: () => go("/line/assessment"),
       Icon: FileText,
+      claim: taskStatusMap.get("dr_marvin_complete"),
     },
     {
       id: "profile",
@@ -119,13 +183,14 @@ export default function LineTasksPage({ route, go }) {
       done: profileComplete,
       action: () => go("/line/profile"),
       Icon: Leaf,
+      claim: taskStatusMap.get("profile_complete"),
     },
   ];
 
   const weeklyTasks = [
-    { label: "本週完成 3 次打卡", value: weeklyCheckins, target: 3 },
-    { label: "本週完成 5 次打卡", value: weeklyCheckins, target: 5 },
-    { label: "維持七日啟動進度", value: completedDays, target: 7 },
+    { label: "本週完成 3 次打卡", value: weeklyCheckins, target: 3, claim: taskStatusMap.get("weekly_3_checkins") },
+    { label: "本週完成 5 次打卡", value: weeklyCheckins, target: 5, claim: taskStatusMap.get("weekly_5_checkins") },
+    { label: "維持七日啟動進度", value: completedDays, target: 7, claim: taskStatusMap.get("seven_day_complete") },
   ];
 
   const badges = [
@@ -144,6 +209,12 @@ export default function LineTasksPage({ route, go }) {
         {errorMsg && (
           <div className="mb-4 rounded-2xl border border-[#E8C0A8] bg-white p-4 text-sm leading-6 text-brand-error">
             {errorMsg}
+          </div>
+        )}
+
+        {notice && (
+          <div className="mb-4 rounded-2xl border border-[#BFDABC] bg-[#DDEEDB] p-4 text-sm leading-6 text-[#1E6B43]">
+            {notice}
           </div>
         )}
 
@@ -177,15 +248,57 @@ export default function LineTasksPage({ route, go }) {
             })}
           </div>
           <p className="text-sm leading-6 text-brand-mid">
-            {allDone ? "七日啟動已完成，接下來維持每週穩定打卡。" : TASK_LABELS[completedDays] || TASK_LABELS[0]}
+            {allDone ? "七日啟動已完成，接下來維持每週穩定打卡。" : `${currentPlan.title}：${currentPlan.action}`}
           </p>
+        </section>
+
+        <section className="mb-5">
+          <SectionHeader icon={Leaf} title="七日路徑" />
+          <div className="space-y-3">
+            {sevenDayPlan.map((item) => {
+              const done = item.day <= completedDays;
+              const current = item.day === currentPlanDay && !allDone;
+              return (
+                <button
+                  key={item.day}
+                  type="button"
+                  onClick={() => go(item.path)}
+                  className={`w-full rounded-2xl border p-4 text-left ${
+                    done
+                      ? "border-[#BFDABC] bg-[#DDEEDB]"
+                      : current
+                      ? "border-brand-border-gold bg-[#FFF9EA]"
+                      : "border-brand-border-warm bg-white"
+                  }`}
+                >
+                  <div className="mb-1 flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-brand-dark">Day {item.day} · {item.title}</p>
+                    <span className="text-xs font-semibold text-brand-gold-deep">
+                      {done ? "完成" : current ? "今日" : "待啟動"}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-5 text-brand-mid">{item.action}</p>
+                </button>
+              );
+            })}
+          </div>
         </section>
 
         <section className="mb-5">
           <SectionHeader icon={Sparkles} title="今日任務" />
           <div className="space-y-3">
-            {dailyTasks.map(({ id, label, desc, done, action, Icon }) => (
-              <TaskCard key={id} label={label} desc={desc} done={done} onClick={action} Icon={Icon} />
+            {dailyTasks.map(({ id, label, desc, done, action, Icon, claim }) => (
+              <TaskCard
+                key={id}
+                label={label}
+                desc={desc}
+                done={done}
+                onClick={action}
+                Icon={Icon}
+                claim={claim}
+                claiming={claimingTaskId === claim?.id}
+                onClaim={() => claimTask(claim.id)}
+              />
             ))}
           </div>
         </section>
@@ -194,7 +307,12 @@ export default function LineTasksPage({ route, go }) {
           <SectionHeader icon={Medal} title="週任務" />
           <div className="space-y-3">
             {weeklyTasks.map((task) => (
-              <ProgressTask key={task.label} {...task} />
+              <ProgressTask
+                key={task.label}
+                {...task}
+                claiming={claimingTaskId === task.claim?.id}
+                onClaim={() => claimTask(task.claim.id)}
+              />
             ))}
           </div>
         </section>
@@ -232,11 +350,12 @@ function SectionHeader({ icon: Icon, title }) {
   );
 }
 
-function TaskCard({ label, desc, done, onClick, Icon }) {
+function TaskCard({ label, desc, done, onClick, Icon, claim, claiming, onClaim }) {
+  const canClaim = claim?.eligible && !claim?.claimed;
+  const rewardText = claim ? `${claim.le_reward || 0} LE${claim.cp_reward ? ` / ${claim.cp_reward} CP` : ""}` : "";
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <div
       className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left ${
         done ? "border-[#BFDABC] bg-[#DDEEDB]" : "border-brand-border-warm bg-white"
       }`}
@@ -247,15 +366,33 @@ function TaskCard({ label, desc, done, onClick, Icon }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-brand-dark">{label}</p>
         <p className="mt-1 text-xs leading-5 text-brand-mid">{desc}</p>
+        {rewardText && <p className="mt-1 text-[11px] font-semibold text-brand-gold-deep">獎勵 {rewardText}</p>}
       </div>
-      <span className="text-xs font-semibold text-brand-gold-deep">{done ? "完成" : "前往"}</span>
-    </button>
+      {claim?.claimed ? (
+        <span className="text-xs font-semibold text-brand-gold-deep">已領取</span>
+      ) : canClaim ? (
+        <button
+          type="button"
+          onClick={onClaim}
+          disabled={claiming}
+          className="rounded-full bg-brand-dark px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+        >
+          {claiming ? "領取中" : "領取"}
+        </button>
+      ) : (
+        <button type="button" onClick={onClick} className="text-xs font-semibold text-brand-gold-deep">
+          {done ? "待領取" : "前往"}
+        </button>
+      )}
+    </div>
   );
 }
 
-function ProgressTask({ label, value, target }) {
+function ProgressTask({ label, value, target, claim, claiming, onClaim }) {
   const done = value >= target;
   const progress = Math.min((value / target) * 100, 100);
+  const canClaim = claim?.eligible && !claim?.claimed;
+  const rewardText = claim ? `${claim.le_reward || 0} LE${claim.cp_reward ? ` / ${claim.cp_reward} CP` : ""}` : "";
 
   return (
     <div className="rounded-2xl border border-brand-border-warm bg-white p-4">
@@ -265,6 +402,23 @@ function ProgressTask({ label, value, target }) {
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-[#F0EBE0]">
         <div className={`h-full rounded-full ${done ? "bg-[#1E6B43]" : "bg-brand-dark"}`} style={{ width: `${progress}%` }} />
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold text-brand-gold-deep">{rewardText ? `獎勵 ${rewardText}` : "完成後解鎖獎勵"}</p>
+        {claim?.claimed ? (
+          <span className="text-xs font-semibold text-brand-gold-deep">已領取</span>
+        ) : canClaim ? (
+          <button
+            type="button"
+            onClick={onClaim}
+            disabled={claiming}
+            className="rounded-full bg-brand-dark px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+          >
+            {claiming ? "領取中" : "領取"}
+          </button>
+        ) : (
+          <span className="text-xs text-brand-mid">尚未完成</span>
+        )}
       </div>
     </div>
   );

@@ -171,14 +171,28 @@ async function handleStats(_req, res, supabase) {
   if (promotersError) throw promotersError;
   if (profilesError) throw profilesError;
 
+  const { data: rewardLogs, error: rewardLogsError } = await supabase
+    .from("referral_reward_logs")
+    .select("id,promoter_id,referrer_profile_id,referred_profile_id,cp_awarded,status,created_at,settled_at");
+
+  if (rewardLogsError) console.error("[promoter] referral_reward_logs lookup failed:", rewardLogsError.message);
+
   const memberRows = profiles || [];
   const promoterRows = promoters || [];
+  const rewardRows = rewardLogsError ? [] : rewardLogs || [];
   const promoterStats = promoterRows.map((promoter) => {
     const members = memberRows.filter((profile) => profile.promoter_id === promoter.id);
+    const logs = rewardRows.filter((log) => log.promoter_id === promoter.id);
     return {
       ...promoter,
       referred_count: members.length,
       completed_registration_count: members.filter((profile) => profile.registration_completed_at).length,
+      referral_reward_count: logs.length,
+      referral_cp_awarded: logs
+        .filter((log) => log.status === "awarded")
+        .reduce((sum, log) => sum + Number(log.cp_awarded || 0), 0),
+      manual_review_count: logs.filter((log) => ["manual_review", "pending"].includes(log.status)).length,
+      blocked_count: logs.filter((log) => log.status === "blocked").length,
       latest_joined_at: members.map((profile) => profile.joined_at || profile.created_at).filter(Boolean).sort().at(-1) || null,
     };
   });
@@ -192,6 +206,12 @@ async function handleStats(_req, res, supabase) {
       promoters_count: promoterRows.length,
       active_promoters_count: promoterRows.filter((promoter) => promoter.is_active !== false).length,
       referred_members_count: memberRows.length,
+      referral_reward_count: rewardRows.length,
+      referral_cp_awarded: rewardRows
+        .filter((log) => log.status === "awarded")
+        .reduce((sum, log) => sum + Number(log.cp_awarded || 0), 0),
+      referral_manual_review_count: rewardRows.filter((log) => ["manual_review", "pending"].includes(log.status)).length,
+      referral_blocked_count: rewardRows.filter((log) => log.status === "blocked").length,
       by_type: groupBy(memberRows, "promoter_type"),
       by_source: groupBy(memberRows, "referral_source"),
     },

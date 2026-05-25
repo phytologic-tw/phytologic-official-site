@@ -1,10 +1,13 @@
 import { calcLifeNumber, calcZodiac } from "./_prompts.js";
 import {
   getSupabaseAdmin,
+  inferPromoterType,
   normalizeAttribution,
   normalizeProfile,
   pickDefinedEntries,
 } from "./_member-utils.js";
+
+const DEFAULT_MEMBER_REFERRAL_CP = 500;
 
 function normalizeLevelForWrite(level) {
   if (typeof level === "string" && /^L[1-4]$/.test(level)) return level;
@@ -26,6 +29,16 @@ function normalizeStressScore(value) {
     非常高: 5,
   };
   return map[value] || null;
+}
+
+function buildMemberReferralCode(profile) {
+  if (profile?.referral_code) return profile.referral_code;
+  const seed = String(profile?.id || profile?.line_user_id || "").replace(/[^a-zA-Z0-9]/g, "");
+  return `P_MEMBER_${seed.slice(-6).toUpperCase().padStart(6, "0")}`;
+}
+
+function shouldCompleteRegistration(body) {
+  return Object.keys(body?.profileData || {}).length > 0;
 }
 
 function buildProfilePayload(body) {
@@ -151,6 +164,156 @@ async function linkLatestAssessmentReport(supabase, profile) {
   if (fallbackError) console.error("[line-member] assessment link failed:", fallbackError.message);
 }
 
+async function ensureReferralCode(supabase, profile) {
+  if (!profile?.id || profile.referral_code) return profile;
+
+  const referralCode = buildMemberReferralCode(profile);
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ referral_code: referralCode })
+    .eq("id", profile.id)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("[line-member] referral_code update failed:", error.message);
+    return profile;
+  }
+
+  return data || profile;
+}
+
+async function findReferrerProfile(supabase, promoterId) {
+  if (!promoterId || !promoterId.startsWith("P_MEMBER_")) return null;
+
+  const { data: direct, error: directError } = await supabase
+    .from("profiles")
+    .select("id,line_user_id,nickname,line_display_name,cp_points,referral_code,promoter_id")
+    .eq("referral_code", promoterId)
+    .maybeSingle();
+
+  if (directError) {
+    console.error("[line-member] referrer lookup failed:", directError.message);
+    return null;
+  }
+  if (direct) return direct;
+
+  const suffix = promoterId.replace("P_MEMBER_", "");
+  const { data: candidates, error: candidateError } = await supabase
+    .from("profiles")
+    .select("id,line_user_id,nickname,line_display_name,cp_points,referral_code,promoter_id")
+    .limit(200);
+
+  if (candidateError) {
+    console.error("[line-member] referrer fallback lookup failed:", candidateError.message);
+    return null;
+  }
+
+  return (candidates || []).find((profile) => buildMemberReferralCode(profile) === promoterId || String(profile.id).replace(/[^a-zA-Z0-9]/g, "").endsWith(suffix)) || null;
+}
+
+async function readPromoter(supabase, promoterId) {
+  if (!promoterId) return null;
+  const { data, error } = await supabase
+    .from("promoters")
+    .select("id,type,name,cp_per_referral,is_active")
+    .eq("id", promoterId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[line-member] promoter lookup failed:", error.message);
+    return null;
+  }
+
+  return data;
+}
+
+async function writeReferralLog(supabase, payload) {
+  const { data, error } = await supabase
+    .from("referral_reward_logs")
+    .insert(payload)
+    .select("*")
+    .single();
+
+  if (!error) return data;
+  if (error.code === "23505") return null;
+  throw error;
+}
+
+async function settleReferralReward(supabase, profile) {
+  const promoterId = String(profile?.promoter_id || "").trim().toUpperCase();
+  if (!profile?.id || !promoterId) return null;
+
+  const promoterType = profile.promoter_type || inferPromoterType(promoterId);
+  const promoter = await readPromoter(supabase, promoterId);
+  const logBase = {
+    referred_profile_id: profile.id,
+    promoter_id: promoterId,
+    promoter_type: promoter?.type || promoterType,
+    referral_source: profile.referral_source || null,
+    event_id: profile.event_id || null,
+    reward_type: "registration_completed",
+    metadata: {
+      referred_line_user_id: profile.line_user_id,
+      promoter_name: promoter?.name || null,
+    },
+  };
+
+  if (promoterType === "event") {
+    return writeReferralLog(supabase, {
+      ...logBase,
+      status: "manual_review",
+      reason: "event_source_requires_manual_settlement",
+    });
+  }
+
+  if (!promoterId.startsWith("P_MEMBER_")) {
+    return writeReferralLog(supabase, {
+      ...logBase,
+      status: "pending",
+      reason: "non_member_promoter_manual_settlement",
+    });
+  }
+
+  const referrer = await findReferrerProfile(supabase, promoterId);
+  if (!referrer) {
+    return writeReferralLog(supabase, {
+      ...logBase,
+      status: "manual_review",
+      reason: "referrer_profile_not_found",
+    });
+  }
+
+  if (referrer.id === profile.id || referrer.line_user_id === profile.line_user_id) {
+    return writeReferralLog(supabase, {
+      ...logBase,
+      referrer_profile_id: referrer.id,
+      status: "blocked",
+      reason: "self_referral_blocked",
+    });
+  }
+
+  const cpAwarded = Number(promoter?.cp_per_referral || DEFAULT_MEMBER_REFERRAL_CP);
+  const log = await writeReferralLog(supabase, {
+    ...logBase,
+    referrer_profile_id: referrer.id,
+    cp_awarded: cpAwarded,
+    status: "awarded",
+    reason: "registration_completed",
+    settled_at: new Date().toISOString(),
+  });
+
+  if (!log || cpAwarded <= 0) return log;
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ cp_points: (referrer.cp_points || 0) + cpAwarded })
+    .eq("id", referrer.id);
+
+  if (updateError) console.error("[line-member] referral CP update failed:", updateError.message);
+  return log;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -169,8 +332,10 @@ export default async function handler(req, res) {
 
     if (existingError) throw existingError;
 
+    const registrationWasComplete = Boolean(existing?.registration_completed_at);
+    const completesRegistration = shouldCompleteRegistration(req.body || {});
     const payload = await attachCityClimate(supabase, buildProfilePayload(req.body || {}));
-    const { data: profile, error } = await supabase
+    const { data: upsertedProfile, error } = await supabase
       .from("profiles")
       .upsert(
         {
@@ -185,11 +350,19 @@ export default async function handler(req, res) {
       .single();
 
     if (error) throw error;
+    const profile = await ensureReferralCode(supabase, upsertedProfile);
     await linkLatestAssessmentReport(supabase, profile);
+    const referralReward = completesRegistration && !registrationWasComplete
+      ? await settleReferralReward(supabase, profile).catch((rewardError) => {
+        console.error("[line-member] referral reward failed:", rewardError.message);
+        return null;
+      })
+      : null;
 
     return res.status(200).json({
       profile: normalizeProfile(profile),
       isNewMember: !existing,
+      referralReward,
     });
   } catch (error) {
     console.error("[line-member] failed:", error);

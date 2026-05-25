@@ -53,15 +53,39 @@ function getEntryAttribution() {
 function buildInitialForm(member, profile) {
   return {
     nickname: member?.nickname || member?.line_display_name || profile?.displayName || "",
-    birthdate: member?.birthdate || "",
+    birthdate: member?.birthdate || member?.birth_date || "",
     gender: member?.gender || "",
     bloodType: member?.blood_type || "",
     city: member?.city || "",
     sleepHours: member?.sleep_hours || "",
     dietPattern: member?.diet_pattern || "",
     stressLevel: member?.stress_level || "",
-    healthConcerns: member?.health_concerns || [],
+    healthConcerns: normalizeConcerns(member?.health_concerns),
   };
+}
+
+function normalizeConcerns(value) {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  return String(value).split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function isProfileComplete(member) {
+  const concerns = normalizeConcerns(member?.health_concerns);
+  return Boolean(
+    member?.registration_completed_at ||
+    (
+      (member?.nickname || member?.line_display_name) &&
+      (member?.birth_date || member?.birthdate) &&
+      member?.gender &&
+      member?.blood_type &&
+      member?.city &&
+      member?.sleep_hours &&
+      member?.diet_pattern &&
+      member?.stress_level &&
+      concerns.length > 0
+    )
+  );
 }
 
 export default function LineEntry({ go }) {
@@ -104,8 +128,8 @@ export default function LineEntry({ go }) {
 
         setStatus("redirecting");
 
-        // 5. 既有 profiles 記錄直接進今日頁；只有首次建立的新會員顯示建檔表單
-        if (isNew) {
+        // 5. 新會員或舊會員資料未完整時，都進建檔表單，避免會員專區缺個人化資料。
+        if (isNew || !isProfileComplete(nextMember)) {
           setStatus("form");
         } else {
           go("/line/member-home");

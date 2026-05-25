@@ -59,7 +59,7 @@ export default function LineReferralPage({ route, go }) {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">Your Code</p>
           <p className="break-all text-2xl font-semibold text-brand-dark">{referralCode}</p>
           <p className="mt-3 text-xs leading-5 text-brand-mid">
-            推薦型 CP 結算規則會由 Admin 後台統一審核與發放。
+            好友完成會員建檔後，系統會自動檢查並發放推薦 CP；活動與門市來源仍由後台人工核對。
           </p>
         </section>
 
@@ -95,7 +95,7 @@ export default function LineReferralPage({ route, go }) {
             <StatusTile label="LINE ID" value={LINE_OA_ID} />
             <StatusTile label="來源標記" value="referral" />
             <StatusTile label="推廣類型" value="member" />
-            <StatusTile label="CP 結算" value="待後台" />
+            <StatusTile label="CP 結算" value="建檔後自動檢查" />
           </div>
         </section>
       </div>

@@ -454,7 +454,7 @@ function PromotersAdmin() {
           <StatCard label="推廣人數" value={stats?.summary?.promoters_count || 0} />
           <StatCard label="啟用中" value={stats?.summary?.active_promoters_count || 0} />
           <StatCard label="帶入會員" value={stats?.summary?.referred_members_count || 0} />
-          <StatCard label="未建檔來源" value={stats?.orphan_promoters?.length || 0} />
+          <StatCard label="已發 CP" value={stats?.summary?.referral_cp_awarded || 0} />
         </div>
         <Toolbar search={query} setSearch={setQuery} onExport={() => exportCSV("promoters", filtered)} />
         {loading && <Notice>推廣人資料載入中...</Notice>}
@@ -466,6 +466,9 @@ function PromotersAdmin() {
           { key: "region", label: "區域" },
           { key: "is_active", label: "狀態", render: (v) => <StatusBadge status={v === false ? "archived" : "approved"} /> },
           { key: "referred", label: "帶入", render: (_v, row) => `${statsById.get(row.id)?.referred_count || 0} 人` },
+          { key: "completed", label: "建檔", render: (_v, row) => `${statsById.get(row.id)?.completed_registration_count || 0} 人` },
+          { key: "awarded", label: "已發 CP", render: (_v, row) => statsById.get(row.id)?.referral_cp_awarded || 0 },
+          { key: "review", label: "待處理", render: (_v, row) => statsById.get(row.id)?.manual_review_count || 0 },
           { key: "cp_per_referral", label: "CP/推薦" },
         ]} actions={(row) => [
           <button key="edit" className={ghostClass} onClick={() => edit(row)}><Pencil className="h-4 w-4" />編輯</button>,

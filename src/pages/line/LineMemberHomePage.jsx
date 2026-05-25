@@ -128,6 +128,49 @@ export default function LineMemberHomePage({ route, go }) {
               <Metric label="健康分" value={profile?.health_score ?? 0} unit="分" />
             </section>
 
+            {!homeData?.profile_completed && (
+              <section className="mb-4 border border-brand-border-gold bg-[#FFF9EA] p-5">
+                <p className="mb-2 text-sm font-semibold text-brand-dark">完成角色建檔</p>
+                <p className="text-sm leading-7 text-brand-mid">
+                  還差 {(homeData?.missing_profile_fields || []).map((field) => field.label).join("、") || "基本資料"}，
+                  完成後會啟動七日計畫與個人化洞察。
+                </p>
+                <button
+                  type="button"
+                  onClick={() => go("/line/entry")}
+                  className="mt-4 inline-flex items-center rounded-full bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
+                >
+                  前往完成建檔
+                </button>
+              </section>
+            )}
+
+            {homeData?.seven_day_plan && (
+              <section className="mb-4 border border-brand-border-warm bg-white p-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">7 Day Start</p>
+                    <p className="text-sm font-semibold text-brand-dark">
+                      第 {homeData.seven_day_plan.current_day} 天 · {homeData.seven_day_plan.days?.[homeData.seven_day_plan.current_day - 1]?.title}
+                    </p>
+                  </div>
+                  <p className="text-xs text-brand-gold-deep">
+                    {homeData.seven_day_plan.completed_days || 0}/7
+                  </p>
+                </div>
+                <p className="text-sm leading-7 text-brand-mid">
+                  {homeData.seven_day_plan.days?.[homeData.seven_day_plan.current_day - 1]?.action}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => go(homeData.seven_day_plan.days?.[homeData.seven_day_plan.current_day - 1]?.path || "/line/tasks")}
+                  className="mt-4 inline-flex items-center rounded-full border border-brand-border-gold px-5 py-3 text-xs font-semibold text-brand-dark"
+                >
+                  查看今日任務
+                </button>
+              </section>
+            )}
+
             <section className="mb-4 border border-brand-border-warm bg-white p-5">
               <div className="mb-3 flex items-center gap-2 text-brand-gold-deep">
                 <Sparkles className="h-4 w-4" />

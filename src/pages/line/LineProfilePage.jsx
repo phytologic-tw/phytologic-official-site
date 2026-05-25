@@ -49,6 +49,7 @@ function normalizeConcerns(value) {
 
 export default function LineProfilePage({ route, go }) {
   const [member, setMember] = useState(null);
+  const [homeData, setHomeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -75,6 +76,7 @@ export default function LineProfilePage({ route, go }) {
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "會員資料讀取失敗");
         if (!mounted) return;
+        setHomeData(result);
         setMember(result.profile);
         sessionStorage.setItem("line_member", JSON.stringify(result.profile));
       } catch (error) {
@@ -101,6 +103,8 @@ export default function LineProfilePage({ route, go }) {
   const progress = levelNumber >= 4 ? 100 : Math.min((le / nextLe) * 100, 100);
   const remaining = Math.max(nextLe - le, 0);
   const concerns = normalizeConcerns(member.health_concerns);
+  const missingFields = homeData?.missing_profile_fields || [];
+  const profileCompleted = Boolean(homeData?.profile_completed ?? member.registration_completed_at);
 
   return (
     <LineMemberLayout route={route} go={go} member={member}>
@@ -139,6 +143,22 @@ export default function LineProfilePage({ route, go }) {
           <div className="mb-4 rounded-2xl border border-[#E8C0A8] bg-white p-4 text-sm leading-6 text-brand-error">
             {errorMsg}
           </div>
+        )}
+
+        {!profileCompleted && (
+          <section className="mb-5 rounded-2xl border border-brand-border-gold bg-[#FFF9EA] p-5">
+            <p className="text-base font-semibold text-brand-dark">會員建檔尚未完成</p>
+            <p className="mt-2 text-sm leading-6 text-brand-mid">
+              還差 {missingFields.map((field) => field.label).join("、") || "基本資料"}。補完後會啟動七日計畫，並讓每日洞察更準確。
+            </p>
+            <button
+              type="button"
+              onClick={() => go("/line/entry")}
+              className="mt-4 rounded-full bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
+            >
+              完成建檔
+            </button>
+          </section>
         )}
 
         <div className="mb-5 grid grid-cols-3 gap-3">

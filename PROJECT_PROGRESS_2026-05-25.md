@@ -323,6 +323,7 @@ reportsCount: 1
 
 - `src/pages/line/LineReferralPage.jsx`
 - `/line/referral`
+- Phase 1.5 推薦 CP 防濫用基礎
 
 包含：
 
@@ -330,6 +331,10 @@ reportsCount: 1
 - LINE 分享連結
 - 複製推薦連結
 - 推薦規則與狀態資訊
+- `supabase/phase1_5_referral_rewards.sql` 建立 `referral_reward_logs`
+- `api/line-member.js` 在會員完成建檔時自動檢查推薦來源
+- 自動阻擋自推、避免同一被推薦會員重複領獎
+- `P_MEMBER_` 推薦完成建檔後自動發放 CP；活動 / 門市 / 合作來源會進入待人工處理紀錄
 
 ### 12. 最新活動
 
@@ -438,8 +443,8 @@ api/_prompts.js
 ### 會員功能
 
 - `/line/shop` 仍是入口頁，尚未有完整購物車、訂單、P 點折抵、冷鏈物流流程。
-- 任務中心目前以會員資料推導狀態，尚未建立完整任務資料表與領獎 API。
-- 推薦好友目前可產生分享連結，但推薦成效與 CP 發放仍需更完整的防濫用與結算流程。
+- 任務中心已補 Phase 1.5 領獎基礎：`supabase/phase1_5_task_claims.sql`、`api/member/home.js` POST 領獎、`/line/tasks` 顯示可領取 / 已領取狀態。Production 需先執行 SQL migration 後才能正式領獎。
+- 推薦好友已補建檔完成後的 CP 防濫用與 log；production 需先執行 `supabase/phase1_5_referral_rewards.sql`，再做實機推薦流程驗收。首購轉換與 CSV 結算仍屬後續升級。
 
 ### Admin
 
@@ -463,11 +468,12 @@ api/_prompts.js
 
 ## 六、目前本機 Git 狀態注意事項
 
-本機仍有兩個未追蹤項目，依 Bryan 指示不要隨意加入：
+本機仍有既有未追蹤項目，依 Bryan 指示不要隨意加入：
 
 ```txt
 backups/
 phytologic_richmenu_v4.png
+會員系統第七版本純文字版.txt
 ```
 
 目前不應 `git add .`。
@@ -477,11 +483,11 @@ phytologic_richmenu_v4.png
 ## 七、下一步建議順序
 
 1. 補 `LINE_MEMBER_RICH_MENU_ID` 到 Vercel env，或先決定是否需要訪客版 / 會員版 Rich Menu 切換。
-2. 串接 LIFF 建檔完成後的 `profile_complete` 流程。
+2. 將 `supabase/phase1_5_task_claims.sql` 與 `supabase/phase1_5_referral_rewards.sql` 套用到 Supabase production，實測任務領獎與推薦 CP。
 3. 實機測試 LINE follow / keyword / postback / Rich Menu 三入口。
 4. 完整化 `/line/shop` 購物流程。
-5. 任務系統資料表與領獎 API。
-6. 推薦好友成效追蹤與 CP 防濫用規則。
+5. 任務系統升級為完整模板 / 週期重置 / 後台設定。
+6. 推薦好友成效追蹤升級：日期區間、首購轉換、CSV 結算報表。
 7. Admin 推廣統計加日期區間、CSV 匯出、消費追蹤。
 8. Dr. Marvin LINE AI 問答。
 
@@ -512,4 +518,3 @@ curl -i -X POST "https://www.phytologic.tw/api/promoter?action=track"
 
 - `/api/line-webhook` 回 200
 - `/api/promoter?action=track` POST 回 200
-
