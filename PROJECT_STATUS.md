@@ -4,6 +4,9 @@
 > 每次有進展時更新這裡，開新對話前上傳到 Claude Project 知識庫取代舊版。
 > 格式盡量保持簡短，讓 Claude 能快速抓到重點。
 
+> 最新進度請優先讀：`PROJECT_PROGRESS_2026-05-25.md`。
+> 該檔已整理 Phase 1 會員首頁、打卡、My Dr. Marvin、報告、Rich Menu、Webhook、推薦、任務、Admin 推廣人與 Vercel Hobby function 上限修正的最新狀態。
+
 ---
 
 ## 基本資訊（不常變動）
