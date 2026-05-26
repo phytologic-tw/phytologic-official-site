@@ -1,57 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin, normalizeAttribution, pickDefinedEntries } from "./_member-utils.js";
-
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-
-function getBearerToken(req) {
-  const header = req.headers.authorization || req.headers.Authorization || "";
-  const match = String(header).match(/^Bearer\s+(.+)$/i);
-  return match?.[1] || "";
-}
-
-async function requireAdmin(req, res) {
-  const token = getBearerToken(req);
-  if (!token) {
-    res.status(401).json({ error: "Missing admin authorization." });
-    return null;
-  }
-
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    res.status(500).json({ error: "Missing Supabase auth configuration." });
-    return null;
-  }
-
-  const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data: authData, error: authError } = await authClient.auth.getUser(token);
-  const user = authData?.user;
-
-  if (authError || !user) {
-    res.status(401).json({ error: "Invalid admin authorization." });
-    return null;
-  }
-
-  const supabase = getSupabaseAdmin();
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id,email,role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profileError) {
-    res.status(500).json({ error: profileError.message });
-    return null;
-  }
-
-  if (String(profile?.role || "").toLowerCase() !== "admin") {
-    res.status(403).json({ error: "Admin role required." });
-    return null;
-  }
-
-  return { supabase, user, profile };
-}
+import { requireAdmin } from "./_admin-utils.js";
 
 function normalizePromoterPayload(body = {}) {
   const id = String(body.id || "").trim().toUpperCase();

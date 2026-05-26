@@ -617,7 +617,7 @@ function SettingsAdmin({ session }) {
         <h2 className="text-xl font-semibold">後台安全</h2>
         <div className="mt-4 grid gap-3 text-sm leading-7 text-brand-mid">
           <p>目前認證方式：{fallback ? "localStorage demo fallback" : "Supabase Auth + profiles.role=admin"}</p>
-          <p>Supabase service role key 不會放在前端。正式 CRUD 由 RLS 與 admin profile 控制。</p>
+          <p>Supabase service role key 不會放在前端。正式 CRUD 由後端 Admin API 驗證登入者後執行。</p>
           <p>VITE_ADMIN_PASSCODE：{import.meta.env.VITE_ADMIN_PASSCODE ? "已設定，僅供 demo fallback" : "未設定"}</p>
         </div>
       </section>

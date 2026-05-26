@@ -1,29 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+import { requireAdmin } from "./_admin-utils.js";
 
-const allowedTables = new Set(["partners", "announcements", "gallery_items", "assessment_reports"]);
-
-function getAdminClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRoleKey) return null;
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
-function requireAdmin(req, res) {
-  const expected = process.env.ADMIN_PASSCODE;
-  const provided = req.headers["x-admin-passcode"];
-  if (!expected) {
-    res.status(500).json({ error: "Missing ADMIN_PASSCODE on server." });
-    return false;
-  }
-  if (!provided || provided !== expected) {
-    res.status(401).json({ error: "Invalid admin passcode." });
-    return false;
-  }
-  return true;
-}
+const allowedTables = new Set(["partners", "announcements", "gallery_items", "assessment_reports", "contact_submissions"]);
 
 function sanitizeTable(table) {
   if (!allowedTables.has(table)) throw new Error("Unsupported table.");
@@ -32,14 +9,18 @@ function sanitizeTable(table) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  if (!requireAdmin(req, res)) return;
 
-  const supabase = getAdminClient();
-  if (!supabase) return res.status(500).json({ error: "Missing Supabase server configuration." });
+  const admin = await requireAdmin(req, res);
+  if (!admin) return;
+  const supabase = admin.supabase;
 
   const { action, table, id, payload, bucket, fileName, contentType, base64 } = req.body || {};
 
   try {
+    if (action === "session") {
+      return res.status(200).json({ user: admin.user, profile: admin.profile });
+    }
+
     if (action === "list") {
       const target = sanitizeTable(table);
       const { data, error } = await supabase
@@ -54,7 +35,7 @@ export default async function handler(req, res) {
     if (action === "insert") {
       const target = sanitizeTable(table);
       if (target === "assessment_reports") {
-        return res.status(403).json({ error: "assessment_reports 不允許從後台寫入或刪除。" });
+        return res.status(403).json({ error: "assessment_reports 不允許從後台新增。" });
       }
       const { data, error } = await supabase.from(target).insert(payload).select("*").single();
       if (error) throw error;
@@ -63,9 +44,6 @@ export default async function handler(req, res) {
 
     if (action === "update") {
       const target = sanitizeTable(table);
-      if (target === "assessment_reports") {
-        return res.status(403).json({ error: "assessment_reports 不允許從後台寫入或刪除。" });
-      }
       const { data, error } = await supabase.from(target).update(payload).eq("id", id).select("*").single();
       if (error) throw error;
       return res.status(200).json({ data });
@@ -73,9 +51,6 @@ export default async function handler(req, res) {
 
     if (action === "delete") {
       const target = sanitizeTable(table);
-      if (target === "assessment_reports") {
-        return res.status(403).json({ error: "assessment_reports 不允許從後台寫入或刪除。" });
-      }
       const { error } = await supabase.from(target).delete().eq("id", id);
       if (error) throw error;
       return res.status(200).json({ data: { id } });

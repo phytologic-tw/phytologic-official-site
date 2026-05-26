@@ -19,6 +19,43 @@ function normalizeRole(role) {
   return String(role || "").trim().toLowerCase();
 }
 
+async function getAdminAccessToken(sessionOverride = null) {
+  const token = sessionOverride?.access_token || sessionOverride?.session?.access_token;
+  if (token) return token;
+  if (!supabase) throw new Error("Supabase 尚未設定。");
+  const { data } = await supabase.auth.getSession();
+  const currentToken = data?.session?.access_token;
+  if (!currentToken) throw new Error("後台登入已逾時，請重新登入。");
+  return currentToken;
+}
+
+async function adminApiRequest(action, body = {}, sessionOverride = null) {
+  const token = await getAdminAccessToken(sessionOverride);
+  const response = await fetch("/api/admin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ action, ...body }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "後台 API 失敗。");
+  return result.data ?? result;
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const value = String(reader.result || "");
+      resolve(value.includes(",") ? value.split(",").pop() : value);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export function isFallbackMode(adminSession) {
   return !isSupabaseConfigured || adminSession?.mode === "local";
 }
@@ -29,33 +66,19 @@ export async function getAdminSession(sessionOverride = null) {
     return { mode: "local", isAdmin: false, user: null, message: supabaseConfigMessage };
   }
 
-  const session = sessionOverride || (await supabase.auth.getSession()).data?.session || null;
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  const user = userData?.user || session?.user || null;
-  if (userError && !user) return { mode: "supabase", isAdmin: false, user: null, message: userError.message };
-  if (!user) return { mode: "supabase", isAdmin: false, user: null, message: "" };
-
-  const { data, error } = await supabase.from("profiles").select("id, email, full_name, role").eq("id", user.id).maybeSingle();
-  if (error) return { mode: "supabase", isAdmin: false, user, profile: null, message: `profiles 讀取失敗：${error.message}` };
-
-  const role = normalizeRole(data?.role);
-  if (!data) {
+  try {
+    const result = await adminApiRequest("session", {}, sessionOverride);
+    const role = normalizeRole(result.profile?.role);
     return {
       mode: "supabase",
-      isAdmin: false,
-      user,
-      profile: null,
-      message: `找不到此登入者的 profile。請確認 profiles.id 等於 Auth user id：${user.id}`,
+      isAdmin: role === "admin",
+      user: result.user || null,
+      profile: result.profile ? { ...result.profile, role } : null,
+      message: role === "admin" ? "" : `此帳號尚未具備 admin 權限。目前 role：${result.profile?.role || "空白"}`,
     };
+  } catch (error) {
+    return { mode: "supabase", isAdmin: false, user: null, profile: null, message: error.message };
   }
-
-  return {
-    mode: "supabase",
-    isAdmin: role === "admin",
-    user,
-    profile: { ...data, role },
-    message: role === "admin" ? "" : `此帳號尚未具備 admin 權限。目前 role：${data.role || "空白"}`,
-  };
 }
 
 export async function signInAdmin(email, password) {
@@ -104,6 +127,10 @@ export async function listRecords(table, adminSession, options = {}) {
     return [...items].sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
   }
 
+  if (!options.publicOnly) {
+    return adminApiRequest("list", { table, limit: options.limit }, adminSession);
+  }
+
   let query = supabase.from(table).select("*");
   if (options.publicOnly) {
     const status = table === "partners" ? "approved" : "published";
@@ -117,22 +144,17 @@ export async function listRecords(table, adminSession, options = {}) {
 
 export async function createRecord(table, payload, adminSession) {
   if (isFallbackMode(adminSession)) return insertLocal(table, payload);
-  const { data, error } = await supabase.from(table).insert(payload).select("*").single();
-  if (error) throw error;
-  return data;
+  return adminApiRequest("insert", { table, payload }, adminSession);
 }
 
 export async function updateRecord(table, id, payload, adminSession) {
   if (isFallbackMode(adminSession)) return updateLocal(table, id, payload);
-  const { data, error } = await supabase.from(table).update(payload).eq("id", id).select("*").single();
-  if (error) throw error;
-  return data;
+  return adminApiRequest("update", { table, id, payload }, adminSession);
 }
 
 export async function deleteRecord(table, id, adminSession) {
   if (isFallbackMode(adminSession)) return removeLocal(table, id);
-  const { error } = await supabase.from(table).delete().eq("id", id);
-  if (error) throw error;
+  return adminApiRequest("delete", { table, id }, adminSession);
 }
 
 export async function uploadAdminFile(bucket, file, adminSession) {
@@ -148,9 +170,13 @@ export async function uploadAdminFile(bucket, file, adminSession) {
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
   const path = `${Date.now()}-${safeName}`;
-  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true, contentType: file.type });
-  if (error) throw error;
-  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  const data = await adminApiRequest("upload", {
+    bucket,
+    fileName: path,
+    contentType: file.type,
+    base64: await readFileAsBase64(file),
+  }, adminSession);
+  return data.publicUrl;
 }
 
 export async function submitPublicRecord(table, payload) {
