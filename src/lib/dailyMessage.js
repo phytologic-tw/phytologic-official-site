@@ -105,7 +105,7 @@ export async function getTodayMessage(member) {
     .from("daily_ai_messages")
     .select("*")
     .eq("member_id", member.id)
-    .eq("message_date", today)
+    .eq("sent_date", today)
     .maybeSingle();
 
   if (existing) return existing;
@@ -119,6 +119,7 @@ export async function getTodayMessage(member) {
     .from("daily_ai_messages")
     .insert({
       member_id: member.id,
+      sent_date: today,
       message_date: today,
       message_type: "daily_health",
       content,

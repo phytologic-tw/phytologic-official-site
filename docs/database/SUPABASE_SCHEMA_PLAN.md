@@ -6,6 +6,7 @@
 
 - `supabase/website_expansion.sql`：主要網站資料表、RLS、Storage bucket 與 policy。
 - `supabase/assessments.sql`：早期快篩資料表，暫時保留。
+- `supabase/inflammation_question_bank.sql`：發炎指數動態題庫、11 大器官分類、年齡層題庫與抽題 function。
 - `src/lib/supabase.js`：前端 Supabase client。
 - `api/admin.js`：後台以 service role 操作 Supabase。
 
@@ -112,11 +113,37 @@
 
 目前前台可 insert，不開放前台 select 完整報告。
 
+### `inflammation_*`
+
+用途：保存 Dr. Marvin 發炎指數題庫，支援依會員年齡、性別、健康關注自動抽題。
+
+主要資料表：
+
+- `inflammation_organ_categories`：人體器官 11 大類。
+- `inflammation_question_banks`：年齡層題庫版本，目前為連續五層 12-19、20-34、35-49、50-64、65-99；題庫標題保留原始內容來源年齡。
+- `inflammation_question_items`：題目本體，共 475 題，含七大身體系統、11 大器官分類、年齡與性別適用條件。
+- `inflammation_question_selection_rules`：每個題庫的深度篩檢預設 25 題抽題數、器官平衡與會員基本資料訊號權重。
+- `inflammation_score_thresholds`：各年齡層分數門檻與建議文案。
+- `inflammation_assessments`：未來保存會員完成發炎指數測驗的答案、系統分數、器官分類分數與 AI 摘要。
+
+輔助 function：
+
+- `select_inflammation_questions_for_profile(profile_id, target_count)`：讀取 `profiles.birth_date` / `birthdate`、`profiles.gender`、`profiles.blood_type`、`profiles.city`、`profiles.sleep_hours`、`profiles.sleep_quality`、`profiles.diet_pattern` / `diet_type`、`profiles.stress_level` / `stress_score`、`profiles.health_concerns`，選擇最適合的年齡層題庫並平衡 11 大器官分類抽題。會員必須已填生日或年齡、性別、血型、城市、睡眠、飲食、壓力與健康關注；資料不足時不 fallback 抽題。血型與城市只用於穩定個人化排序，不作醫療判斷。
+
+狀態：已建立 migration 檔；尚未確認是否已套用至 production Supabase，也尚未串接 LIFF 前端。
+
 ### `profiles`
 
-用途：未來 Auth / RBAC 使用。
+用途：Phase 0 後的 LINE / LIFF 會員唯一主表，並保留後台 Auth / RBAC 所需欄位。
 
-目前欄位包含 `email`、`full_name`、`role`，`role` 可為 `admin` 或 `viewer`。
+Phase 0 已補齊 LINE 會員欄位、會員經濟欄位與健康狀態欄位，包含：
+
+- LINE identity：`line_user_id`、`line_display_name`、`line_picture_url`
+- 會員資料：`nickname`、`birth_date`、`blood_type`、`gender`、`numerology_number`
+- 推廣追蹤：`promoter_id`、`promoter_type`、`referral_source`、`event_id`
+- 點數與養成：`p_points`、`cp_points`、`le_points`、`health_score`、`streak_days`、`last_checkin_date`
+
+`line_members` 已於 Phase 0 移除，不再作為會員資料來源。
 
 ### `contact_submissions`
 
@@ -154,7 +181,7 @@ LINE full report delivery：
 
 - `assessment_reports.line_user_id`
 - `assessment_reports.line_sent_at`
-- `line_members`
+- `assessment_reports.member_id` / `assessment_reports.profile_id` 關聯 `profiles(id)`
 
 會員系統：
 
@@ -173,4 +200,3 @@ Migration 原則：
 2. 避免直接刪除欄位或破壞既有資料。
 3. 前端讀寫欄位調整需同步更新文件。
 4. RLS policy 需與實際前台/後台資料流一起驗證。
-
