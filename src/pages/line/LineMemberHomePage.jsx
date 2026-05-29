@@ -1,56 +1,126 @@
 // src/pages/line/LineMemberHomePage.jsx
-// 會員專區首頁：會員狀態、每日洞察、Dr. Marvin 引導、八大功能入口
+// 會員首頁重構 v2：Zone 1–6 單頁設計
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Bell,
   ClipboardCheck,
   FileText,
   Gift,
-  HeartPulse,
   Share2,
   ShoppingBag,
-  Sparkles,
   Stethoscope,
   UserRound,
 } from "lucide-react";
 import LineMemberLayout from "./LineMemberLayout";
 
-const FEATURE_ICONS = {
-  checkin: ClipboardCheck,
-  reports: FileText,
+// ── 靜態資料 ──────────────────────────────────────────────
+
+const ACTION_ICONS = {
+  checkin:    ClipboardCheck,
+  reports:    FileText,
   assessment: Stethoscope,
-  shop: ShoppingBag,
-  tasks: Gift,
-  profile: UserRound,
-  referral: Share2,
-  events: Bell,
+  shop:       ShoppingBag,
+  tasks:      Gift,
+  profile:    UserRound,
+  referral:   Share2,
+  news:       Bell,
 };
+
+const QUICK_ACTIONS = [
+  { id: "checkin",    label: "今日打卡",      sub: "完成打卡・拿能量",   path: "/line/checkin"    },
+  { id: "reports",   label: "我的報告",      sub: "查看健康趨勢",       path: "/line/reports"    },
+  { id: "assessment",label: "My Dr. Marvin", sub: "深度健康檢測",       path: "/line/assessment" },
+  { id: "shop",      label: "植萃商城",      sub: "健康好物選購",       path: "/line/shop"       },
+  { id: "tasks",     label: "任務中心",      sub: "任務拿獎勵",         path: "/line/missions"   },
+  { id: "profile",   label: "我的帳戶",      sub: "個人資訊管理",       path: "/line/profile"    },
+  { id: "referral",  label: "推薦好友",      sub: "邀請好友一起健康",   path: "/line/referral"   },
+  { id: "news",      label: "最新活動",      sub: "活動與優惠資訊",     path: "/line/news"       },
+];
+
+const FIVE_DIMS = [
+  { icon: "⚡", label: "能量指數", key: "energy"      },
+  { icon: "🌙", label: "睡眠指數", key: "sleep"       },
+  { icon: "🔄", label: "消化指數", key: "digestion"   },
+  { icon: "💧", label: "循環指數", key: "circulation" },
+  { icon: "💪", label: "肌力指數", key: "strength"    },
+];
+
+const NUMEROLOGY_MSG = {
+  1: "開創力強，今日適合發起新的健康習慣。",
+  2: "直覺敏銳，傾聽身體細微的訊號。",
+  3: "創意充沛，用喜歡的方式補充能量。",
+  4: "穩定踏實，今日建立一個小日常儀式。",
+  5: "能量充沛，挑戰一個身體的新可能。",
+  6: "責任感強，今日給自己最溫柔的照顧。",
+  7: "深度思考，靜下來感受身體真實需求。",
+  8: "執行力佳，將健康計畫化為具體行動。",
+  9: "收穫期，感恩身體每天默默的支持。",
+};
+
+// ── 工具函式 ──────────────────────────────────────────────
 
 function readStoredMember() {
   try {
-    const stored = sessionStorage.getItem("line_member");
-    return stored ? JSON.parse(stored) : null;
+    const s = sessionStorage.getItem("line_member");
+    return s ? JSON.parse(s) : null;
   } catch {
     return null;
   }
 }
 
-// 台灣時區星期幾（0=Sunday … 6=Saturday）
-function getTaiwanDayOfWeek() {
-  const label = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Taipei",
-    weekday: "short",
-  }).format(new Date());
-  return { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[label] ?? new Date().getDay();
+function getGreeting() {
+  const h = parseInt(
+    new Intl.DateTimeFormat("zh-TW", {
+      timeZone: "Asia/Taipei",
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date()),
+    10
+  );
+  if (h >= 5 && h < 12) return "早安";
+  if (h >= 12 && h < 18) return "午安";
+  return "晚安";
 }
 
-export default function LineMemberHomePage({ route, go }) {
-  const [member, setMember] = useState(readStoredMember);
-  const [homeData, setHomeData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+// ── SVG 弧形儀表板 ────────────────────────────────────────
 
+function GaugeSVG({ score }) {
+  const arcLen = 110;
+  const filled = score != null ? (Math.min(score, 100) / 100) * arcLen : 0;
+  return (
+    <svg viewBox="0 0 100 60" width="80" height="48">
+      <path
+        d="M15,55 A35,35 0 0,1 85,55"
+        fill="none"
+        stroke="rgba(255,255,255,0.2)"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M15,55 A35,35 0 0,1 85,55"
+        fill="none"
+        stroke="white"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeDasharray={arcLen}
+        strokeDashoffset={arcLen - filled}
+      />
+    </svg>
+  );
+}
+
+// ── 主元件 ────────────────────────────────────────────────
+
+export default function LineMemberHomePage({ route, go }) {
+  const [member, setMember]           = useState(readStoredMember);
+  const [homeData, setHomeData]       = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [errorMsg, setErrorMsg]       = useState("");
+  const [carouselIdx, setCarouselIdx] = useState(0);
+  const carouselRef                   = useRef(null);
+
+  // ── Data fetching（保留原始邏輯）────────────────────────
   useEffect(() => {
     async function load() {
       const storedMember = readStoredMember();
@@ -79,314 +149,383 @@ export default function LineMemberHomePage({ route, go }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ lineUserId: storedMember.line_user_id }),
           })
-            .then((response) => response.json())
-            .then((insightResult) => {
-              if (!insightResult?.daily_insight) return;
-              setHomeData((current) => current ? {
-                ...current,
-                daily_insight: insightResult.daily_insight,
-                daily_insight_generated: true,
-              } : current);
-              if (insightResult.profile) {
-                setMember(insightResult.profile);
-                sessionStorage.setItem("line_member", JSON.stringify(insightResult.profile));
+            .then((r) => r.json())
+            .then((ins) => {
+              if (!ins?.daily_insight) return;
+              setHomeData((cur) =>
+                cur
+                  ? { ...cur, daily_insight: ins.daily_insight, daily_insight_generated: true }
+                  : cur
+              );
+              if (ins.profile) {
+                setMember(ins.profile);
+                sessionStorage.setItem("line_member", JSON.stringify(ins.profile));
               }
             })
-            .catch((insightError) => {
-              console.error("[LineMemberHomePage] insight generation failed:", insightError);
-            });
+            .catch((e) => console.error("[LineMemberHomePage] insight generation failed:", e));
         }
-      } catch (error) {
-        console.error("[LineMemberHomePage] load failed:", error);
-        setErrorMsg(error.message);
+      } catch (err) {
+        console.error("[LineMemberHomePage] load failed:", err);
+        setErrorMsg(err.message);
       } finally {
         setLoading(false);
       }
     }
-
     load();
   }, [go]);
 
-  const profile = homeData?.profile || member;
-  const announcements = homeData?.announcements ?? [];
+  // ── Derived values ────────────────────────────────────
+  const profile      = homeData?.profile || member;
+  const displayName  = profile?.display_name || profile?.line_display_name || "會員";
+  const healthScore  = profile?.health_score ?? null;
+  const lifeNumber   = profile?.life_number || profile?.numerology_number;
+  const scores       = homeData?.scores || profile?.scores || null;
+  const hasCheckedIn = homeData?.has_checked_in_today ?? false;
+  const sevenDay     = homeData?.seven_day_plan;
+  const showSevenDay = sevenDay && (sevenDay.current_day ?? 0) > 0 && (sevenDay.current_day ?? 0) <= 7;
+  const plantName    = profile?.recommended_drink || "今日植萃";
+  const inspiration  = homeData?.daily_insight || "今日好好照顧自己";
+  const totalCards   = 1 + (lifeNumber ? 1 : 0);
 
+  function handleScroll() {
+    if (!carouselRef.current) return;
+    const el  = carouselRef.current;
+    const idx = Math.round(el.scrollLeft / (el.scrollWidth / totalCards));
+    setCarouselIdx(Math.min(Math.max(idx, 0), totalCards - 1));
+  }
+
+  // ── Loading ───────────────────────────────────────────
+  if (loading) {
+    return (
+      <LineMemberLayout route={route} go={go} member={member}>
+        <div style={{ display: "flex", height: "100%", alignItems: "center", justifyContent: "center" }}>
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "#2D5016 transparent transparent transparent" }} />
+        </div>
+      </LineMemberLayout>
+    );
+  }
+
+  // ── Error ─────────────────────────────────────────────
+  if (errorMsg) {
+    return (
+      <LineMemberLayout route={route} go={go} member={member}>
+        <div style={{ padding: "20px" }}>
+          <div style={{
+            borderRadius: "16px", border: "1px solid #F0CACA",
+            background: "#fff", padding: "20px", textAlign: "center",
+          }}>
+            <p style={{ fontSize: "14px", color: "#B91C1C", fontWeight: 600, marginBottom: "8px" }}>載入失敗</p>
+            <p style={{ fontSize: "12px", color: "#8A9A6A" }}>{errorMsg}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              style={{
+                marginTop: "16px", background: "#2D5016", color: "#fff",
+                border: "none", borderRadius: "999px", padding: "10px 24px",
+                fontSize: "13px", cursor: "pointer",
+                fontFamily: "'Noto Serif TC', Georgia, serif",
+              }}
+            >
+              重新嘗試
+            </button>
+          </div>
+        </div>
+      </LineMemberLayout>
+    );
+  }
+
+  // ── Main render ───────────────────────────────────────
   return (
     <LineMemberLayout route={route} go={go} member={profile}>
-      <div className="px-4 py-5">
-        {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-dark border-t-transparent" />
-          </div>
-        ) : errorMsg ? (
-          <div className="border border-[#F0CACA] bg-white p-5 text-sm leading-6 text-brand-error">
-            {errorMsg}
-          </div>
-        ) : (
-          <>
-            {/* 區塊 A｜身份卡 */}
-            <section className="mb-5">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">
-                Member Home
-              </p>
-              <div className="flex items-end justify-between">
-                <h1 className="text-2xl font-semibold text-brand-dark">
-                  {profile?.display_name || "健康夥伴"}，歡迎回來
-                </h1>
-                {(profile?.streak_days ?? 0) > 0 && (
-                  <span className="mb-0.5 shrink-0 text-xs font-medium text-brand-gold-deep">
-                    🔥 {profile.streak_days} 天
-                  </span>
-                )}
+      <style>{`.phyto-carousel::-webkit-scrollbar{display:none}`}</style>
+
+      <div style={{ padding: "12px 20px 16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+
+        {/* Zone 2 — 問候區 */}
+        <div style={{ flexShrink: 0 }}>
+          <h1 style={{
+            fontSize: "24px", fontWeight: 700, color: "#1A2F15",
+            lineHeight: 1.3, margin: 0,
+          }}>
+            {displayName}&ensp;{getGreeting()}！
+          </h1>
+          <p style={{ fontSize: "12px", color: "#8A9A6A", marginTop: "4px", lineHeight: 1.5 }}>
+            持續累積健康能量，讓生活更有光彩 ✨
+          </p>
+        </div>
+
+        {/* Zone 3 — 健康分數大卡 */}
+        <div style={{
+          background: "#2D5016", borderRadius: "16px", padding: "16px 20px 12px",
+          flexShrink: 0,
+        }}>
+          {/* 上半部 */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div>
+              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.65)", margin: 0 }}>今日健康分數 ⓘ</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "4px", marginTop: "4px" }}>
+                <span style={{ fontSize: "48px", fontWeight: 700, color: "#fff", lineHeight: 1 }}>
+                  {healthScore != null ? healthScore : "--"}
+                </span>
+                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)" }}>分 / 100</span>
               </div>
-              <p className="mt-1 text-xs text-brand-mid">
-                {profile?.level || "L1"} · {profile?.title || "改變者"}
-              </p>
-            </section>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
+              <GaugeSVG score={healthScore} />
+              <button
+                type="button"
+                onClick={() => go("/line/reports")}
+                style={{
+                  background: "transparent",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  borderRadius: "999px", color: "#fff",
+                  fontSize: "11px", padding: "4px 12px",
+                  cursor: "pointer",
+                  fontFamily: "'Noto Serif TC', Georgia, serif",
+                }}
+              >
+                查看完整報告 ›
+              </button>
+            </div>
+          </div>
 
-            {/* 三點數儀表：LE / CP / P（規格§1.1 區塊A） */}
-            <section className="mb-4 grid grid-cols-3 gap-3">
-              <Metric label="幸運能量" value={profile?.le_points ?? profile?.le ?? 0} unit="LE" />
-              <Metric label="貢獻點" value={profile?.cp_points ?? profile?.cp ?? 0} unit="CP" />
-              <Metric label="平台點" value={profile?.p_points ?? profile?.p ?? 0} unit="P" />
-            </section>
-
-            {/* 區塊 B｜今日任務提示卡（CTA 最高優先）*/}
-            <section className="mb-4 border border-brand-border-warm bg-white p-5">
-              {homeData?.has_checked_in_today ? (
-                <div>
-                  <p className="text-sm font-semibold text-[#1E6B43]">
-                    ✓ 今日任務已完成！明天繼續保持。
-                  </p>
-                  {(profile?.streak_days ?? 0) > 0 && (
-                    <p className="mt-1 text-xs text-brand-mid">
-                      🔥 你已連續 {profile.streak_days} 天完成任務
-                    </p>
-                  )}
+          {/* 下半部 — 五維指數 */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(5, 1fr)",
+            borderTop: "1px solid rgba(255,255,255,0.15)",
+            marginTop: "12px", paddingTop: "10px",
+          }}>
+            {FIVE_DIMS.map((dim, i) => (
+              <div
+                key={dim.key}
+                style={{
+                  textAlign: "center", padding: "0 2px",
+                  borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.15)" : "none",
+                }}
+              >
+                <div style={{ fontSize: "13px", lineHeight: 1.2 }}>{dim.icon}</div>
+                <div style={{ fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.3, marginTop: "2px" }}>
+                  {scores?.[dim.key] ?? "--"}
                 </div>
-              ) : (
-                <>
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">
-                    今日任務
-                  </p>
-                  <p className="mb-2 text-sm font-semibold text-brand-dark">
-                    飲用一杯植萃綠飲，並完成飲用打卡
-                  </p>
-                  <p className="mb-4 text-xs text-brand-mid">
-                    完成後可獲得：LE +15 ｜ CP +1
-                  </p>
-                  {(profile?.streak_days ?? 0) > 0 && (
-                    <p className="mb-3 text-xs text-brand-mid">
-                      🔥 你已連續 {profile.streak_days} 天完成任務
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => go("/line/checkin")}
-                    className="inline-flex items-center rounded-full bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
-                  >
-                    前往任務中心 →
-                  </button>
-                </>
-              )}
-            </section>
+                <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.6)", marginTop: "1px", lineHeight: 1.3 }}>
+                  {dim.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-            {!homeData?.profile_completed && (
-              <section className="mb-4 border border-brand-border-gold bg-[#FFF9EA] p-5">
-                <p className="mb-2 text-sm font-semibold text-brand-dark">完成角色建檔</p>
-                <p className="text-sm leading-7 text-brand-mid">
-                  還差 {(homeData?.missing_profile_fields || []).map((field) => field.label).join("、") || "基本資料"}，
-                  完成後會啟動七日計畫與個人化洞察。
+        {/* Zone 4 — 今日植本靈感 */}
+        <div style={{ flexShrink: 0, margin: "0 -20px" }}>
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "0 20px", marginBottom: "10px",
+          }}>
+            <span style={{ fontSize: "14px", fontWeight: 600, color: "#1A2F15" }}>今日植本靈感</span>
+            <button
+              type="button"
+              onClick={() => go("/line/shop")}
+              style={{ background: "none", border: "none", fontSize: "12px", color: "#8A9A6A", cursor: "pointer", padding: 0 }}
+            >
+              更多靈感 ›
+            </button>
+          </div>
+
+          {/* 橫向滑動卡片 */}
+          <div
+            ref={carouselRef}
+            onScroll={handleScroll}
+            className="phyto-carousel"
+            style={{
+              display: "flex", gap: "12px",
+              overflowX: "auto", scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none", msOverflowStyle: "none",
+              paddingLeft: "20px", paddingRight: "20px",
+            }}
+          >
+            {/* Card A — 今日植萃 */}
+            <div style={{
+              width: "calc(100% - 40px)", flexShrink: 0,
+              scrollSnapAlign: "start",
+              background: "linear-gradient(135deg, #2D5016 55%, #3D5A30 100%)",
+              borderRadius: "16px", padding: "16px",
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              minHeight: "148px",
+            }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", marginBottom: "4px", letterSpacing: "0.06em" }}>
+                  今日植萃
+                </p>
+                <p style={{ fontSize: "20px", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: "6px" }}>
+                  {plantName}
+                </p>
+                <p style={{
+                  fontSize: "11px", color: "rgba(255,255,255,0.75)",
+                  lineHeight: 1.6, marginBottom: "12px",
+                  display: "-webkit-box", WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical", overflow: "hidden",
+                }}>
+                  {inspiration}
                 </p>
                 <button
                   type="button"
-                  onClick={() => go("/line/entry")}
-                  className="mt-4 inline-flex items-center rounded-full bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
+                  onClick={() => go("/line/shop")}
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    borderRadius: "999px", color: "#fff",
+                    fontSize: "11px", padding: "5px 14px",
+                    cursor: "pointer",
+                    fontFamily: "'Noto Serif TC', Georgia, serif",
+                  }}
                 >
-                  前往完成建檔
+                  了解更多
                 </button>
-              </section>
-            )}
+              </div>
+              <div style={{
+                width: "60px", height: "60px", borderRadius: "12px",
+                background: "rgba(255,255,255,0.1)", marginLeft: "12px", flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "26px",
+              }}>
+                🌿
+              </div>
+            </div>
 
-            {homeData?.seven_day_plan && (
-              <section className="mb-4 border border-brand-border-warm bg-white p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">7 Day Start</p>
-                    <p className="text-sm font-semibold text-brand-dark">
-                      第 {homeData.seven_day_plan.current_day} 天 · {homeData.seven_day_plan.days?.[homeData.seven_day_plan.current_day - 1]?.title}
-                    </p>
+            {/* Card B — 今日數字（有生命靈數時顯示）*/}
+            {lifeNumber && (
+              <div style={{
+                width: "calc(100% - 40px)", flexShrink: 0,
+                scrollSnapAlign: "start",
+                background: "#fff", borderRadius: "16px", padding: "16px",
+                display: "flex", flexDirection: "column", justifyContent: "center",
+                minHeight: "148px",
+              }}>
+                <p style={{ fontSize: "10px", color: "#8A9A6A", marginBottom: "4px", letterSpacing: "0.06em" }}>
+                  今日數字
+                </p>
+                <p style={{ fontSize: "52px", fontWeight: 700, color: "#2D5016", lineHeight: 1 }}>
+                  {lifeNumber}
+                </p>
+                <p style={{ fontSize: "12px", color: "#8A9A6A", marginTop: "8px", lineHeight: 1.6 }}>
+                  {NUMEROLOGY_MSG[lifeNumber] || "今日能量充沛，把握身體的節奏。"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Dot indicator */}
+          {totalCards > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "8px", padding: "0 20px" }}>
+              {Array.from({ length: totalCards }).map((_, i) => (
+                <span
+                  key={i}
+                  style={{
+                    width: i === carouselIdx ? "16px" : "6px",
+                    height: "6px",
+                    borderRadius: "999px",
+                    background: i === carouselIdx ? "#2D5016" : "#C9A96E",
+                    transition: "all 0.3s ease",
+                    display: "block",
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Zone 5 — 快捷功能 */}
+        <div style={{ flexShrink: 0 }}>
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A2F15", marginBottom: "10px" }}>快捷功能</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
+            {QUICK_ACTIONS.map((action) => {
+              const Icon  = ACTION_ICONS[action.id] || ClipboardCheck;
+              const isDone = action.id === "checkin" && hasCheckedIn;
+              return (
+                <button
+                  key={action.id}
+                  type="button"
+                  onClick={() => !isDone && go(action.path)}
+                  style={{
+                    background: "#fff", borderRadius: "12px",
+                    padding: "10px 4px 8px",
+                    border: "none", cursor: isDone ? "default" : "pointer",
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    opacity: isDone ? 0.65 : 1,
+                    pointerEvents: isDone ? "none" : "auto",
+                  }}
+                >
+                  <div style={{
+                    width: "36px", height: "36px", borderRadius: "10px",
+                    background: "#E8F0E0",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#3D5A30", fontSize: "16px",
+                  }}>
+                    {isDone
+                      ? "✓"
+                      : <Icon size={18} strokeWidth={1.8} />
+                    }
                   </div>
-                  <p className="text-xs text-brand-gold-deep">
-                    {homeData.seven_day_plan.completed_days || 0}/7
+                  <p style={{
+                    fontSize: "11px", fontWeight: 700, color: "#1A2F15",
+                    marginTop: "6px", lineHeight: 1.2, textAlign: "center",
+                    margin: "6px 0 2px",
+                  }}>
+                    {action.label}
+                  </p>
+                  <p style={{
+                    fontSize: "9px", color: "#8A9A6A",
+                    lineHeight: 1.3, textAlign: "center", margin: 0,
+                  }}>
+                    {isDone ? "今日已完成 ✓" : action.sub}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Zone 6 — 七日健康啟動計畫（條件顯示）*/}
+        {showSevenDay && (
+          <div style={{
+            background: "#fff", borderRadius: "16px", padding: "14px 16px",
+            flexShrink: 0,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: "20px", flexShrink: 0 }}>🌱</span>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontSize: "13px", fontWeight: 600, color: "#1A2F15", lineHeight: 1.3, margin: 0 }}>
+                    七日健康啟動計畫
+                  </p>
+                  <p style={{ fontSize: "11px", color: "#8A9A6A", marginTop: "2px", lineHeight: 1.3, margin: "2px 0 0" }}>
+                    第 {sevenDay.current_day} 天・再完成 {7 - sevenDay.current_day} 天領取 3 倍能量
                   </p>
                 </div>
-                <p className="text-sm leading-7 text-brand-mid">
-                  {homeData.seven_day_plan.days?.[homeData.seven_day_plan.current_day - 1]?.action}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => go(homeData.seven_day_plan.days?.[homeData.seven_day_plan.current_day - 1]?.path || "/line/tasks")}
-                  className="mt-4 inline-flex items-center rounded-full border border-brand-border-gold px-5 py-3 text-xs font-semibold text-brand-dark"
-                >
-                  查看今日任務
-                </button>
-              </section>
-            )}
-
-            {/* 區塊 C｜今日洞察 */}
-            <section className="mb-4 border border-brand-border-warm bg-white p-5">
-              <div className="mb-3 flex items-center gap-2 text-brand-gold-deep">
-                <Sparkles className="h-4 w-4" />
-                <p className="text-xs font-semibold uppercase tracking-widest">今日洞察</p>
               </div>
-              <p className="text-sm leading-7 text-brand-dark">{homeData?.daily_insight}</p>
-              <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-brand-mid">
-                <InfoPill label="血型" value={profile?.blood_type || "未填"} />
-                <InfoPill label="生命靈數" value={profile?.life_number || profile?.numerology_number || "計算中"} />
-              </div>
-              <p className="mt-3 text-[10px] leading-5 text-[#9A8C68]">
-                本日洞察融合傳統能量學說，提供正向參考，不構成醫療建議。
-              </p>
-            </section>
-
-            {/* 區塊 D｜Dr.Marvin 知識卡片（有報告→查看；無→首次檢測）*/}
-            <section className="mb-4 border border-[#D8E8D2] bg-[#F2F8EF] p-5">
-              <div className="mb-2 flex items-center gap-2 text-[#1E6B43]">
-                <HeartPulse className="h-5 w-5" />
-                <p className="text-sm font-semibold">My Dr. Marvin</p>
-              </div>
-              {(homeData?.reports_count ?? 0) > 0 ? (
-                <>
-                  <p className="text-sm leading-7 text-[#315744]">
-                    你的健康報告已建立。定期查看 Dr. Marvin 的個人化建議，讓計畫持續升級。
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => go("/line/reports")}
-                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#1E6B43] px-5 py-3 text-xs font-semibold text-[#1E6B43]"
-                  >
-                    查看我的報告
-                    <FileText className="h-4 w-4" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm leading-7 text-[#315744]">
-                    完成深度檢測後，系統會建立五維健康分數、植萃推薦與七日啟動計畫。
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => go("/line/assessment")}
-                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
-                  >
-                    開始檢測
-                    <Stethoscope className="h-4 w-4" />
-                  </button>
-                </>
-              )}
-            </section>
-
-            {/* 區塊 E｜情境提示（週一：更新週健康數據）*/}
-            {getTaiwanDayOfWeek() === 1 && (
-              <section className="mb-4 border border-brand-border-warm bg-[#FFF9EA] p-4">
-                <p className="text-sm text-brand-dark">
-                  📊 新的一週開始，可以在健檢中心更新本週身體數據囉
-                </p>
-                <button
-                  type="button"
-                  onClick={() => go("/line/checkin")}
-                  className="mt-2 text-xs font-semibold text-brand-dark underline underline-offset-2"
-                >
-                  前往健檢 →
-                </button>
-              </section>
-            )}
-
-            <section className="mb-4">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-semibold text-brand-dark">會員功能</p>
-                <p className="text-xs text-brand-gold-deep">
-                  {homeData?.has_checked_in_today ? "今日已打卡" : "今日尚未打卡"}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {(homeData?.feature_grid || []).map((feature) => {
-                  const Icon = FEATURE_ICONS[feature.id] || Sparkles;
-                  const disabled = ["preview", "empty"].includes(feature.status) && feature.id !== "reports";
-                  return (
-                    <button
-                      key={feature.id}
-                      type="button"
-                      onClick={() => !disabled && go(feature.path)}
-                      className={`flex min-h-[88px] items-center gap-3 border border-brand-border-warm bg-white p-4 text-left transition ${
-                        disabled ? "opacity-55" : "active:scale-98"
-                      }`}
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-surface text-brand-dark">
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span>
-                        <span className="block text-sm font-semibold text-brand-dark">{feature.label}</span>
-                        <span className="mt-1 block text-xs text-brand-gold-deep">
-                          {feature.status === "done"
-                            ? "已完成"
-                            : feature.status === "preview"
-                            ? "規劃中"
-                            : feature.status === "empty"
-                            ? "尚無資料"
-                            : "可使用"}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-
-            {announcements.length > 0 && (
-              <section className="mb-4 border border-brand-border-warm bg-white p-5">
-                <p className="mb-3 text-sm font-semibold text-brand-dark">最新活動</p>
-                <div className="grid gap-3">
-                  {announcements.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => go("/line/events")}
-                      className="text-left"
-                    >
-                      <p className="text-sm font-medium text-brand-dark">{item.title}</p>
-                      {(item.summary || item.content) && (
-                        <p className="mt-1 text-xs leading-5 text-brand-mid">
-                          {item.summary || item.content}
-                        </p>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
+              <button
+                type="button"
+                onClick={() => go("/line/missions")}
+                style={{ background: "none", border: "none", fontSize: "12px", color: "#C9A96E", cursor: "pointer", padding: 0, flexShrink: 0 }}
+              >
+                查看進度 ›
+              </button>
+            </div>
+            <div style={{
+              height: "4px", background: "#E0E0E0", borderRadius: "999px",
+              marginTop: "10px", overflow: "hidden",
+            }}>
+              <div style={{
+                height: "100%", background: "#3D5A30", borderRadius: "999px",
+                width: `${(sevenDay.current_day / 7) * 100}%`,
+                transition: "width 0.6s ease",
+              }} />
+            </div>
+          </div>
         )}
+
       </div>
     </LineMemberLayout>
-  );
-}
-
-function Metric({ label, value, unit }) {
-  return (
-    <div className="border border-brand-border-warm bg-white px-3 py-4 text-center">
-      <p className="text-lg font-semibold text-brand-dark">{value}</p>
-      <p className="text-[10px] text-brand-gold-deep">{unit}</p>
-      <p className="text-[10px] text-[#9A8C68]">{label}</p>
-    </div>
-  );
-}
-
-function InfoPill({ label, value }) {
-  return (
-    <div className="bg-brand-surface px-3 py-2">
-      <span className="mr-2 text-brand-gold-deep">{label}</span>
-      <span className="font-semibold text-brand-dark">{value}</span>
-    </div>
   );
 }
