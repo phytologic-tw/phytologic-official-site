@@ -38,7 +38,7 @@ export default function LineShopPage({ route, go }) {
               >
                 {isRecommended && (
                   <span className="mb-3 inline-block rounded-full bg-brand-dark px-3 py-1 text-[10px] font-semibold text-white">
-                    ✓ 派森推薦給你
+                    ✓ Dr. Marvin 推薦給你
                   </span>
                 )}
                 <div className="flex items-start justify-between">

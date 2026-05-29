@@ -72,7 +72,7 @@ export default function LineAnalysisPage({ route, go }) {
       <div className="px-4 py-6">
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">Analysis</p>
         <h1 className="mb-1 text-2xl font-semibold text-brand-dark">健康分析</h1>
-        <p className="mb-6 text-sm text-brand-mid">查看你的派森 AI 快篩結果與飲品建議。</p>
+        <p className="mb-6 text-sm text-brand-mid">查看你的 Dr. Marvin 快篩結果與飲品建議。</p>
 
         {loading && (
           <div className="flex h-56 items-center justify-center">
@@ -97,7 +97,7 @@ export default function LineAnalysisPage({ route, go }) {
           <div className="rounded-2xl border border-brand-border-warm bg-white p-6 text-center">
             <p className="text-base font-semibold text-brand-dark">尚無快篩紀錄</p>
             <p className="mt-2 text-sm leading-6 text-brand-mid">
-              完成派森 AI 健康快篩後，結果會同步顯示在這裡。
+              完成 Dr. Marvin 健康快篩後，結果會同步顯示在這裡。
             </p>
             <button
               onClick={() => go("/line/assessment")}

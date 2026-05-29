@@ -788,7 +788,7 @@ function buildWebAnswerSummary(report) {
     report.answer_summary,
     report.ai_analysis,
   ];
-  return candidates.find(Boolean) || "使用者已完成官網派森快篩，詳細作答資料請依現有報告摘要推論。";
+  return candidates.find(Boolean) || "使用者已完成官網 Dr. Marvin 快篩，詳細作答資料請依現有報告摘要推論。";
 }
 
 async function generateFullReport(supabase, profile, assessmentReport, cityClimate) {
@@ -885,12 +885,12 @@ async function handleProfileComplete(event) {
 
   const assessmentReport = await findLatestReportByLineUserId(supabase, userId);
   if (!assessmentReport) {
-    await replyMessage(event.replyToken, [{ type: "text", text: "尚未找到您的派森快篩報告。請先到官網完成快篩，再回到 LINE 會員中心。" }]);
+    await replyMessage(event.replyToken, [{ type: "text", text: "尚未找到您的 Dr. Marvin 快篩報告。請先到官網完成快篩，再回到 LINE 會員中心。" }]);
     return;
   }
 
   const cityClimate = await getCityClimate(supabase, profile.city);
-  await replyMessage(event.replyToken, [{ type: "text", text: "派森正在整合你的建檔資料與快篩報告，完整分析稍後送上。" }]);
+  await replyMessage(event.replyToken, [{ type: "text", text: "Dr. Marvin 正在整合你的建檔資料與快篩報告，完整分析稍後送上。" }]);
   await linkMemberRichMenu(userId);
   const reportJson = await generateFullReport(supabase, profile, assessmentReport, cityClimate);
   await pushMessage(userId, buildReportFlexMessages(reportJson));
@@ -960,7 +960,7 @@ function formatReport(report) {
   return [
     {
       type: "text",
-      text: `🌿 派森健康分析報告\n\n` +
+      text: `🌿 Dr. Marvin 健康分析報告\n\n` +
         `📊 發炎指數：${score} 分\n` +
         `⚡ 健康等級：${level}\n\n` +
         `💊 推薦飲品：${products || "請完成完整問卷"}\n\n` +
@@ -1035,7 +1035,7 @@ export default async function handler(req, res) {
 
         if (!report) {
           await replyMessage(replyToken, [
-            { type: "text", text: `找不到編號「${shortCode}」的報告。\n\n請確認編號是否正確，或前往官網重新進行派森分析：\nhttps://phytologic.tw` },
+            { type: "text", text: `找不到編號「${shortCode}」的報告。\n\n請確認編號是否正確，或前往官網重新進行 Dr. Marvin 分析：\nhttps://phytologic.tw` },
           ]);
         } else {
           const userId = event.source.userId;

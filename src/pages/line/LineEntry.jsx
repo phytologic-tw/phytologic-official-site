@@ -165,7 +165,7 @@ export default function LineEntry({ go }) {
       Array.isArray(value) ? value.length === 0 : !String(value || "").trim()
     ));
     if (missing) {
-      setErrorMsg("請完成所有建檔資料，讓派森可以建立你的個人化健康背景。");
+      setErrorMsg("請完成所有建檔資料，讓 Dr. Marvin 可以建立你的個人化健康背景。");
       setStatus("form");
       return;
     }
@@ -212,7 +212,7 @@ export default function LineEntry({ go }) {
           <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
             <div className="mb-5">
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">Profile</p>
-              <h1 className="text-2xl font-semibold text-brand-dark">先讓派森認識你</h1>
+              <h1 className="text-2xl font-semibold text-brand-dark">先讓 Dr. Marvin 認識你</h1>
               <p className="mt-2 text-sm leading-6 text-brand-mid">完成基本資料後，之後的健康建議會依你的生活背景調整。</p>
             </div>
 
