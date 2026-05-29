@@ -12,6 +12,7 @@ import {
   getLifeNumberTrait,
 } from "./_prompts.js";
 import { normalizeAttribution, pickDefinedEntries } from "./_member-utils.js";
+import { getProducts } from "./_products.js";
 
 const CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -374,11 +375,15 @@ function buildReportLookupMessage() {
   });
 }
 
-function buildProductIntroMessage() {
+export function buildProductCardMessage(products = []) {
+  const productText = products
+    .map((product) => `${product.name}：${product.line_summary || product.theme}`)
+    .join("\n");
+
   return buildFlex("植本邏輯五款植萃", [
     {
       title: "五色植萃",
-      text: "雪山植萃、青檸植萃、玫瑰植萃、桂香植萃、紫莓植萃，依不同生活狀態提供日常營養補充。",
+      text: productText || "五款植萃依不同生活狀態提供日常營養補充。",
     },
     {
       title: "找到適合你的方向",
@@ -389,6 +394,11 @@ function buildProductIntroMessage() {
     label: "開始 My Dr. Marvin",
     uri: buildLiffUrl("/line/assessment"),
   });
+}
+
+async function buildProductIntroMessage() {
+  const products = await getProducts(getSupabaseAdmin(), { allowFallback: true });
+  return buildProductCardMessage(products);
 }
 
 async function getLineProfile(userId) {
@@ -723,7 +733,7 @@ function buildFlex(title, blocks, button) {
   return { type: "flex", altText: title, contents: bubble };
 }
 
-function buildReportFlexMessages(reportJson) {
+export function buildReportFlexMessages(reportJson) {
   const plan = reportJson.section7_seven_day_plan || {};
   const planDays = Array.isArray(plan.days) ? plan.days : [];
   const planText = planDays
@@ -751,6 +761,14 @@ function buildReportFlexMessages(reportJson) {
       type: "uri",
       label: "前往今日打卡",
       uri: buildLiffUrl("/line/checkin"),
+    }),
+    buildFlex("今日植萃推薦", [
+      { title: compact(reportJson.section8_product?.name || reportJson.section8_product?.recommended_product || "推薦飲品"), text: compact(reportJson.section8_product?.primary_reason || reportJson.section8_product?.reason || "完成報告後，Dr. Marvin 會依你的身體線索推薦合適植萃。") },
+      { title: "飲用提醒", text: compact(reportJson.section8_product?.how_to_use || reportJson.section8_product?.drink_timing || "建議依個人作息固定補充，並搭配每日打卡觀察身體感受。") },
+    ], {
+      type: "uri",
+      label: "查看植萃商城",
+      uri: buildLiffUrl("/line/shop"),
     }),
   ];
 }
@@ -1107,7 +1125,7 @@ export default async function handler(req, res) {
     }
 
     if (userMessage.includes("飲品") || userMessage.includes("推薦")) {
-      await replyMessage(replyToken, [buildProductIntroMessage()]);
+      await replyMessage(replyToken, [await buildProductIntroMessage()]);
       continue;
     }
 

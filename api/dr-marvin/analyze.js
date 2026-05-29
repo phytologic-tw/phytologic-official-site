@@ -4,6 +4,7 @@ import {
   getSupabaseAdmin,
   normalizeProfile,
 } from "../_member-utils.js";
+import { findProduct, getProducts } from "../_products.js";
 
 const SYSTEM_LABELS = {
   sleep: "睡眠指數",
@@ -14,11 +15,11 @@ const SYSTEM_LABELS = {
 };
 
 const PRODUCT_RULES = {
-  sleep: { id: "snow", name: "雪山植萃" },
-  digestion: { id: "lime", name: "青檸植萃" },
-  musculoskeletal: { id: "cinna", name: "桂香植萃" },
-  circulation: { id: "rose", name: "玫瑰植萃" },
-  energy: { id: "berry", name: "紫莓植萃" },
+  sleep: "snow",
+  digestion: "lime",
+  musculoskeletal: "cinna",
+  circulation: "rose",
+  energy: "berry",
 };
 
 function normalizeAnswers(rawAnswers) {
@@ -71,9 +72,10 @@ function rankFocusDimensions(scores) {
     .map(([label, score]) => ({ label, score }));
 }
 
-function productForDimension(label) {
+function productForDimension(label, products) {
   const entry = Object.entries(SYSTEM_LABELS).find(([, systemLabel]) => systemLabel === label);
-  return PRODUCT_RULES[entry?.[0]] || PRODUCT_RULES.energy;
+  const productId = PRODUCT_RULES[entry?.[0]] || PRODUCT_RULES.energy;
+  return findProduct(productId, products) || findProduct("berry", products);
 }
 
 function buildReportContent({ profile, scores, healthScore, primary, secondary, focus }) {
@@ -115,6 +117,7 @@ export default async function handler(req, res) {
 
   try {
     const supabase = getSupabaseAdmin();
+    const products = await getProducts(supabase, { allowFallback: true });
     const profile = await findProfile(supabase, lineUserId);
     if (!profile) return res.status(404).json({ error: "Member not found" });
 
@@ -123,8 +126,8 @@ export default async function handler(req, res) {
       Object.values(scores).reduce((sum, value) => sum + Number(value || 0), 0) / Object.values(scores).length
     );
     const focus = rankFocusDimensions(scores);
-    const primary = productForDimension(focus[0]?.label);
-    const secondary = productForDimension(focus[1]?.label);
+    const primary = productForDimension(focus[0]?.label, products);
+    const secondary = productForDimension(focus[1]?.label, products);
     const reportContent = buildReportContent({ profile, scores, healthScore, primary, secondary, focus });
 
     const { data: report, error: reportError } = await supabase

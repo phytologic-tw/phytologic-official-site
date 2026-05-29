@@ -3,6 +3,7 @@ import { ArrowRight, Leaf, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { supabase, supabaseConfigMessage } from "../lib/supabase";
 import { submitPublicRecord } from "../lib/adminData";
 import UnlockFullReportCard from "./line/UnlockFullReportCard";
+import { PRODUCTS as PRODUCT_CATALOG } from "../../data/products";
 
 const QUESTION_COUNT = 7;
 const hasJoinedLine = false;
@@ -21,13 +22,22 @@ const initialProfile = {
   exerciseHabit: "",
 };
 
-const PRODUCTS = [
-  { id: "lime", name: "青檸植萃", color: "#BFD9BF", desc: "翡翠綠｜代謝循環、腸道順暢與體內環保支持", focus: "digestion / metabolism", categories: ["digestion", "metabolism"] },
-  { id: "snow", name: "雪山植萃", color: "#E7DDCF", desc: "珍珠白｜睡眠、壓力疲勞與免疫平衡支持", focus: "sleep / stress / immune", categories: ["sleep", "stress", "immune"] },
-  { id: "rose", name: "玫瑰植萃", color: "#E6C3CC", desc: "寶石紅｜女性保養、氣色循環與抗氧化支持", focus: "female / beauty", categories: ["female", "beauty"] },
-  { id: "cinna", name: "桂香植萃", color: "#E6D39E", desc: "金鑽黃｜運動恢復、能量代謝與增肌支持", focus: "muscle / exercise", categories: ["muscle", "exercise"] },
-  { id: "berry", name: "紫莓植萃", color: "#CFC3DF", desc: "碧璽紫｜護眼抗氧化、3C 使用與長時間用眼支持", focus: "eye / screen", categories: ["eye", "screen"] },
-];
+const PRODUCT_CATEGORY_MAP = {
+  snow: ["sleep", "stress", "immune"],
+  lime: ["digestion", "metabolism"],
+  rose: ["female", "beauty"],
+  cinna: ["muscle", "exercise"],
+  berry: ["eye", "screen"],
+};
+
+const PRODUCTS = PRODUCT_CATALOG.map((product) => ({
+  id: product.id,
+  name: product.name,
+  color: product.bg_color,
+  desc: product.description,
+  focus: product.focus,
+  categories: PRODUCT_CATEGORY_MAP[product.id] || product.system_keys || [],
+}));
 
 const QUESTION_BANK = [
   { id: "sleep-01", category: "sleep", text: "最近睡醒後仍覺得疲勞，白天精神恢復速度偏慢？", tags: ["少於 5 小時", "5-6 小時", "淺眠 / 多夢", "常醒 / 早醒", "入睡困難", "輪班工作"] },
