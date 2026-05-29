@@ -4,14 +4,26 @@
 import React, { useEffect, useState } from "react";
 import LineMemberLayout from "./LineMemberLayout";
 import { doCheckin, getTaiwanToday } from "../../lib/memberProfile";
+import { productOptions } from "../../../data/products";
 
-const PRODUCT_OPTIONS = ["雪山植萃", "青檸植萃", "玫瑰植萃", "桂香植萃", "紫莓植萃"];
+const FALLBACK_PRODUCT_OPTIONS = productOptions();
 const SYMPTOM_OPTIONS = ["疲勞", "睡眠不穩", "腸胃負擔", "水腫", "壓力", "眼睛疲勞"];
 
+function readStoredMember() {
+  try {
+    const stored = sessionStorage.getItem("line_member");
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function LineCheckinPage({ route, go }) {
-  const [member, setMember] = useState(null);
+  // 使用 lazy initializer，確保 member 在首次 render 即可用（避免 effect 尚未執行時 handleCheckin guard 失敗）
+  const [member, setMember] = useState(readStoredMember);
   const [state, setState] = useState("idle"); // idle | loading | done | already
   const [result, setResult] = useState(null);
+  const [products, setProducts] = useState(FALLBACK_PRODUCT_OPTIONS);
   const [form, setForm] = useState({
     drinkProduct: "",
     moodScore: 3,
@@ -30,10 +42,19 @@ export default function LineCheckinPage({ route, go }) {
       drinkProduct: current.drinkProduct || m.recommended_drink || m.recommended_product || "雪山植萃",
     }));
 
-    // 若今天已打卡，直接顯示已完成
+    // 若今天已打卡（sessionStorage 中的 last_checkin_date 已是今天），直接顯示已完成
     if (m.last_checkin_date === getTaiwanToday()) {
       setState("already");
     }
+
+    fetch("/api/products")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (Array.isArray(data?.products) && data.products.length > 0) {
+          setProducts(data.products.map((product) => product.name));
+        }
+      })
+      .catch(() => {});
   }, [go]);
 
   async function handleCheckin() {
@@ -43,15 +64,15 @@ export default function LineCheckinPage({ route, go }) {
     const res = await doCheckin(member, form);
 
     if (res.alreadyChecked) {
-      if (res.profile) {
-        setMember(res.profile);
-        sessionStorage.setItem("line_member", JSON.stringify(res.profile));
-      }
+      // doCheckin 已用前端格式更新 sessionStorage，直接讀回即可（保持格式一致）
+      const stored = sessionStorage.getItem("line_member");
+      if (stored) setMember(JSON.parse(stored));
       setState("already");
       return;
     }
 
     if (res.success) {
+      // doCheckin 已更新 sessionStorage（normalizeMember 前端格式），讀回最新狀態
       const stored = sessionStorage.getItem("line_member");
       if (stored) setMember(JSON.parse(stored));
       setResult(res);
@@ -100,7 +121,7 @@ export default function LineCheckinPage({ route, go }) {
                 onChange={(event) => updateForm("drinkProduct", event.target.value)}
                 className="w-full rounded-lg border border-brand-border-warm bg-brand-surface px-4 py-3 text-sm text-brand-dark outline-none focus:border-brand-dark"
               >
-                {PRODUCT_OPTIONS.map((product) => (
+                {products.map((product) => (
                   <option key={product} value={product}>{product}</option>
                 ))}
               </select>
@@ -152,34 +173,48 @@ export default function LineCheckinPage({ route, go }) {
           </div>
         )}
 
-        {/* 打卡積分預告 */}
-        <div className="mb-6 grid grid-cols-3 gap-3 text-center">
-          <div className="rounded-lg border border-brand-border-warm bg-white py-4">
-            <p className="text-lg font-semibold text-brand-dark">+{previewLe}</p>
-            <p className="text-[10px] text-brand-gold-deep">生命能量 LE</p>
+        {/* 打卡積分預告（僅 idle/loading 時顯示，完成後由結果區取代）*/}
+        {(state === "idle" || state === "loading") && (
+          <div className="mb-6 grid grid-cols-3 gap-3 text-center">
+            <div className="rounded-lg border border-brand-border-warm bg-white py-4">
+              <p className="text-lg font-semibold text-brand-dark">+{previewLe}</p>
+              <p className="text-[10px] text-brand-gold-deep">生命能量 LE</p>
+            </div>
+            <div className="rounded-lg border border-brand-border-warm bg-white py-4">
+              <p className="text-lg font-semibold text-brand-dark">+3</p>
+              <p className="text-[10px] text-brand-gold-deep">健康值</p>
+            </div>
+            <div className="rounded-lg border border-brand-border-warm bg-white py-4">
+              <p className="text-lg font-semibold text-brand-dark">
+                {member?.streak_days != null ? member.streak_days + 1 : "?"}
+              </p>
+              <p className="text-[10px] text-brand-gold-deep">連續天數</p>
+            </div>
           </div>
-          <div className="rounded-lg border border-brand-border-warm bg-white py-4">
-            <p className="text-lg font-semibold text-brand-dark">+3</p>
-            <p className="text-[10px] text-brand-gold-deep">健康值</p>
-          </div>
-          <div className="rounded-lg border border-brand-border-warm bg-white py-4">
-            <p className="text-lg font-semibold text-brand-dark">
-              {member?.streak_days != null ? member.streak_days + 1 : "?"}
-            </p>
-            <p className="text-[10px] text-brand-gold-deep">連續天數</p>
-          </div>
-        </div>
+        )}
 
         {/* 狀態顯示 */}
         {state === "done" && result && (
-          <div className="mb-5 rounded-lg border border-[#BFDABC] bg-[#DDEEDB] p-5 text-center">
-            <p className="mb-1 text-base font-semibold text-[#1E6B43]">打卡成功</p>
+          <div className="mb-5 rounded-lg border border-[#BFDABC] bg-[#DDEEDB] p-5">
+            <p className="mb-1 text-base font-semibold text-[#1E6B43]">✦ 任務完成！</p>
             <p className="text-sm text-[#3E6350]">{result.message}</p>
-            <div className="mt-3 flex justify-center gap-6 text-sm">
-              <span className="text-[#1E6B43]">+{result.leAwarded || 10} LE</span>
-              <span className="text-[#1E6B43]">LE {result.le}</span>
-              <span className="text-[#1E6B43]">健康值 {result.healthScore}</span>
-              <span className="text-[#1E6B43]">{result.streakDays} 天連續</span>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-lg bg-white/60 px-3 py-3 text-center">
+                <p className="text-lg font-semibold text-[#1E6B43]">+{result.leAwarded || 10}</p>
+                <p className="text-[10px] text-[#3E6350]">生命能量 LE</p>
+              </div>
+              <div className="rounded-lg bg-white/60 px-3 py-3 text-center">
+                <p className="text-lg font-semibold text-[#1E6B43]">LE {result.le}</p>
+                <p className="text-[10px] text-[#3E6350]">現有能量</p>
+              </div>
+              <div className="rounded-lg bg-white/60 px-3 py-3 text-center">
+                <p className="text-lg font-semibold text-[#1E6B43]">{result.healthScore}</p>
+                <p className="text-[10px] text-[#3E6350]">健康值</p>
+              </div>
+              <div className="rounded-lg bg-white/60 px-3 py-3 text-center">
+                <p className="text-lg font-semibold text-[#1E6B43]">🔥 {result.streakDays} 天</p>
+                <p className="text-[10px] text-[#3E6350]">連續打卡</p>
+              </div>
             </div>
           </div>
         )}
