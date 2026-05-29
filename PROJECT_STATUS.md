@@ -7,6 +7,9 @@
 > 最新進度請優先讀：`PROJECT_PROGRESS_2026-05-25.md`。
 > 該檔已整理 Phase 1 會員首頁、打卡、My Dr. Marvin、報告、Rich Menu、Webhook、推薦、任務、Admin 推廣人與 Vercel Hobby function 上限修正的最新狀態。
 
+> **2026-05-29 Phase 0 production schema audit 已完成。**
+> production schema 主體與 `profiles` canonical 方向對齊。詳見下方「資料庫資料表現況」與「目前優先任務」。
+
 ---
 
 ## 基本資訊（不常變動）
@@ -80,25 +83,30 @@
 
 | 資料表 | 狀態 | 備註 |
 |------|------|------|
-| `profiles` | ⚠️ 需補 migration | 目前 `src/lib/memberProfile.js` 已改為 LINE 會員主表，但 active SQL 尚未完整補齊程式使用的 LINE / 會員欄位 |
+| `profiles` | ✅ Production 已確認 | **2026-05-29 audit**：V2 所有欄位到位（`line_user_id` unique、`level`/`p_points`/`cp_points`/`le_points` 新命名全數確認）。技術債：舊欄位 `lp`/`cp`/`member_level`/`member_title` 仍殘留，不影響流程 |
 | `partners` | ✅ 正常 | 合作夥伴資料表 |
 | `announcements` | ✅ 正常 | 最新消息資料表 |
 | `gallery_items` | ✅ 正常 | Gallery 資料表 |
-| `assessment_reports` | ✅ 可用 | 主快篩報告表；LINE webhook 已支援 UUID 前 8 碼查詢並回寫 `line_user_id` / `line_sent_at` |
+| `assessment_reports` | ✅ Production 已確認 | **2026-05-29 audit**：`line_user_id`/`line_sent_at`/`member_id`/`short_code`/`full_ai_report`/`seven_day_plan`/`report_sent_at` 全部確認。FK `assessment_reports_member_id_fkey` → `profiles(id)` |
 | `contact_submissions` | ✅ 正常 | 聯絡表單資料表 |
 | `assessments` | ⚠️ 待確認 | `supabase/assessments.sql` 舊表，是否仍使用待確認 |
-| `line_members` | ⚠️ 模型待決 | active SQL 沒有建立；但目前前端已改讀寫 `profiles`，文件中舊描述「程式大量使用 line_members」已不完全準確 |
-| `daily_checkins` | ❌ 有問題 | `line_member_mvp.sql` FK 指向 `line_members(id)`，但目前前端傳入的是 `profiles.id` |
-| `daily_ai_messages` | ⚠️ 待確認 | `line_member_mvp.sql` FK 指向 `profiles(id)`，和目前前端傳入 `profiles.id` 對齊，但需和 `daily_checkins` 一起統一 |
+| `line_members` | ✅ 已確認不存在 | **2026-05-29 audit**：production HTTP 404，表不存在，無任何 orphan `line_member_id` 欄位 |
+| `daily_checkins` | ✅ FK 已確認 | **2026-05-29 audit**：`daily_checkins_member_id_fkey` → `profiles(id)` ✅。技術債：`daily_checkins_profile_id_fkey` → `profiles(id)` 並存（雙 FK），PostgREST join 需指定 FK 名稱，不影響功能 |
+| `daily_ai_messages` | ✅ FK 已確認 | **2026-05-29 audit**：單一 FK → `profiles(id)`，無歧義 |
+| `promoters` | ✅ Production 已確認 | **2026-05-29 audit**：table 存在，`id`/`type`/`name`/`cp_per_referral`/`cp_per_first_purchase`/`is_active` 全部到位 |
+| `dr_marvin_reports` | ✅ Production 已確認 | **2026-05-29 audit**：table 存在，`profile_id` FK → `profiles(id)` 確認 |
+| `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
-**assessment_reports 待確認欄位：**
-- `line_user_id` — 正式 LINE webhook 會回寫；已可用。
-- `line_sent_at` — 正式 LINE webhook 會回寫；已可用。
-- `member_id` — 正式 LINE webhook 會嘗試回寫 `profiles.id`；目前 LIFF 會員程式也已改用 `profiles`，但 SQL migration 還沒完全跟上。
-- `short_code` — SQL schema 未看到此欄位；webhook 已改為優先使用 UUID 前 8 碼查詢，`short_code` 僅作 fallback。
-- `has_joined_line` — 主 schema 已存在。
-- `full_report` / `partial_report` — 主 schema 已存在。
-- `recommended_products` / `ai_analysis` / `lifestyle_advice` — 主 schema 已存在。
+**assessment_reports 欄位確認（2026-05-29 production audit）：**
+- `line_user_id` — ✅ production 確認存在
+- `line_sent_at` — ✅ production 確認存在
+- `member_id` — ✅ production 確認存在，FK（`assessment_reports_member_id_fkey`）→ `profiles(id)`
+- `short_code` — ✅ production 確認存在（webhook UUID 前 8 碼主路徑 + `short_code` fallback 均可用）
+- `has_joined_line` — ✅ production 確認存在
+- `full_report` / `partial_report` — ✅ production 確認存在
+- `recommended_products` / `ai_analysis` — ✅ production 確認存在
+- `full_ai_report` / `seven_day_plan` / `report_sent_at` — ✅ production 確認存在（V2 webhook 回寫欄位）
+- 注意：`profiles.latest_assessment_id` 在 production 有 FK → `assessment_reports(id)`，但未出現在任何已知 migration 檔，需補文件記錄（技術債，不阻斷）
 
 ---
 
@@ -151,6 +159,7 @@
 | `/admin/assessments` | 快篩結果查閱 | ✅ 正常 |
 | `/admin/contact` | 聯絡表單管理 | ✅ 正常 |
 | `/admin/settings` | 系統設定 | ✅ 正常 |
+| `/line/member-home` | LINE LIFF 會員首頁（Mission Hub） | ✅ 完成（2026-05-29）|
 | `/line/entry` | LIFF 入口 / 建立會員 | 🔧 進行中 |
 | `/line/today` | LINE 今日狀態 | 🔧 進行中 |
 | `/line/checkin` | 今日打卡 | 🔧 進行中 |
@@ -175,7 +184,7 @@
   - `lineSecretConfigured: true`
   - `lineTokenConfigured: true`
 - 重要事故：`SUPABASE_SERVICE_ROLE_KEY` 曾誤填 anon key，導致 webhook 查 `assessment_reports` 時回 `42501` 權限錯誤。已更新為 service_role key 並重新部署。
-- 安全提醒：service role key 曾在對話中貼出；功能驗收後建議到 Supabase rotate 新 key，再更新 Vercel production。
+- 安全維運：service role key 曾在對話中貼出；無外洩直接證據，已降為 Medium Priority 排程項目，待功能驗收後擇期執行 rotate（Bryan 手動操作 Supabase dashboard）。
 
 ### 已完成
 - `api/line-webhook.js` 已存在，支援 LINE Webhook POST。
@@ -200,9 +209,8 @@
 - Webhook 未處理 `postback` 事件。
 - Webhook 目前仍是純文字回覆，尚未做 Flex Message。
 - Webhook 查詢有 `short_code` fallback，但正式主路徑已改用 UUID 前 8 碼；後續需決定是否正式新增 / 保留 `short_code` 欄位。
-- LINE 會員主表目前呈現「文件 / SQL 曾規劃 `line_members`，但前端已改用 `profiles`」的分裂狀態，需正式決定長期模型。
-- `line_member_mvp.sql` 的 `daily_checkins.member_id` reference `line_members(id)`，但 `daily_ai_messages.member_id` reference `profiles(id)`；目前前端兩者都會傳 `profiles.id`。
-- `line_member_mvp.sql` 擴充的欄位名稱和目前程式不一致：SQL 有 `display_name` / `picture_url` / `le`，程式使用 `line_display_name` / `line_picture_url` / `lp` 等。
+- ~~LINE 會員主表分裂狀態~~ **2026-05-29 已解決**：production `line_members` 不存在，`profiles` 為 canonical table，兩 FK 均指向 `profiles(id)`。
+- `line_member_mvp.sql` 欄位命名（`display_name`/`picture_url`/`le`）與 production 及程式（`line_display_name`/`line_picture_url`/`p_points`）仍不一致，但 production 已以正確命名為準；`line_member_mvp.sql` 視為歷史參考文件，不影響流程。
 - `.env.example` 目前工作區已補 `VITE_LINE_LIFF_ID`、`LINE_CHANNEL_SECRET`、`LINE_CHANNEL_ACCESS_TOKEN`，但檔案尚未確認已提交。
 - 尚無自動 push 完整報告流程。
 - LIFF 會員頁尚未完整串接官網快篩報告歷史。
@@ -214,13 +222,48 @@
 
 ## 目前優先任務
 
-### Phase 0 — 立即修復（本週，其他所有 LIFF 功能的前提）
+### Phase 0 — 狀態更新（2026-05-29 schema audit 後）
 
-1. **建立正式 LINE 會員 migration** — 目前建議優先統一使用 `profiles` 作為 LINE 會員主表，補齊 `src/lib/memberProfile.js` 實際使用欄位；若改回 `line_members`，則需同步改回前端資料操作。
-2. **統一 `daily_checkins` / `daily_ai_messages` 的 FK** — 目前 `daily_checkins.member_id` 指向 `line_members(id)`、`daily_ai_messages.member_id` 指向 `profiles(id)`；以現有前端來看應統一指向 `profiles(id)`。
-3. **修正欄位命名不一致** — `line_member_mvp.sql` 與 `memberProfile.js` 對 `line_display_name`、`line_picture_url`、`lp`、`mood`、`energy_level`、`symptoms`、`lp_earned` 等欄位尚未對齊。
-4. **確認 `.env.example` 變更提交** — 工作區已補 `VITE_LINE_LIFF_ID`、`LINE_CHANNEL_SECRET`、`LINE_CHANNEL_ACCESS_TOKEN`，但需確認 commit / 部署文件同步。
-5. **Rotate Supabase service role key** — 因 service role key 曾出現在對話中，需到 Supabase rotate 新 key，並更新 Vercel production / preview env。
+**已確認完成（production read-only audit 驗證，不需要再執行 migration）：**
+
+1. ✅ `profiles` 作為 canonical LINE member table — production V2 欄位全部到位
+2. ✅ `line_members` 不存在 — production 已無此表，無 orphan FK
+3. ✅ `daily_checkins.member_id` FK → `profiles(id)` — production 已確認
+4. ✅ `daily_ai_messages.member_id` FK → `profiles(id)` — production 已確認
+5. ✅ `assessment_reports.line_user_id` / `line_sent_at` / `member_id` — production 已確認
+6. ✅ `promoters` / `dr_marvin_reports` — production 已確認存在
+
+**仍需處理（進入 Phase 1 前完成）：**
+
+1. **確認 `.env.example` 變更提交** — 工作區已補 `VITE_LINE_LIFF_ID`、`LINE_CHANNEL_SECRET`、`LINE_CHANNEL_ACCESS_TOKEN`，但需確認 commit / 部署文件同步。
+2. **`city_climate` 資料補充** — production table 只有 `city`/`temperature`/`humidity`，AI 報告氣候脈絡薄弱，建議補充季節與氣候描述欄位及台灣主要城市資料。
+
+**降為 Medium Priority（不阻斷 Phase 1 啟動）：**
+
+- **Rotate Supabase service role key** — 無外洩直接證據；待功能驗收後擇期執行（Bryan 手動操作 Supabase dashboard → rotate → 更新 Vercel env）。
+
+**技術債（Phase 1 後排程清理，不影響目前流程）：**
+
+- `profiles` 舊欄位 `lp`/`cp`/`member_level`/`member_title` 仍殘留 production
+- `profiles.latest_assessment_id` 有 production FK → `assessment_reports(id)` 但無 migration 記錄，需補文件
+- `daily_checkins` 雙 FK（`member_id`/`profile_id`）造成 PostgREST join 需明確指定 FK 名稱
+
+### Phase 1 — 第一個垂直切片（2026-05-29 完成）
+
+**已完成：LINE LIFF 會員首頁（Mission Hub）**
+
+- ✅ `src/pages/line/LineMemberHomePage.jsx` — 對齊 `MEMBER_SYSTEM_PAGES_SPEC_V1.1.md §1` Mission Hub 規格：
+  - 身份卡：顯示名稱 + 等級＋稱號 + 連續打卡天數 badge
+  - 三點數儀表：LE / CP / P（修正舊版誤顯 health_score）
+  - 今日任務提示卡（區塊 B）：未打卡→CTA + streak；已打卡→✓ 完成提示
+  - 今日洞察（區塊 C）：加入免責聲明
+  - Dr. Marvin 知識卡片（區塊 D）：依 `reports_count` 切換「查看報告」或「開始檢測」
+  - 情境提示（區塊 E）：週一顯示「更新本週健康數據」提示
+  - Feature grid / 活動公告保留
+  - LIFF 未登入→自動 redirect `/line/entry`；API 失敗→fallback 顯示錯誤訊息
+- ✅ `src/pages/line/LineMemberLayout.jsx` — 底部導航對齊規格：首頁/健檢/Marvin/任務/帳戶
+- ✅ `npm run build` — 0 errors，✓ 2252 modules transformed
+- ✅ 資料來源：`/api/member/home`（已有 `has_checked_in_today`、`reports_count`、`streak_days`、`p_points`、`seven_day_plan`）
 
 ### 下一階段
 
@@ -234,23 +277,26 @@
 
 | 問題 | 嚴重度 | 狀態 |
 |------|------|------|
-| LINE 會員主表在 `profiles` / `line_members` 之間分裂 | 高 | ❌ 有問題：目前前端用 `profiles`，SQL 仍殘留 `line_members` FK |
-| webhook 查 `short_code`，但 schema 未見 `short_code` 欄位 | 高 | ✅ 已緩解：production 優先查 UUID 前 8 碼，`short_code` 僅 fallback |
+| LINE 會員主表在 `profiles` / `line_members` 之間分裂 | 高 | ✅ 已解決（2026-05-29 audit）：production `line_members` 不存在，`profiles` 為唯一 canonical table |
+| webhook 查 `short_code`，但 schema 未見 `short_code` 欄位 | 高 | ✅ 已解決：`short_code` 欄位 production 已確認存在；webhook UUID 前 8 碼主路徑 + fallback 均可用 |
 | 前端 8 碼報告編號與 webhook 查詢欄位不一致 | 高 | ✅ 已修正：webhook 支援 UUID 前 8 碼 |
 | `formatReport()` 使用 `report.level`，可能導致 LINE 健康等級顯示未知 | 中 | ✅ 已修正：改讀 `inflammation_level` |
-| `daily_checkins` 與 `daily_ai_messages` 的 member reference 不一致 | 高 | ❌ 有問題 |
-| `line_member_mvp.sql` 欄位命名與 `memberProfile.js` 不一致 | 高 | ❌ 有問題 |
+| `daily_checkins` 與 `daily_ai_messages` 的 member reference 不一致 | 高 | ✅ 已解決（2026-05-29 audit）：兩者 FK 均指向 `profiles(id)` |
+| `line_member_mvp.sql` 欄位命名與 `memberProfile.js` 不一致 | 低 | ⚠️ 技術債（降級）：production 已正確，`line_member_mvp.sql` 為歷史文件，不影響流程 |
 | Webhook 未處理 `follow` 事件 | 中 | ✅ 已修正 |
 | Webhook 缺少 Flex Message | 中 | 🔧 進行中 |
 | LINE push / 自動推送完整報告尚未完成 | 中 | 🔧 進行中 |
 | `VITE_LINE_LIFF_ID` 未列入 `.env.example` | 中 | 🔧 工作區已補，待提交確認 |
 | `LINE_CHANNEL_SECRET` / `LINE_CHANNEL_ACCESS_TOKEN` 未列入 `.env.example` | 中 | 🔧 工作區已補，待提交確認 |
 | Vercel production `SUPABASE_SERVICE_ROLE_KEY` 誤填 anon key | 高 | ✅ 已修正，health check 顯示 `service_role` |
-| `SUPABASE_SERVICE_ROLE_KEY` 曾出現在對話記錄 | 高 | ❌ 需 rotate key 並更新 Vercel env |
+| `SUPABASE_SERVICE_ROLE_KEY` 曾出現在對話記錄 | 中 | ⚠️ 降為 Medium Priority（2026-05-29）：無外洩直接證據，排程執行 rotate |
 | 後台同時存在 Supabase Auth 前端流程與 `api/admin.js` passcode/service role 舊流程 | 中 | ⚠️ 待確認 |
 | `api/admin.js` allowedTables 未包含 `contact_submissions`，但前端後台有聯絡表單管理 | 中 | ⚠️ 待確認 |
 | Build bundle 超過 500 kB 警告 | 低 | ⚠️ 待確認 |
 | `memberProfile.js` 同時被動態與靜態 import，code splitting 無效 | 低 | ⚠️ 待確認 |
+| `profiles.latest_assessment_id` 有 production FK 但無 migration 記錄 | 低 | ⚠️ 技術債：需補文件 migration 記錄，不影響功能 |
+| `daily_checkins` 雙 FK（`member_id`/`profile_id`）PostgREST join 需指定名稱 | 低 | ⚠️ 技術債：功能無影響，未來 API 查詢需注意 |
+| `city_climate` 資料過薄 | 中 | ⚠️ 待補充：只有 `city`/`temperature`/`humidity`，影響 AI 報告氣候脈絡品質 |
 
 ---
 
@@ -258,6 +304,8 @@
 
 | 日期 | 更新重點 |
 |------|------|
+| 2026-05-29 | Phase 1 第一個垂直切片：LINE LIFF 會員首頁（Mission Hub）完成；`LineMemberHomePage.jsx` 對齊 MEMBER_SYSTEM_PAGES_SPEC_V1.1 規格（三點數 LE/CP/P、今日任務 CTA、洞察免責聲明、Dr.Marvin 知識卡切換、週一情境提示）；`LineMemberLayout.jsx` 底部導航對齊規格；npm run build ✓ 0 errors |
+| 2026-05-29 | Phase 0 production schema read-only audit 完成：`profiles` canonical 方向確認、`line_members` 不存在確認、`daily_checkins`/`daily_ai_messages` FK 均指向 `profiles(id)` 確認、`assessment_reports` 關鍵欄位確認、`promoters`/`dr_marvin_reports` 確認存在；service role key rotate 降為 Medium Priority；文件同步更新 |
 | 2026-05-23 | 更新 Phase 0 判斷：目前不是單純缺 `line_members`，而是 `profiles` / `line_members` 模型分裂；現有前端已改用 `profiles`，需讓 migration、FK、欄位命名全部對齊 |
 | 2026-05-22 | 修復 LINE webhook production：關閉 OA 自動回應、修正 Webhook URL 到 `www`、確認正式 Vercel 專案為 `phytologic-official-site-esme`、修正 raw signature、follow 事件、UUID 前 8 碼查詢、`inflammation_level`，並將 `SUPABASE_SERVICE_ROLE_KEY` 從 anon 改為 service_role |
 | 2026-05-22 | 更新 LINE / LIFF / schema 現況，確認 build 成功並標出報告編號與 `line_members` 高風險問題 |

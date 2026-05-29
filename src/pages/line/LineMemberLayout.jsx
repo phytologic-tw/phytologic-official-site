@@ -2,16 +2,17 @@
 // 所有 /line/* 頁面共用的 Layout：頂部品牌欄 + 底部導航列
 
 import React from "react";
-import { ClipboardCheck, Home, ShoppingBag, Stethoscope, UserRound } from "lucide-react";
+import { ClipboardCheck, Home, Sparkles, Stethoscope, UserRound } from "lucide-react";
 
 const logo = "/logo.png";
 
+// 規格：首頁 / 健檢 / Marvin / 任務 / 帳戶（MEMBER_SYSTEM_PAGES_SPEC_V1.1 §10.2）
 const NAV_ITEMS = [
   { path: "/line/member-home", label: "首頁", Icon: Home },
-  { path: "/line/assessment", label: "檢測", Icon: Stethoscope },
-  { path: "/line/checkin", label: "打卡", Icon: ClipboardCheck },
-  { path: "/line/shop", label: "商城", Icon: ShoppingBag },
-  { path: "/line/profile", label: "我的", Icon: UserRound },
+  { path: "/line/checkin", label: "健檢", Icon: ClipboardCheck },
+  { path: "/line/assessment", label: "Marvin", Icon: Stethoscope },
+  { path: "/line/tasks", label: "任務", Icon: Sparkles },
+  { path: "/line/profile", label: "帳戶", Icon: UserRound },
 ];
 
 export default function LineMemberLayout({ children, route, go, member }) {
