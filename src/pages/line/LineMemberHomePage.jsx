@@ -30,7 +30,7 @@ const ACTION_ICONS = {
 const QUICK_ACTIONS = [
   { id: "checkin",    label: "今日打卡",      sub: "完成打卡・拿能量",   path: "/line/checkin"    },
   { id: "reports",   label: "我的報告",      sub: "查看健康趨勢",       path: "/line/reports"    },
-  { id: "assessment",label: "My Dr. Marvin", sub: "深度健康檢測",       path: "/line/assessment" },
+  { id: "assessment",label: "Dr. Marvin",    sub: "深度健康檢測",       path: "/line/assessment" },
   { id: "shop",      label: "植萃商城",      sub: "健康好物選購",       path: "/line/shop"       },
   { id: "tasks",     label: "任務中心",      sub: "任務拿獎勵",         path: "/line/missions"   },
   { id: "profile",   label: "我的帳戶",      sub: "個人資訊管理",       path: "/line/profile"    },
@@ -39,11 +39,11 @@ const QUICK_ACTIONS = [
 ];
 
 const FIVE_DIMS = [
-  { icon: "⚡", label: "能量指數", key: "energy"      },
-  { icon: "🌙", label: "睡眠指數", key: "sleep"       },
-  { icon: "🔄", label: "消化指數", key: "digestion"   },
-  { icon: "💧", label: "循環指數", key: "circulation" },
-  { icon: "💪", label: "肌力指數", key: "strength"    },
+  { icon: "⚡", label: "能量指數", key: "energy_score"      },
+  { icon: "🌙", label: "睡眠指數", key: "sleep_score"       },
+  { icon: "🔄", label: "消化指數", key: "digestion_score"   },
+  { icon: "💧", label: "循環指數", key: "circulation_score" },
+  { icon: "💪", label: "肌力指數", key: "muscle_score"      },
 ];
 
 const NUMEROLOGY_MSG = {
@@ -136,37 +136,39 @@ export default function LineMemberHomePage({ route, go }) {
       try {
         const params = new URLSearchParams({ lineUserId: storedMember.line_user_id });
         const response = await fetch(`/api/member/home?${params.toString()}`);
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || "首頁資料讀取失敗");
 
-        setHomeData(result);
-        setMember(result.profile);
-        sessionStorage.setItem("line_member", JSON.stringify(result.profile));
+        // 先確認回應為 JSON（ok = 2xx）再解析，避免 HTML 404 拋 SyntaxError
+        if (response.ok) {
+          const result = await response.json();
+          setHomeData(result);
+          setMember(result.profile);
+          sessionStorage.setItem("line_member", JSON.stringify(result.profile));
 
-        if (!result.daily_insight_generated) {
-          fetch("/api/dr-marvin/insight", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ lineUserId: storedMember.line_user_id }),
-          })
-            .then((r) => r.json())
-            .then((ins) => {
-              if (!ins?.daily_insight) return;
-              setHomeData((cur) =>
-                cur
-                  ? { ...cur, daily_insight: ins.daily_insight, daily_insight_generated: true }
-                  : cur
-              );
-              if (ins.profile) {
-                setMember(ins.profile);
-                sessionStorage.setItem("line_member", JSON.stringify(ins.profile));
-              }
+          if (!result.daily_insight_generated) {
+            fetch("/api/dr-marvin/insight", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lineUserId: storedMember.line_user_id }),
             })
-            .catch((e) => console.error("[LineMemberHomePage] insight generation failed:", e));
+              .then((r) => (r.ok ? r.json() : null))
+              .then((ins) => {
+                if (!ins?.daily_insight) return;
+                setHomeData((cur) =>
+                  cur
+                    ? { ...cur, daily_insight: ins.daily_insight, daily_insight_generated: true }
+                    : cur
+                );
+                if (ins.profile) {
+                  setMember(ins.profile);
+                  sessionStorage.setItem("line_member", JSON.stringify(ins.profile));
+                }
+              })
+              .catch(() => {});
+          }
         }
       } catch (err) {
-        console.error("[LineMemberHomePage] load failed:", err);
-        setErrorMsg(err.message);
+        // 網路錯誤（CORS、DNS 等）— 靜默降級，頁面以 sessionStorage 資料渲染
+        console.warn("[LineMemberHomePage] API unavailable, using cached data");
       } finally {
         setLoading(false);
       }

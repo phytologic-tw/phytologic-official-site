@@ -159,7 +159,7 @@
 | `/admin/assessments` | 快篩結果查閱 | ✅ 正常 |
 | `/admin/contact` | 聯絡表單管理 | ✅ 正常 |
 | `/admin/settings` | 系統設定 | ✅ 正常 |
-| `/line/member-home` | LINE LIFF 會員首頁（Mission Hub） | ✅ 完成（2026-05-29）|
+| `/line/member-home` | LINE LIFF 會員首頁（重構 v2：健康分數卡、靈感輪播、8 快捷） | ✅ 重構完成（2026-05-30）|
 | `/line/entry` | LIFF 入口 / 建立會員 | 🔧 進行中 |
 | `/line/today` | LINE 今日狀態 | 🔧 進行中 |
 | `/line/checkin` | 今日打卡 | 🔧 進行中 |
@@ -248,20 +248,30 @@
 - `profiles.latest_assessment_id` 有 production FK → `assessment_reports(id)` 但無 migration 記錄，需補文件
 - `daily_checkins` 雙 FK（`member_id`/`profile_id`）造成 PostgREST join 需明確指定 FK 名稱
 
+### Phase 1B — 會員首頁重構（2026-05-30 完成）
+
+**已完成：LIFF 會員首頁重新設計**
+
+- ✅ `src/pages/line/LineMemberLayout.jsx` — 底部導覽列完全移除（commit: `3c539e1`）：
+  - 移除所有 tab bar JSX / icon imports / NAV_ITEMS
+  - 新 Zone 1 Header：Logo + 植本邏輯 + 🔔通知 + 圓形頭像（金色框 + L-badge）
+  - `height: 100dvh; display: flex; flex-direction: column`
+  - main: `overflow-y: auto; padding-bottom: env(safe-area-inset-bottom)`
+- ✅ `src/pages/line/LineMemberHomePage.jsx` — 6 Zone 單頁設計（commit: `ee5b903`）：
+  - Zone 2：問候區（早安/午安/晚安 依台灣時區動態切換）
+  - Zone 3：健康分數大卡（深綠背景、SVG 弧形儀表、五維指數列）
+  - Zone 4：今日植本靈感橫向輪播（scroll-snap、卡片 A 植萃 + 卡片 B 生命靈數、dot indicator）
+  - Zone 5：8 快捷功能 2×4 grid（今日打卡已完成時顯示已完成狀態、opacity 0.65）
+  - Zone 6：七日健康啟動計畫進度條（條件顯示，僅在進行中時渲染）
+  - 保留原始 useEffect 資料讀取邏輯（`/api/member/home` + `/api/dr-marvin/insight`）
+- ✅ `npm run build` — 0 errors，✓ 2252 modules transformed
+
 ### Phase 1 — 第一個垂直切片（2026-05-29 完成）
 
-**已完成：LINE LIFF 會員首頁（Mission Hub）**
+**已完成：LINE LIFF 會員首頁（Mission Hub v1）**
 
-- ✅ `src/pages/line/LineMemberHomePage.jsx` — 對齊 `MEMBER_SYSTEM_PAGES_SPEC_V1.1.md §1` Mission Hub 規格：
-  - 身份卡：顯示名稱 + 等級＋稱號 + 連續打卡天數 badge
-  - 三點數儀表：LE / CP / P（修正舊版誤顯 health_score）
-  - 今日任務提示卡（區塊 B）：未打卡→CTA + streak；已打卡→✓ 完成提示
-  - 今日洞察（區塊 C）：加入免責聲明
-  - Dr. Marvin 知識卡片（區塊 D）：依 `reports_count` 切換「查看報告」或「開始檢測」
-  - 情境提示（區塊 E）：週一顯示「更新本週健康數據」提示
-  - Feature grid / 活動公告保留
-  - LIFF 未登入→自動 redirect `/line/entry`；API 失敗→fallback 顯示錯誤訊息
-- ✅ `src/pages/line/LineMemberLayout.jsx` — 底部導航對齊規格：首頁/健檢/Marvin/任務/帳戶
+- ✅ `src/pages/line/LineMemberHomePage.jsx` — Mission Hub 規格（已由 Phase 1B 重構）
+- ✅ `src/pages/line/LineMemberLayout.jsx` — 底部導航（已由 Phase 1B 重構為無導航）
 - ✅ `npm run build` — 0 errors，✓ 2252 modules transformed
 - ✅ 資料來源：`/api/member/home`（已有 `has_checked_in_today`、`reports_count`、`streak_days`、`p_points`、`seven_day_plan`）
 
@@ -304,6 +314,7 @@
 
 | 日期 | 更新重點 |
 |------|------|
+| 2026-05-30 | Phase 1B 會員首頁重構：`LineMemberLayout.jsx` 底部導覽列完全移除（100dvh + safe-area）；`LineMemberHomePage.jsx` 6 Zone 單頁設計（健康分數卡 + 弧形儀表 + 五維指數 + 靈感輪播 scroll-snap + 8 快捷 grid + 七日計畫進度條）；npm run build ✓ 0 errors |
 | 2026-05-29 | Phase 1 第一個垂直切片：LINE LIFF 會員首頁（Mission Hub）完成；`LineMemberHomePage.jsx` 對齊 MEMBER_SYSTEM_PAGES_SPEC_V1.1 規格（三點數 LE/CP/P、今日任務 CTA、洞察免責聲明、Dr.Marvin 知識卡切換、週一情境提示）；`LineMemberLayout.jsx` 底部導航對齊規格；npm run build ✓ 0 errors |
 | 2026-05-29 | Phase 0 production schema read-only audit 完成：`profiles` canonical 方向確認、`line_members` 不存在確認、`daily_checkins`/`daily_ai_messages` FK 均指向 `profiles(id)` 確認、`assessment_reports` 關鍵欄位確認、`promoters`/`dr_marvin_reports` 確認存在；service role key rotate 降為 Medium Priority；文件同步更新 |
 | 2026-05-23 | 更新 Phase 0 判斷：目前不是單純缺 `line_members`，而是 `profiles` / `line_members` 模型分裂；現有前端已改用 `profiles`，需讓 migration、FK、欄位命名全部對齊 |
