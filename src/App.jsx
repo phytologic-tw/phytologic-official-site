@@ -1553,7 +1553,7 @@ export default function PhytologicWebsite() {
   if (isLineRoute) {
     const linePage = route === "/line" || route === "/line/entry"
       ? <LineEntry go={go} />
-      : route === "/line/member-home"
+      : route === "/line/member-home" || route === "/line/home"
       ? <LineMemberHomePage route={route} go={go} />
       : route === "/line/today"
       ? <LineTodayPage route={route} go={go} />
