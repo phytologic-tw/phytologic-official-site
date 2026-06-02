@@ -159,14 +159,18 @@
 | `/admin/assessments` | 快篩結果查閱 | ✅ 正常 |
 | `/admin/contact` | 聯絡表單管理 | ✅ 正常 |
 | `/admin/settings` | 系統設定 | ✅ 正常 |
-| `/line/member-home` | LINE LIFF 會員首頁（重構 v2：健康分數卡、靈感輪播、8 快捷） | ✅ 重構完成（2026-05-30）|
+| `/line/member-home` | LINE LIFF 會員首頁（重構 v3：任務中心整合打卡、植本百科入口、靈感輪播對齊） | ✅ 已更新（2026-06-02）|
 | `/line/entry` | LIFF 入口 / 建立會員 | 🔧 進行中 |
 | `/line/today` | LINE 今日狀態 | 🔧 進行中 |
 | `/line/checkin` | 今日打卡 | 🔧 進行中 |
 | `/line/profile` | LINE 會員資料 | 🔧 進行中 |
 | `/line/tasks` | LINE 任務頁 | 🔧 進行中 |
+| `/line/missions` | LINE 任務中心 alias | ✅ 對應 `/line/tasks` |
 | `/line/shop` | LINE 商城導流 | 🔧 進行中 |
 | `/line/assessment` | LINE 版快篩 | 🔧 進行中 |
+| `/line/encyclopedia` | 植本百科商品陳列（第一層） | ✅ 已完成（2026-06-02） |
+| `/line/encyclopedia/:productId` | 商品詳情五 Tab（第二層） | ✅ 已完成（2026-06-02） |
+| `/line/encyclopedia/:productId/wiki/:ingredientId` | 植物原料百科（第三層） | ✅ 已完成（2026-06-02） |
 
 ---
 
@@ -260,11 +264,22 @@
 - ✅ `src/pages/line/LineMemberHomePage.jsx` — 6 Zone 單頁設計（commit: `ee5b903`）：
   - Zone 2：問候區（早安/午安/晚安 依台灣時區動態切換）
   - Zone 3：健康分數大卡（深綠背景、SVG 弧形儀表、五維指數列）
-  - Zone 4：今日植本靈感橫向輪播（scroll-snap、卡片 A 植萃 + 卡片 B 生命靈數、dot indicator）
-  - Zone 5：8 快捷功能 2×4 grid（今日打卡已完成時顯示已完成狀態、opacity 0.65）
+  - Zone 4：今日植本靈感橫向輪播（scroll-snap、卡片左緣對齊 page-padding、dot indicator）
+  - Zone 5：8 快捷功能 2×4 grid（今日打卡合併入任務中心；已打卡時顯示 `今日已打卡 ✓`、opacity 0.65；新增植本百科入口）
   - Zone 6：七日健康啟動計畫進度條（條件顯示，僅在進行中時渲染）
   - 保留原始 useEffect 資料讀取邏輯（`/api/member/home` + `/api/dr-marvin/insight`）
 - ✅ `npm run build` — 0 errors，✓ 2252 modules transformed
+
+### Phase 2 — 植本百科三層架構（2026-06-02 完成）
+
+- ✅ Phase 1B LineMemberHomePage 快捷功能重構 → 已完成
+- ✅ Phase 2 植本百科三層架構 → 已完成
+- ✅ Phase 2 輪播對齊修正 → 已完成
+- ✅ `src/pages/line/EncyclopediaListPage.jsx` — 第一層商品陳列
+- ✅ `src/pages/line/ProductDetailPage.jsx` — 第二層商品詳情五 Tab（營養素、植化素、材料、配方原理、植本百科）
+- ✅ `src/pages/line/WikiDetailPage.jsx` — 第三層植物原料百科（歷史淵源、生長背景、食用方式、營養與植化素價值）
+- ✅ `src/App.jsx` — 註冊 `/line/encyclopedia/*` 路由與 `/line/missions` alias
+- ✅ `npm run build` — 0 errors，0 warnings
 
 ### Phase 1 — 第一個垂直切片（2026-05-29 完成）
 
@@ -314,6 +329,7 @@
 
 | 日期 | 更新重點 |
 |------|------|
+| 2026-06-02 | Phase 1B/2 UI 更新：`LineMemberHomePage.jsx` 今日打卡合併入任務中心、快捷格新增植本百科、今日植本靈感輪播對齊 page-padding；新增植本百科三層頁面 `/line/encyclopedia`、`/line/encyclopedia/:productId`、`/line/encyclopedia/:productId/wiki/:ingredientId`；`vite.config.js` 調整 chunk warning threshold；npm run build ✓ 0 errors / 0 warnings |
 | 2026-05-30 | Phase 1B 會員首頁重構：`LineMemberLayout.jsx` 底部導覽列完全移除（100dvh + safe-area）；`LineMemberHomePage.jsx` 6 Zone 單頁設計（健康分數卡 + 弧形儀表 + 五維指數 + 靈感輪播 scroll-snap + 8 快捷 grid + 七日計畫進度條）；npm run build ✓ 0 errors |
 | 2026-05-29 | Phase 1 第一個垂直切片：LINE LIFF 會員首頁（Mission Hub）完成；`LineMemberHomePage.jsx` 對齊 MEMBER_SYSTEM_PAGES_SPEC_V1.1 規格（三點數 LE/CP/P、今日任務 CTA、洞察免責聲明、Dr.Marvin 知識卡切換、週一情境提示）；`LineMemberLayout.jsx` 底部導航對齊規格；npm run build ✓ 0 errors |
 | 2026-05-29 | Phase 0 production schema read-only audit 完成：`profiles` canonical 方向確認、`line_members` 不存在確認、`daily_checkins`/`daily_ai_messages` FK 均指向 `profiles(id)` 確認、`assessment_reports` 關鍵欄位確認、`promoters`/`dr_marvin_reports` 確認存在；service role key rotate 降為 Medium Priority；文件同步更新 |

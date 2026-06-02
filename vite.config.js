@@ -107,6 +107,9 @@ export default defineConfig(({ mode }) => {
   const env = readLocalEnv(mode);
 
   return {
+    build: {
+      chunkSizeWarningLimit: 800,
+    },
     plugins: [react(), localAnalyzeApi(env)],
   };
 });
