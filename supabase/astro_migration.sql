@@ -238,6 +238,10 @@ CREATE INDEX IF NOT EXISTS idx_member_astro_profile_id ON member_astro_profiles(
 CREATE INDEX IF NOT EXISTS idx_numerology_daily_cards_flow ON numerology_daily_cards(flow_number, card_type);
 CREATE INDEX IF NOT EXISTS idx_numerology_deck_number ON numerology_card_deck(number);
 CREATE INDEX IF NOT EXISTS idx_zwds_stems_stem ON zwds_heavenly_stems(stem);
+CREATE UNIQUE INDEX IF NOT EXISTS numerology_daily_cards_flow_type_unique
+  ON numerology_daily_cards(flow_number, card_type);
+CREATE UNIQUE INDEX IF NOT EXISTS numerology_card_deck_illustration_key_unique
+  ON numerology_card_deck(illustration_key);
 
 -- RLS
 ALTER TABLE member_astro_profiles ENABLE ROW LEVEL SECURITY;
