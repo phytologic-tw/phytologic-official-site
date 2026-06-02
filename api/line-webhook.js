@@ -93,7 +93,7 @@ const LIFF_ACTIONS = {
   },
   assessment: {
     title: "My Dr. Marvin",
-    body: "完成 15 題深度檢測，整理你的五維健康分數、生活線索與植萃方向。",
+    body: "完成 25 題深度檢測，整理你的七大系統健康分數、生活線索與植萃方向。",
     label: "開始深度檢測",
     path: "/line/assessment",
   },

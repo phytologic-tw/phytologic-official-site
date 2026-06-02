@@ -12,6 +12,13 @@ const SYSTEM_LABELS = {
   musculoskeletal: "肌骨指數",
   circulation: "循環指數",
   energy: "能量指數",
+  brain_nerve: "大腦神經指數",
+  digestive: "消化黏膜指數",
+  detox_liver: "肝膽排毒指數",
+  blood_sugar_cardio: "血糖心血管指數",
+  endocrine_hormone: "內分泌荷爾蒙指數",
+  muscle_bone: "肌肉骨骼指數",
+  immune: "免疫發炎指數",
 };
 
 const PRODUCT_RULES = {
@@ -20,6 +27,13 @@ const PRODUCT_RULES = {
   musculoskeletal: "cinna",
   circulation: "rose",
   energy: "berry",
+  brain_nerve: "berry",
+  digestive: "lime",
+  detox_liver: "lime",
+  blood_sugar_cardio: "lime",
+  endocrine_hormone: "rose",
+  muscle_bone: "cinna",
+  immune: "snow",
 };
 
 function normalizeAnswers(rawAnswers) {
@@ -40,22 +54,18 @@ function answerSeverity(answer) {
 }
 
 function calculateScores(answers) {
-  const buckets = {
-    sleep: [],
-    digestion: [],
-    musculoskeletal: [],
-    circulation: [],
-    energy: [],
-  };
+  const buckets = Object.fromEntries(Object.keys(SYSTEM_LABELS).map((key) => [key, []]));
 
   answers.forEach((answer) => {
-    if (answer.system && buckets[answer.system]) {
-      buckets[answer.system].push(answerSeverity(answer));
+    const system = answer.system_category || answer.system;
+    if (system && buckets[system]) {
+      buckets[system].push(answerSeverity(answer));
     }
   });
 
   const scores = {};
   Object.entries(buckets).forEach(([key, values]) => {
+    if (!values.length) return;
     const avgSeverity = values.length
       ? values.reduce((sum, value) => sum + value, 0) / values.length
       : 1;
@@ -146,6 +156,26 @@ export default async function handler(req, res) {
       .single();
 
     if (reportError) throw reportError;
+
+    const assessmentSessionId = body.assessmentSessionId || body.assessment_session_id;
+    if (assessmentSessionId) {
+      await Promise.all(
+        answers
+          .filter((answer) => answer.question_id || answer.id)
+          .map((answer) =>
+            supabase
+              .from("member_question_history")
+              .update({
+                answered_at: new Date().toISOString(),
+                answer_score: answerSeverity(answer),
+                answer_payload: answer,
+              })
+              .eq("profile_id", profile.id)
+              .eq("assessment_session_id", assessmentSessionId)
+              .eq("question_id", answer.question_id || answer.id)
+          )
+      );
+    }
 
     const nextLe = (profile.le_points || 0) + 100;
     const nextLevelNumber = calcLevel(nextLe);

@@ -10,6 +10,9 @@
 > **2026-05-29 Phase 0 production schema audit 已完成。**
 > production schema 主體與 `profiles` canonical 方向對齊。詳見下方「資料庫資料表現況」與「目前優先任務」。
 
+> **2026-06-02 Dr. Marvin 題庫引擎可用化完成。**
+> 已新增正式 migration `dr_marvin_question_engine.sql`、25 題抽題 API `/api/dr-marvin/questions`，並將 `/line/assessment` 接上動態題庫與報告 API。Bryan 已於 Supabase SQL Editor 套用完成並驗證：`question_bank` 475 筆、`inflammation_alerts` 8 筆、`anti_inflammation_protocols` 21 筆、`member_question_history` 存在。
+
 ---
 
 ## 基本資訊（不常變動）
@@ -67,6 +70,12 @@
 | LINE Webhook | `api/line-webhook.js` |
 | DB Schema 主檔 | `supabase/website_expansion.sql` |
 | DB RLS 修復 | `supabase/admin_rls_repair.sql` |
+| Dr. Marvin 題庫正式 migration | `supabase/dr_marvin_question_engine.sql` |
+| Dr. Marvin 抽題 API | `api/dr-marvin/questions.js` |
+| Dr. Marvin 題庫 seed | `supabase/seed_question_bank.sql` |
+| Dr. Marvin 交集警示 seed | `supabase/seed_inflammation_alerts.sql` |
+| Dr. Marvin 抗發炎處方 seed | `supabase/seed_anti_inflammation_protocols.sql` |
+| Dr. Marvin SQL Editor 執行順序 | `supabase/DR_MARVIN_SQL_EDITOR_ORDER.md` |
 | LINE 會員 MVP migration | `supabase/line_member_mvp.sql` |
 | 舊版 assessments schema | `supabase/assessments.sql` |
 | Admin 後台 | `src/components/admin/AdminDashboard.jsx` |
@@ -95,6 +104,10 @@
 | `daily_ai_messages` | ✅ FK 已確認 | **2026-05-29 audit**：單一 FK → `profiles(id)`，無歧義 |
 | `promoters` | ✅ Production 已確認 | **2026-05-29 audit**：table 存在，`id`/`type`/`name`/`cp_per_referral`/`cp_per_first_purchase`/`is_active` 全部到位 |
 | `dr_marvin_reports` | ✅ Production 已確認 | **2026-05-29 audit**：table 存在，`profile_id` FK → `profiles(id)` 確認 |
+| `question_bank` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 475 筆；seed 可重複執行，已補舊 schema 相容前置修補 |
+| `inflammation_alerts` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 8 筆；seed 可重複執行 |
+| `anti_inflammation_protocols` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 21 筆；seed 可重複執行，已補舊 schema 相容前置修補 |
+| `member_question_history` | ✅ Production 已套用 | **2026-06-02**：table 存在，FK 統一指向 `profiles(id)`，供 30 天抽題避重與作答回填使用 |
 | `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
 **assessment_reports 欄位確認（2026-05-29 production audit）：**
@@ -167,7 +180,7 @@
 | `/line/tasks` | LINE 任務頁 | 🔧 進行中 |
 | `/line/missions` | LINE 任務中心 alias | ✅ 對應 `/line/tasks` |
 | `/line/shop` | LINE 商城導流 | 🔧 進行中 |
-| `/line/assessment` | LINE 版快篩 | 🔧 進行中 |
+| `/line/assessment` | My Dr. Marvin 25 題動態問卷 | ✅ 已接 API（Production 題庫已套用） |
 | `/line/encyclopedia` | 植本百科商品陳列（第一層） | ✅ 已完成（2026-06-02） |
 | `/line/encyclopedia/:productId` | 商品詳情五 Tab（第二層） | ✅ 已完成（2026-06-02） |
 | `/line/encyclopedia/:productId/wiki/:ingredientId` | 植物原料百科（第三層） | ✅ 已完成（2026-06-02） |
