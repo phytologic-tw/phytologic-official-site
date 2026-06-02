@@ -109,6 +109,8 @@ export default function LineMemberHomePage({ route, go }) {
   const [flowNumber, setFlowNumber]       = useState(null);
   const [sessionSeed]                     = useState(Math.random);
   const carouselRef                       = useRef(null);
+  const touchStartXRef                    = useRef(0);
+  const suppressClickRef                  = useRef(false);
 
   // session-stable card shuffle
   const cardOrder = useMemo(() => {
@@ -210,9 +212,55 @@ export default function LineMemberHomePage({ route, go }) {
   const sevenDay     = homeData?.seven_day_plan;
   const showSevenDay = sevenDay && (sevenDay.current_day ?? 0) > 0 && (sevenDay.current_day ?? 0) <= 7;
   const plantName    = profile?.recommended_drink || "今日植萃";
+  const plantProductId = profile?.recommended_product_id || null;
+  const plantRoute    = plantProductId ? `/line/encyclopedia/${plantProductId}` : "/line/encyclopedia";
   const inspiration  = homeData?.daily_insight || "";
   const streakDays   = profile?.streak_days ?? 0;
   const dayOfWeek    = new Date().getDay();
+
+  function safeGo(path) {
+    if (typeof go === "function") {
+      go(path);
+      return;
+    }
+    console.warn("[LineMemberHomePage] navigation unavailable:", path);
+  }
+
+  function makeInteractiveCardProps(path) {
+    return {
+      role: "button",
+      tabIndex: 0,
+      onClick: () => {
+        if (suppressClickRef.current) {
+          suppressClickRef.current = false;
+          return;
+        }
+        safeGo(path);
+      },
+      onKeyDown: (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          safeGo(path);
+        }
+      },
+      onTouchStart: (event) => {
+        touchStartXRef.current = event.touches?.[0]?.clientX ?? 0;
+        event.currentTarget.style.transform = "scale(0.98)";
+      },
+      onTouchEnd: (event) => {
+        event.currentTarget.style.transform = "scale(1)";
+        const endX = event.changedTouches?.[0]?.clientX ?? touchStartXRef.current;
+        const delta = Math.abs(endX - touchStartXRef.current);
+        suppressClickRef.current = true;
+        if (delta < 10) {
+          safeGo(path);
+        }
+      },
+      onTouchCancel: (event) => {
+        event.currentTarget.style.transform = "scale(1)";
+      },
+    };
+  }
 
   function handleCarouselScroll() {
     const el = carouselRef.current;
@@ -235,8 +283,11 @@ export default function LineMemberHomePage({ route, go }) {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
+      WebkitTapHighlightColor: "transparent",
+      userSelect: "none",
     };
     const lbl = { fontSize: "10px", letterSpacing: "0.06em", margin: 0 };
+    const cta = { fontSize: "10px", margin: "4px 0 0", lineHeight: 1.2 };
 
     switch (cardId) {
       case "health":
@@ -259,13 +310,9 @@ export default function LineMemberHomePage({ route, go }) {
         return (
           <div
             key="number"
-            onClick={() => go("/line/missions")}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") go("/line/missions");
-            }}
-            style={{ ...base, background: "#fff", cursor: "pointer" }}
+            className="inspiration-card card-b"
+            {...makeInteractiveCardProps("/line/missions")}
+            style={{ ...base, background: "#fff", cursor: "pointer", transition: "transform 0.1s ease" }}
           >
             <p style={{ ...lbl, color: "#8A9A6A" }}>今日數字</p>
             <span style={{ fontSize: "40px", fontWeight: 700, color: "#2D5016", lineHeight: 1 }}>
@@ -278,12 +325,20 @@ export default function LineMemberHomePage({ route, go }) {
                   ? (NUMEROLOGY_MSG[todayNumber] || "今日能量充沛，把握身體的節奏。")
                   : "今日能量正在為您計算中")}
             </p>
+            <p className="card-cta-link" style={{ ...cta, color: "#8A9A6A" }}>
+              抽取今日靈數 →
+            </p>
           </div>
         );
 
       case "outfit":
         return (
-          <div key="outfit" style={{ ...base, background: "linear-gradient(135deg,#D8B07A,#C9A96E)" }}>
+          <div
+            key="outfit"
+            className="inspiration-card card-color"
+            {...makeInteractiveCardProps("/line/missions")}
+            style={{ ...base, background: "linear-gradient(135deg,#D8B07A,#C9A96E)", cursor: "pointer", transition: "transform 0.1s ease" }}
+          >
             <p style={{ ...lbl, color: "rgba(255,255,255,0.75)" }}>今日好色</p>
             <span
               style={{
@@ -307,13 +362,9 @@ export default function LineMemberHomePage({ route, go }) {
         return (
           <div
             key="plant"
-            onClick={() => go("/line/encyclopedia")}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") go("/line/encyclopedia");
-            }}
-            style={{ ...base, background: "linear-gradient(135deg,#3D5A30,#2D5016)", cursor: "pointer" }}
+            className="inspiration-card card-a"
+            {...makeInteractiveCardProps(plantRoute)}
+            style={{ ...base, background: "linear-gradient(135deg,#3D5A30,#2D5016)", cursor: "pointer", transition: "transform 0.1s ease" }}
           >
             <p style={{ ...lbl, color: "rgba(255,255,255,0.6)" }}>今日植萃</p>
             <p style={{ fontSize: "18px", fontWeight: 700, color: "#C9A96E", margin: 0, lineHeight: 1.3 }}>
@@ -323,7 +374,7 @@ export default function LineMemberHomePage({ route, go }) {
               <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.4 }}>
                 {inspiration || "植物的力量，從今日開始積累。"}
               </p>
-              <p style={{ fontSize: "10px", color: "#C9A96E", margin: "4px 0 0", lineHeight: 1.2 }}>
+              <p className="card-cta-link" style={{ ...cta, color: "#C9A96E" }}>
                 了解更多 →
               </p>
             </div>
@@ -343,7 +394,12 @@ export default function LineMemberHomePage({ route, go }) {
 
       case "quote":
         return (
-          <div key="quote" style={{ ...base, background: "#1A2F15", justifyContent: "center", gap: "6px" }}>
+          <div
+            key="quote"
+            className="inspiration-card card-draw"
+            {...makeInteractiveCardProps("/line/missions")}
+            style={{ ...base, background: "#1A2F15", justifyContent: "center", gap: "6px", cursor: "pointer", transition: "transform 0.1s ease" }}
+          >
             <p style={{ ...lbl, color: "rgba(201,169,110,0.7)" }}>
               {drawnCard?.card_title || "今日一句話"}
             </p>
@@ -439,6 +495,14 @@ export default function LineMemberHomePage({ route, go }) {
           background: #3D5A30;
           width: 18px;
           border-radius: 999px;
+        }
+        .inspiration-card {
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+        }
+        .card-cta-link {
+          display: inline-block;
+          letter-spacing: 0.5px;
         }
         @keyframes phyto-spin { to { transform: rotate(360deg) } }
       `}</style>
