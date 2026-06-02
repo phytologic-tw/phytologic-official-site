@@ -71,6 +71,15 @@ const OUTFIT_VIBES = [
 
 const CARD_IDS = ["health", "number", "outfit", "plant", "diet", "quote", "task"];
 
+const PLANT_CARD_CATEGORIES = [
+  { id: "food", label: "食", title: "今日飲食能量", subtitle: "待揭曉" },
+  { id: "clothing", label: "衣", title: "今日穿搭頻率", subtitle: "待感應" },
+  { id: "home", label: "住", title: "今日居家場域", subtitle: "待調和" },
+  { id: "travel", label: "行", title: "今日行動能量", subtitle: "待啟動" },
+  { id: "learning", label: "育", title: "今日學習養分", subtitle: "待滋養" },
+  { id: "leisure", label: "樂", title: "今日愉悅能量", subtitle: "待綻放" },
+];
+
 // ── 工具函式 ──────────────────────────────────────────────
 
 function readStoredMember() {
@@ -79,6 +88,14 @@ function readStoredMember() {
     return s ? JSON.parse(s) : null;
   } catch {
     return null;
+  }
+}
+
+function readStoredPlantCards() {
+  try {
+    return JSON.parse(sessionStorage.getItem(`cards_${new Date().toDateString()}`) || "{}");
+  } catch {
+    return {};
   }
 }
 
@@ -96,6 +113,72 @@ function getGreeting() {
   return "晚安";
 }
 
+function PlantCategoryIcon({ category }) {
+  const common = {
+    width: 62,
+    height: 82,
+    viewBox: "0 0 62 82",
+    fill: "none",
+    stroke: "rgba(255,255,255,0.62)",
+    strokeWidth: 1.6,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true",
+  };
+
+  const paths = {
+    food: (
+      <>
+        <path d="M31 69V29" />
+        <path d="M31 45C20 43 16 36 15 27c9 1 16 5 16 18Z" />
+        <path d="M31 38c10-2 15-9 16-18-9 1-16 6-16 18Z" />
+        <path d="M23 69c0-8-5-13-12-15" />
+      </>
+    ),
+    clothing: (
+      <>
+        <path d="M15 68 47 14" />
+        <path d="M20 60h27" />
+        <path d="M25 51h17" />
+        <path d="M30 42h8" />
+        <path d="M19 28c8 1 16 7 19 18" />
+      </>
+    ),
+    home: (
+      <>
+        <path d="M13 56c10-8 26-8 36 0" />
+        <path d="M18 63c8 6 18 6 26 0" />
+        <path d="M25 48c0-11 4-22 7-31 4 9 7 20 7 31" />
+      </>
+    ),
+    travel: (
+      <>
+        <path d="M13 66c16-10 2-22 18-32 12-8 12-18 6-24" />
+        <path d="M36 18c8-1 13 3 16 10-9 2-15-1-16-10Z" />
+        <path d="M24 45c-7 0-12-3-15-9 8-2 13 1 15 9Z" />
+      </>
+    ),
+    learning: (
+      <>
+        <path d="M31 69V37" />
+        <path d="M31 37c-8-1-14-8-14-17 9 0 14 7 14 17Z" />
+        <path d="M31 37c8-1 14-8 14-17-9 0-14 7-14 17Z" />
+        <path d="M20 68c2-8 7-13 11-15 4 2 9 7 11 15" />
+      </>
+    ),
+    leisure: (
+      <>
+        <path d="M31 42c7-7 7-17 0-24-7 7-7 17 0 24Z" />
+        <path d="M31 42c9 0 16-6 18-15-10-1-17 5-18 15Z" />
+        <path d="M31 42c-9 0-16-6-18-15 10-1 17 5 18 15Z" />
+        <path d="M31 42v27" />
+      </>
+    ),
+  };
+
+  return <svg {...common}>{paths[category]}</svg>;
+}
+
 // ── 主元件 ────────────────────────────────────────────────
 
 export default function LineMemberHomePage({ route, go }) {
@@ -104,22 +187,11 @@ export default function LineMemberHomePage({ route, go }) {
   const [loading, setLoading]             = useState(true);
   const [carouselIdx, setCarouselIdx]     = useState(0);
   const [sevenExpanded, setSevenExpanded] = useState(false);
-  const [dailyCards, setDailyCards]       = useState(null);
-  const [drawnCard, setDrawnCard]         = useState(null);
-  const [flowNumber, setFlowNumber]       = useState(null);
-  const [sessionSeed]                     = useState(Math.random);
+  const [todayPlantCards]                 = useState(readStoredPlantCards);
   const carouselRef                       = useRef(null);
   const touchStartXRef                    = useRef(0);
   const suppressClickRef                  = useRef(false);
-
-  // session-stable card shuffle
-  const cardOrder = useMemo(() => {
-    return [...CARD_IDS].sort((a, b) => {
-      const ia = CARD_IDS.indexOf(a);
-      const ib = CARD_IDS.indexOf(b);
-      return Math.sin(sessionSeed * (ia + 1) * 9301) - Math.sin(sessionSeed * (ib + 1) * 9301);
-    });
-  }, [sessionSeed]);
+  const cardOrder                         = useMemo(() => PLANT_CARD_CATEGORIES, []);
 
   // ── Data fetching（保留原始邏輯）────────────────────────
   useEffect(() => {
@@ -139,18 +211,6 @@ export default function LineMemberHomePage({ route, go }) {
           sessionStorage.setItem("line_member", JSON.stringify(result.profile));
 
           const profileId = result.profile?.id;
-          const cardsParams = new URLSearchParams({ resource: "astro-daily-cards" });
-          if (profileId) cardsParams.set("profile_id", profileId);
-          fetch(`/api/member?${cardsParams.toString()}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .then((cardsData) => {
-              if (!cardsData) return;
-              setDailyCards(cardsData.cards || null);
-              setDrawnCard(cardsData.drawn_card || null);
-              setFlowNumber(cardsData.flow_number || null);
-            })
-            .catch((err) => console.error("fetchDailyCards error:", err));
-
           const astroInitKey = profileId ? `astro_profile_initialized:${profileId}` : null;
           const astroInitialized = astroInitKey ? sessionStorage.getItem(astroInitKey) === "true" : false;
           if (profileId && result.profile?.birth_date && !result.profile?.master_number && !astroInitialized) {
@@ -205,18 +265,11 @@ export default function LineMemberHomePage({ route, go }) {
   const displayName  = profile?.display_name || profile?.line_display_name || "會員";
   const healthScore  = profile?.health_score ?? null;
   const lifeNumber   = profile?.life_number || profile?.numerology_number;
-  const todayNumber  = flowNumber || lifeNumber;
-  const energyCard   = dailyCards?.energy;
-  const todayColor   = dailyCards?.color;
   const hasCheckedIn = homeData?.has_checked_in_today ?? false;
   const sevenDay     = homeData?.seven_day_plan;
   const showSevenDay = sevenDay && (sevenDay.current_day ?? 0) > 0 && (sevenDay.current_day ?? 0) <= 7;
   const plantName    = profile?.recommended_drink || "今日植萃";
-  const plantProductId = profile?.recommended_product_id || null;
-  const plantRoute    = plantProductId ? `/line/encyclopedia/${plantProductId}` : "/line/encyclopedia";
-  const inspiration  = homeData?.daily_insight || "";
   const streakDays   = profile?.streak_days ?? 0;
-  const dayOfWeek    = new Date().getDay();
 
   function safeGo(path) {
     if (typeof go === "function") {
@@ -265,9 +318,66 @@ export default function LineMemberHomePage({ route, go }) {
   function handleCarouselScroll() {
     const el = carouselRef.current;
     if (!el || !el.firstElementChild) return;
-    const cardWidth = el.firstElementChild.offsetWidth + 12;
+    const cardWidth = el.firstElementChild.offsetWidth;
     const idx = Math.round(el.scrollLeft / cardWidth);
-    setCarouselIdx(Math.min(Math.max(idx, 0), CARD_IDS.length - 1));
+    setCarouselIdx(Math.min(Math.max(idx, 0), PLANT_CARD_CATEGORIES.length - 1));
+  }
+
+  function handlePlantCardTouchStart(event) {
+    touchStartXRef.current = event.touches?.[0]?.clientX ?? 0;
+  }
+
+  function handlePlantCardTouchEnd(event) {
+    const endX = event.changedTouches?.[0]?.clientX ?? touchStartXRef.current;
+    const delta = Math.abs(endX - touchStartXRef.current);
+    suppressClickRef.current = true;
+    if (delta < 10) safeGo("/line/cards");
+  }
+
+  function renderPlantCard(category) {
+    const drawn = todayPlantCards[category.id];
+    const number = drawn?.number || drawn?.drawn_number;
+    const advice = drawn?.short_advice || "";
+    const adviceLines = advice.length > 8 ? [advice.slice(0, 8), advice.slice(8, 16)] : [advice].filter(Boolean);
+
+    return (
+      <button
+        key={category.id}
+        type="button"
+        onClick={() => {
+          if (suppressClickRef.current) {
+            suppressClickRef.current = false;
+            return;
+          }
+          safeGo("/line/cards");
+        }}
+        onTouchStart={handlePlantCardTouchStart}
+        onTouchEnd={handlePlantCardTouchEnd}
+        className="plant-category-card"
+      >
+        <div className="plant-category-card-icon">
+          <PlantCategoryIcon category={category.id} />
+        </div>
+        <div className="plant-category-card-copy">
+          <p className="plant-category-card-label">{category.label}</p>
+          {number ? (
+            <>
+              <p className="plant-category-card-number">{number}</p>
+              <div className="plant-category-card-advice">
+                {adviceLines.map((line) => <span key={line}>{line}</span>)}
+              </div>
+              <p className="plant-category-card-cta">查看詳細 →</p>
+            </>
+          ) : (
+            <>
+              <p className="plant-category-card-title">{category.title}</p>
+              <p className="plant-category-card-title">{category.subtitle}</p>
+              <p className="plant-category-card-cta">點擊抽取植本卡牌 →</p>
+            </>
+          )}
+        </div>
+      </button>
+    );
   }
 
   // ── Zone 2 card renderer ──────────────────────────────
@@ -464,15 +574,16 @@ export default function LineMemberHomePage({ route, go }) {
   return (
     <LineMemberLayout route={route} go={go} member={profile}>
       <style>{`
-        .phyto-carousel-wrap { overflow: hidden; padding-left: 20px; }
+        .phyto-carousel-wrap { overflow: hidden; }
         .phyto-carousel {
           display: flex;
-          gap: 12px;
+          gap: 0;
           overflow-x: auto;
           scroll-snap-type: x mandatory;
+          touch-action: pan-x;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          padding-right: 20px;
+          padding: 0 20px;
           -webkit-overflow-scrolling: touch;
         }
         .phyto-carousel::-webkit-scrollbar { display: none }
@@ -499,6 +610,77 @@ export default function LineMemberHomePage({ route, go }) {
         .inspiration-card {
           -webkit-tap-highlight-color: transparent;
           user-select: none;
+        }
+        .plant-category-card {
+          position: relative;
+          flex: 0 0 calc(100vw - 40px);
+          width: calc(100vw - 40px);
+          height: 160px;
+          border: 1px solid rgba(201,169,110,0.34);
+          border-radius: 14px;
+          background: #2D5016;
+          color: #FFFFFF;
+          padding: 0 18px;
+          display: grid;
+          grid-template-columns: 88px minmax(0, 1fr);
+          align-items: center;
+          text-align: left;
+          overflow: hidden;
+          scroll-snap-align: start;
+          cursor: pointer;
+          font-family: 'Noto Serif TC', Georgia, serif;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .plant-category-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image:
+            repeating-linear-gradient(0deg, rgba(201,169,110,0.06) 0px, rgba(201,169,110,0.06) 1px, transparent 1px, transparent 20px),
+            repeating-linear-gradient(60deg, rgba(201,169,110,0.06) 0px, rgba(201,169,110,0.06) 1px, transparent 1px, transparent 20px);
+          pointer-events: none;
+        }
+        .plant-category-card + .plant-category-card {
+          margin-left: 0;
+        }
+        .plant-category-card-icon,
+        .plant-category-card-copy {
+          position: relative;
+          z-index: 1;
+        }
+        .plant-category-card-label {
+          margin: 0 0 8px;
+          font-size: 15px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.92);
+        }
+        .plant-category-card-title {
+          margin: 0;
+          font-size: 19px;
+          line-height: 1.35;
+          font-weight: 700;
+          color: #FFFFFF;
+        }
+        .plant-category-card-number {
+          margin: 0 0 4px;
+          font-size: 34px;
+          line-height: 1;
+          font-weight: 700;
+          color: #C9A96E;
+        }
+        .plant-category-card-advice {
+          display: grid;
+          gap: 2px;
+          margin-top: 4px;
+          font-size: 14px;
+          line-height: 1.35;
+          color: rgba(255,255,255,0.88);
+        }
+        .plant-category-card-cta {
+          margin: 18px 0 0;
+          font-size: 12px;
+          line-height: 1.4;
+          color: #C9A96E;
         }
         .card-cta-link {
           display: inline-block;
@@ -567,8 +749,21 @@ export default function LineMemberHomePage({ route, go }) {
             display: "flex", justifyContent: "space-between", alignItems: "center",
             padding: "0 20px", marginBottom: "8px",
           }}>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "#1A2F15" }}>今日植本靈感</span>
-            <span style={{ fontSize: "11px", color: "#8A9A6A" }}>{carouselIdx + 1} / {CARD_IDS.length}</span>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: "#1A2F15" }}>今日植本卡牌</span>
+            <button
+              type="button"
+              onClick={() => safeGo("/line/cards")}
+              style={{
+                border: 0,
+                background: "transparent",
+                padding: 0,
+                fontSize: "11px",
+                color: "#8A9A6A",
+                fontFamily: "'Noto Serif TC', Georgia, serif",
+              }}
+            >
+              前往抽卡 ›
+            </button>
           </div>
 
           <div className="phyto-carousel-wrap">
@@ -577,12 +772,12 @@ export default function LineMemberHomePage({ route, go }) {
               onScroll={handleCarouselScroll}
               className="phyto-carousel"
             >
-              {cardOrder.map((id) => renderCard(id))}
+              {cardOrder.map((category) => renderPlantCard(category))}
             </div>
           </div>
 
           <div className="phyto-carousel-dots">
-            {CARD_IDS.map((_, i) => (
+            {PLANT_CARD_CATEGORIES.map((_, i) => (
               <span
                 key={i}
                 className={`phyto-carousel-dot ${i === carouselIdx ? "active" : ""}`}

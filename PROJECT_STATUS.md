@@ -25,6 +25,9 @@
 > **2026-06-03 任務中心數字占卜模組完成。**
 > `LineTasksPage` 頂部新增「今日數字占卜」Zone 0，使用既有 `/api/member?resource=astro-daily-cards`，提供四張背面卡、抽取今日四卡、依序翻牌、今日 session 快取與展開卡片查看詳細內容；未新增 API 或資料庫變更。
 
+> **2026-06-03 植本六向度抽卡 C → B → A → D 已完成。**
+> Bryan 已於 Supabase SQL Editor 套用 `supabase/20260603_daily_card_readings.sql`。已新增 `/line/cards` 抽卡頁、會員首頁六向度卡牌輪播、`api/member?resource=card-draw|daily-cards` 與「我的報告 > 每日卡牌」頁籤；本機 `npm run build` 成功。`card-draw` 已合併進 `api/member.js`，`api/` 目前維持 12 支 function，符合 Vercel Hobby 上限。
+
 ---
 
 ## 基本資訊（不常變動）
@@ -81,14 +84,16 @@
 | 後台管理 API（舊 passcode/service role 流程） | `api/admin.js` |
 | LINE Webhook | `api/line-webhook.js` |
 | Server-only utility | `src/server/`（原 `api/_*.js` 已移出 `/api`，避免被 Vercel 算作 function） |
-| LINE 會員 API | `api/member.js`（`resource=home|reports|astro-init|astro-daily-cards`） |
+| LINE 會員 API | `api/member.js`（`resource=home|reports|astro-init|astro-daily-cards|daily-cards|card-draw`） |
 | DB Schema 主檔 | `supabase/website_expansion.sql` |
 | DB RLS 修復 | `supabase/admin_rls_repair.sql` |
 | 命理資料庫 migration | `supabase/astro_migration.sql`（Bryan 已於 Production Supabase 套用） |
 | 命理資料庫 seed | `supabase/seed_numerology.sql`、`supabase/seed_zwds.sql`、`supabase/seed_daily_cards.sql` |
 | 命理今日四卡補丁 | `supabase/astro_daily_cards_count_patch.sql`（2026-06-03 Bryan 已回報套用完成；補齊 daily cards 9 筆、card deck 4 筆） |
+| 植本六向度抽卡 migration | `supabase/20260603_daily_card_readings.sql`（Bryan 已於 Production Supabase SQL Editor 套用） |
 | Dr. Marvin 題庫正式 migration | `supabase/dr_marvin_question_engine.sql` |
 | Dr. Marvin 抽題 API | `api/dr-marvin/questions.js` |
+| 植本六向度抽卡 API | `api/member.js`（`POST /api/member?resource=card-draw`；合併於既有 member function，避免超過 Vercel Hobby 12 支 function 上限） |
 | Dr. Marvin 題庫 seed | `supabase/seed_question_bank.sql` |
 | Dr. Marvin 交集警示 seed | `supabase/seed_inflammation_alerts.sql` |
 | Dr. Marvin 抗發炎處方 seed | `supabase/seed_anti_inflammation_protocols.sql` |
@@ -101,6 +106,7 @@
 | LINE 打卡頁 | `src/pages/line/LineCheckinPage.jsx` |
 | LINE 會員資料頁 | `src/pages/line/LineProfilePage.jsx` |
 | LINE 任務頁 | `src/pages/line/LineTasksPage.jsx` |
+| LINE 植本卡牌頁 | `src/pages/line/LineCardsPage.jsx` |
 | LINE 商城頁 | `src/pages/line/LineShopPage.jsx` |
 
 ---
@@ -127,6 +133,7 @@
 | `member_question_history` | ✅ Production 已套用 / hotfix 已執行 | **2026-06-02**：Bryan 已於 SQL Editor 執行 `supabase/dr_marvin_member_question_history_session_patch.sql`，補齊 `assessment_session_id`、作答回填欄位與 schema cache reload；供 30 天抽題避重與作答回填使用 |
 | `member_astro_profiles` | ✅ Bryan 回報 Production 已套用 | **2026-06-02**：由 `supabase/astro_migration.sql` 建立；關聯 `profiles(id)`，保存主宰數、日數、九宮格、個體性之箭、紫微四化與太陽星座。尚待 count/schema 查詢回報完成驗證 |
 | `numerology_*` / `zwds_*` / `astro_zodiac_health` | ✅ Production 已套用 / 今日四卡補丁已完成 | **2026-06-02 count 驗證**：`numerology_master_numbers` 11、`zwds_stars` 14、`zwds_heavenly_stems` 10、`astro_zodiac_health` 12 正確；`numerology_daily_cards` 27/36、`numerology_card_deck` 36/40。**2026-06-03**：Bryan 已回報 `astro_daily_cards_count_patch.sql` 套用完成，預期補齊為 `numerology_daily_cards` 36、`numerology_card_deck` 40 |
+| `daily_card_readings` | ✅ Bryan 回報 Production 已套用 | **2026-06-03 TASK C**：`supabase/20260603_daily_card_readings.sql` 已新增並由 Bryan 套用，用於記錄每人每日 `food` / `clothing` / `home` / `travel` / `learning` / `leisure` 六向度抽卡；`/line/cards`、會員首頁卡牌輪播與我的報告每日卡牌頁籤已串接 |
 | `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
 **assessment_reports 欄位確認（2026-05-29 production audit）：**
@@ -191,13 +198,14 @@
 | `/admin/assessments` | 快篩結果查閱 | ✅ 正常 |
 | `/admin/contact` | 聯絡表單管理 | ✅ 正常 |
 | `/admin/settings` | 系統設定 | ✅ 正常 |
-| `/line/member-home` | LINE LIFF 會員首頁（重構 v3：任務中心整合打卡、植本百科入口、靈感輪播對齊） | ✅ 已更新（2026-06-02）|
+| `/line/member-home` | LINE LIFF 會員首頁（任務中心整合打卡、植本百科入口、六向度植本卡牌輪播） | ✅ 已更新（2026-06-03）|
 | `/line/entry` | LIFF 入口 / 建立會員 | 🔧 進行中 |
 | `/line/today` | LINE 今日狀態 | 🔧 進行中 |
 | `/line/checkin` | 今日打卡 | 🔧 進行中 |
 | `/line/profile` | LINE 會員資料 | 🔧 進行中 |
 | `/line/tasks` | LINE 任務頁 | 🔧 進行中 |
 | `/line/missions` | LINE 任務中心 alias | ✅ 對應 `/line/tasks` |
+| `/line/cards` | 植本六向度每日卡牌抽取頁 | ✅ 已完成（2026-06-03） |
 | `/line/shop` | LINE 商城導流 | 🔧 進行中 |
 | `/line/assessment` | My Dr. Marvin 25 題動態問卷 | ✅ 已接 API（Production 題庫已套用） |
 | `/line/encyclopedia` | 植本百科商品陳列（第一層） | ✅ 已完成（2026-06-02） |

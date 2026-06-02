@@ -10,6 +10,110 @@ const TASK_REWARDS = {
   seven_day_complete: { type: "milestone", le: 100, cp: 100, label: "完成七日啟動" },
 };
 
+const CARD_DRAW_CATEGORIES = ["food", "clothing", "home", "travel", "learning", "leisure"];
+
+const CARD_DRAW_CATEGORY_LABELS = {
+  food: "食",
+  clothing: "衣",
+  home: "住",
+  travel: "行",
+  learning: "育",
+  leisure: "樂",
+};
+
+const CARD_DRAW_TEMPLATES = {
+  food: {
+    short: [
+      "今日輕食養胃益身心",
+      "今日補充植物性能量",
+      "今日飲食宜多彩多樣",
+      "今日減少精緻糖分",
+      "今日多補充水分滋潤",
+      "今日宜溫熱食物暖身",
+      "今日腸胃敏感需注意",
+      "今日飲食順應節氣",
+      "今日適合發酵食物",
+    ],
+    full:
+      "今日流日數字提示飲食能量場。搭配植本綠拿鐵，可補充天然植物性營養素，陪你維持更穩定的日常飲食節奏。後續 AI 個人化解說將結合生命靈數、健康關注與流日資料，提供更貼近你的植本建議。",
+  },
+  clothing: {
+    short: [
+      "今日穿著輕盈自在",
+      "今日植物色系加持",
+      "今日自然纖維護體",
+      "今日穿搭呼應能量",
+      "今日避免過緊束縛",
+      "今日層次穿搭靈活",
+      "今日舒適優先自在",
+      "今日色彩影響心情",
+      "今日白色淨化場域",
+    ],
+    full:
+      "今日穿著選擇會影響身體感受與行動節奏。植物色系、自然纖維與舒適剪裁，能幫助你把注意力放回呼吸與身體訊號，讓一整天更容易維持開放且穩定的狀態。",
+  },
+  home: {
+    short: [
+      "今日整理空間淨化",
+      "今日引入自然光線",
+      "今日植物淨化空氣",
+      "今日減少螢幕干擾",
+      "今日居家香氛放鬆",
+      "今日整頓書桌清思",
+      "今日調整睡眠環境",
+      "今日家中加入綠植",
+      "今日清掃能量更新",
+    ],
+    full:
+      "今日居家能量適合流動與更新。整理一個小角落、打開自然光，或在空間裡加入植物，都能幫助生活場域回到清爽秩序，也讓身體比較容易進入安定節奏。",
+  },
+  travel: {
+    short: [
+      "今日步行感受自然",
+      "今日避免倉促趕行",
+      "今日順應節奏出行",
+      "今日外出接觸綠意",
+      "今日交通選擇步行",
+      "今日行程留白緩行",
+      "今日出行注意補水",
+      "今日路途中保持覺察",
+      "今日轉換環境充電",
+    ],
+    full:
+      "今日行動建議順應自然節奏，不需要把每一段移動都安排得太滿。步行、緩行或在路途中接觸一點綠意，可以讓身體從緊繃裡鬆開，也替今天保留更好的調整空間。",
+  },
+  learning: {
+    short: [
+      "今日適合深度閱讀",
+      "今日專注力較佳",
+      "今日新知吸收旺盛",
+      "今日記錄靈感想法",
+      "今日學習植物知識",
+      "今日聽覺學習有效",
+      "今日反思比輸入重要",
+      "今日整合既有所學",
+      "今日靈感湧現捕捉",
+    ],
+    full:
+      "今日學習能量適合從少量但深刻的內容開始。你可以選一個與身體、植物性營養或生活節奏相關的小題目，慢慢整理成自己的理解，讓知識變成能被實踐的日常選擇。",
+  },
+  leisure: {
+    short: [
+      "今日與自然同在",
+      "今日靜心冥想充電",
+      "今日創意活動流動",
+      "今日走入植物環境",
+      "今日音樂療癒心靈",
+      "今日減少娛樂輸入",
+      "今日手作連結大地",
+      "今日輕鬆笑聲有益",
+      "今日戶外活動優先",
+    ],
+    full:
+      "今日休閒能量適合回到自然與感官。散步、音樂、手作或照料植物，都能讓身心從過度輸入中暫停一下。休息不是空白，而是讓下一段行動重新長出力量。",
+  },
+};
+
 function getTaiwanToday() {
   return new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Taipei",
@@ -304,6 +408,191 @@ async function readAstroDailyCards({ supabase, profileId }) {
   };
 }
 
+async function readDailyCardReadings({ supabase, profileId, date }) {
+  const queryDate = date || getTaiwanToday();
+  const { data, error } = await supabase
+    .from("daily_card_readings")
+    .select("category,drawn_number,short_advice,full_advice,numerology_ref,created_at")
+    .eq("profile_id", profileId)
+    .eq("date", queryDate)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+
+  return {
+    date: queryDate,
+    cards: data || [],
+  };
+}
+
+function getHeaderValue(value) {
+  if (Array.isArray(value)) return value[0];
+  return typeof value === "string" ? value : "";
+}
+
+function isValidDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return false;
+  return !Number.isNaN(new Date(`${value}T00:00:00+08:00`).getTime());
+}
+
+function calculateCardDayNumber(dateStr) {
+  const digits = dateStr.replace(/-/g, "").split("").map(Number);
+  let sum = digits.reduce((total, digit) => total + digit, 0);
+  while (sum > 9) {
+    sum = String(sum).split("").map(Number).reduce((total, digit) => total + digit, 0);
+  }
+  return sum || 9;
+}
+
+async function getCardNumerologyRef({ supabase, profile, date, category, drawnNumber }) {
+  const ref = {
+    life_number: profile.life_number || profile.numerology_number || null,
+    day_number: drawnNumber,
+    category_label: CARD_DRAW_CATEGORY_LABELS[category] || null,
+    daily_card: null,
+    deck_card: null,
+    zwds_daily: null,
+    date,
+  };
+
+  const [{ data: dailyCard }, { data: deckCards }, { data: astroProfile }] = await Promise.all([
+    supabase
+      .from("numerology_daily_cards")
+      .select("title,content,positive_affirmation")
+      .eq("flow_number", drawnNumber)
+      .eq("card_type", "draw_card")
+      .maybeSingle(),
+    supabase
+      .from("numerology_card_deck")
+      .select("card_title,card_message,action_hint,energy_type,illustration_key")
+      .eq("number", drawnNumber),
+    supabase
+      .from("member_astro_profiles")
+      .select("master_number,zodiac_sign,birth_year_stem,innate_hua_lu,innate_hua_ji")
+      .eq("profile_id", profile.id)
+      .maybeSingle(),
+  ]);
+
+  ref.daily_card = dailyCard || null;
+  ref.deck_card = Array.isArray(deckCards) && deckCards.length
+    ? deckCards[Math.floor(Math.random() * deckCards.length)]
+    : null;
+  ref.zwds_daily = astroProfile || null;
+
+  return ref;
+}
+
+function generateCardAdvice({ profile, category, drawnNumber, numerologyRef }) {
+  const template = CARD_DRAW_TEMPLATES[category];
+  const shortAdvice = template?.short?.[(drawnNumber - 1) % 9] || "今日能量正在計算";
+  const name = profile.nickname || profile.line_display_name || "你";
+  const categoryLabel = CARD_DRAW_CATEGORY_LABELS[category] || "植本";
+  const dailyHint = numerologyRef.daily_card?.content ? ` ${numerologyRef.daily_card.content}` : "";
+  const deckHint = numerologyRef.deck_card?.action_hint ? ` 今日行動提示：${numerologyRef.deck_card.action_hint}` : "";
+  const fullAdvice = `${name}，這張「${categoryLabel}」卡對應今日流日數字 ${drawnNumber}。${template?.full || "今日建議由植本 AI 即將個人化生成。"}${dailyHint}${deckHint}`;
+
+  return {
+    short_advice: shortAdvice.slice(0, 15),
+    full_advice: fullAdvice,
+  };
+}
+
+async function readExistingCardDraw({ supabase, profileId, date, category }) {
+  const { data } = await supabase
+    .from("daily_card_readings")
+    .select("category,drawn_number,short_advice,full_advice,numerology_ref,ai_generated")
+    .eq("profile_id", profileId)
+    .eq("date", date)
+    .eq("category", category)
+    .maybeSingle();
+
+  return data || null;
+}
+
+async function drawDailyCard({ supabase, profile, category, date }) {
+  if (!CARD_DRAW_CATEGORIES.includes(category) || !isValidDate(date)) {
+    return { status: 400, payload: { success: false, error: "invalid_params" } };
+  }
+
+  const existing = await readExistingCardDraw({ supabase, profileId: profile.id, date, category });
+  if (existing) {
+    return {
+      status: 200,
+      payload: {
+        success: true,
+        already_drawn: true,
+        category: existing.category,
+        drawn_number: existing.drawn_number,
+        short_advice: existing.short_advice,
+        full_advice: existing.full_advice,
+        numerology_ref: existing.numerology_ref,
+        ai_generated: existing.ai_generated,
+      },
+    };
+  }
+
+  const drawnNumber = calculateCardDayNumber(date);
+  const numerologyRef = await getCardNumerologyRef({ supabase, profile, date, category, drawnNumber });
+  const { short_advice: shortAdvice, full_advice: fullAdvice } = generateCardAdvice({
+    profile,
+    category,
+    drawnNumber,
+    numerologyRef,
+  });
+
+  const { data: inserted, error: insertError } = await supabase
+    .from("daily_card_readings")
+    .insert({
+      profile_id: profile.id,
+      date,
+      category,
+      drawn_number: drawnNumber,
+      short_advice: shortAdvice,
+      full_advice: fullAdvice,
+      numerology_ref: numerologyRef,
+      ai_generated: false,
+    })
+    .select("category,drawn_number,short_advice,full_advice,numerology_ref,ai_generated")
+    .single();
+
+  if (insertError) {
+    if (insertError.code === "23505") {
+      const conflictExisting = await readExistingCardDraw({ supabase, profileId: profile.id, date, category });
+      if (conflictExisting) {
+        return {
+          status: 200,
+          payload: {
+            success: true,
+            already_drawn: true,
+            category: conflictExisting.category,
+            drawn_number: conflictExisting.drawn_number,
+            short_advice: conflictExisting.short_advice,
+            full_advice: conflictExisting.full_advice,
+            numerology_ref: conflictExisting.numerology_ref,
+            ai_generated: conflictExisting.ai_generated,
+          },
+        };
+      }
+    }
+
+    console.error("[member/card-draw] insert failed:", insertError.message);
+    return { status: 500, payload: { success: false, error: "db_write_failed" } };
+  }
+
+  return {
+    status: 200,
+    payload: {
+      success: true,
+      category: inserted.category,
+      drawn_number: inserted.drawn_number,
+      short_advice: inserted.short_advice,
+      full_advice: inserted.full_advice,
+      numerology_ref: inserted.numerology_ref,
+      ai_generated: inserted.ai_generated,
+    },
+  };
+}
+
 export default async function handler(req, res) {
   if (!["GET", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
 
@@ -311,11 +600,11 @@ export default async function handler(req, res) {
     ? req.body?.resource || req.query?.resource || "home"
     : req.query?.resource || "home";
 
-  if (!["home", "reports", "astro-init", "astro-daily-cards"].includes(resource)) {
+  if (!["home", "reports", "astro-init", "astro-daily-cards", "daily-cards", "card-draw"].includes(resource)) {
     return res.status(400).json({ error: "Unsupported member resource." });
   }
 
-  if (resource === "reports" && req.method !== "GET") {
+  if (["reports", "daily-cards"].includes(resource) && req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
@@ -325,6 +614,10 @@ export default async function handler(req, res) {
 
   if (resource === "astro-init" && req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  if (resource === "card-draw" && req.method !== "POST") {
+    return res.status(405).json({ success: false, error: "method_not_allowed" });
   }
 
   try {
@@ -351,8 +644,8 @@ export default async function handler(req, res) {
     }
 
     const lineUserId = req.method === "POST"
-      ? req.body?.lineUserId || req.body?.line_user_id
-      : req.query?.lineUserId || req.query?.line_user_id;
+      ? req.body?.lineUserId || req.body?.line_user_id || getHeaderValue(req.headers["x-line-user-id"])
+      : req.query?.lineUserId || req.query?.line_user_id || req.headers["x-line-user-id"];
     if (!lineUserId || typeof lineUserId !== "string" || !lineUserId.startsWith("U")) {
       return res.status(400).json({ error: "Invalid LINE userId" });
     }
@@ -369,6 +662,25 @@ export default async function handler(req, res) {
     if (resource === "reports") {
       const payload = await readReports({ supabase, profile, lineUserId });
       return res.status(200).json(payload);
+    }
+
+    if (resource === "daily-cards") {
+      const payload = await readDailyCardReadings({
+        supabase,
+        profileId: profile.id,
+        date: req.query?.date || null,
+      });
+      return res.status(200).json(payload);
+    }
+
+    if (resource === "card-draw") {
+      const { status, payload } = await drawDailyCard({
+        supabase,
+        profile,
+        category: req.body?.category,
+        date: req.body?.date || getTaiwanToday(),
+      });
+      return res.status(status).json(payload);
     }
 
     const today = getTaiwanToday();
