@@ -24,6 +24,13 @@ const FALLBACK_SEVEN_DAY_PLAN = [
   { day: 7, title: "解鎖身份", action: "完成七日啟動，拿到第一個健康身份徽章。", path: "/line/tasks" },
 ];
 
+const DIVINATION_TYPES = {
+  life_number: "生命主宰數",
+  day_number: "流日數字",
+  health_guide: "健康指引",
+  plant_recommendation: "植萃推薦",
+};
+
 function getPastDates(days) {
   const today = new Date(`${getTaiwanToday()}T00:00:00+08:00`);
   return Array.from({ length: days }, (_, index) => {
@@ -31,6 +38,183 @@ function getPastDates(days) {
     date.setDate(today.getDate() - index);
     return new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei" }).format(date);
   }).reverse();
+}
+
+function getTodayLabel() {
+  const now = new Date();
+  return new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei",
+    month: "numeric",
+    day: "numeric",
+  }).format(now);
+}
+
+function buildDivinationCards(data, profile) {
+  const payload = data || {};
+  const cards = payload.cards || {};
+  const energy = cards.energy || {};
+  const bodyTip = cards.body_tip || {};
+  const color = cards.color || {};
+  const drawnCard = payload.drawn_card || {};
+  const flowNumber = payload.flow_number || profile?.life_number || profile?.numerology_number || "?";
+  const lifeNumber = profile?.life_number || profile?.numerology_number || flowNumber;
+
+  return [
+    {
+      card_type: "life_number",
+      number: lifeNumber,
+      title: "你的生命節奏",
+      energy_desc: energy.content || "今天先讓身體回到穩定節奏，從一個小行動開始累積健康。",
+      plant_suggestion: energy.positive_affirmation || "今天用一個可重複的小儀式照顧自己。",
+    },
+    {
+      card_type: "day_number",
+      number: flowNumber,
+      title: energy.title || "今日流日能量",
+      energy_desc: energy.content || "今日能量正在整理中，先照顧呼吸、飲水與步調。",
+      plant_suggestion: color.lucky_color
+        ? `${color.lucky_color} · ${color.lucky_direction || "順著身體的方向"}`
+        : "選一個讓你感到穩定的顏色陪伴今天。",
+    },
+    {
+      card_type: "health_guide",
+      number: flowNumber,
+      title: bodyTip.title || "今日身體提示",
+      energy_desc: bodyTip.content || "今天觀察身體最明顯的訊號，把照顧做小、做穩。",
+      plant_suggestion: bodyTip.plant_extract_link || bodyTip.positive_affirmation || "依今天狀態選擇一杯適合的植萃。",
+    },
+    {
+      card_type: "plant_recommendation",
+      number: flowNumber,
+      title: drawnCard.card_title || "今日抽牌",
+      energy_desc: drawnCard.card_message || cards.draw_card?.content || "抽一張今日數字牌，讓直覺替你選出今天的行動方向。",
+      plant_suggestion: drawnCard.action_hint || cards.draw_card?.positive_affirmation || "把抽到的提示變成今天的一個行動。",
+    },
+  ];
+}
+
+function DivinationSection({ profile }) {
+  const [cardData, setCardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [flipped, setFlipped] = useState([false, false, false, false]);
+  const [hasDrawn, setHasDrawn] = useState(false);
+  const [expanded, setExpanded] = useState(null);
+  const todayKey = `divination_drawn_${getTaiwanToday()}`;
+  const cards = useMemo(() => buildDivinationCards(cardData, profile), [cardData, profile]);
+
+  useEffect(() => {
+    let mounted = true;
+    const cachedDrawn = sessionStorage.getItem(todayKey) === "true";
+    if (cachedDrawn) {
+      setHasDrawn(true);
+      setFlipped([true, true, true, true]);
+    }
+
+    const params = new URLSearchParams({ resource: "astro-daily-cards" });
+    if (profile?.id) params.set("profile_id", profile.id);
+
+    fetch(`/api/member?${params.toString()}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!mounted) return;
+        setCardData(data);
+      })
+      .catch((error) => {
+        console.error("[DivinationSection] load failed:", error);
+        if (mounted) setCardData(null);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [profile?.id, todayKey]);
+
+  function handleDraw() {
+    if (loading) return;
+    sessionStorage.setItem(todayKey, "true");
+    setHasDrawn(true);
+    [0, 1, 2, 3].forEach((index) => {
+      setTimeout(() => {
+        setFlipped((current) => {
+          const next = [...current];
+          next[index] = true;
+          return next;
+        });
+      }, index * 150);
+    });
+  }
+
+  return (
+    <section className="mb-5 rounded-2xl border border-brand-border-warm bg-[#F7F4EE] p-4">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-gold-deep">Divination</p>
+          <h2 className="text-base font-semibold text-brand-dark">今日數字占卜</h2>
+        </div>
+        <span className="text-xs text-brand-mid">{getTodayLabel()}</span>
+      </div>
+
+      {!hasDrawn ? (
+        <>
+          <div className="grid grid-cols-4 gap-2">
+            {[0, 1, 2, 3].map((index) => (
+              <div
+                key={index}
+                className="relative flex aspect-[2/3] items-center justify-center overflow-hidden rounded-xl border border-[rgba(201,169,110,0.35)] bg-brand-dark"
+              >
+                <div
+                  className="absolute inset-0 opacity-70"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(0deg, rgba(201,169,110,0.08) 0px, rgba(201,169,110,0.08) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(60deg, rgba(201,169,110,0.08) 0px, rgba(201,169,110,0.08) 1px, transparent 1px, transparent 20px)",
+                  }}
+                />
+                <span className="relative z-10 text-2xl font-semibold text-[rgba(201,169,110,0.58)]">?</span>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={handleDraw}
+            disabled={loading}
+            className="mt-4 w-full rounded-full border-0 bg-brand-dark px-4 py-3.5 text-sm font-semibold tracking-widest text-white disabled:opacity-60"
+          >
+            {loading ? "整理今日能量中" : "抽取今日四卡"}
+          </button>
+        </>
+      ) : (
+        <div className="grid grid-cols-4 gap-2">
+          {cards.map((card, index) => (
+            <button
+              key={card.card_type || index}
+              type="button"
+              onClick={() => setExpanded(expanded === index ? null : index)}
+              className={`min-h-[160px] rounded-xl border border-[rgba(201,169,110,0.25)] bg-white px-2 py-3 text-center transition duration-300 ${
+                flipped[index] ? "scale-100 opacity-100" : "scale-95 opacity-0"
+              } ${expanded === index ? "col-span-4 min-h-0 text-left" : ""}`}
+            >
+              <p className="mb-2 text-[9px] font-semibold tracking-wider text-brand-mid">
+                {DIVINATION_TYPES[card.card_type] || "今日指引"}
+              </p>
+              <p className="mb-1 font-serif text-4xl font-bold leading-none text-brand-gold-deep">
+                {card.number}
+              </p>
+              <p className="mb-2 text-[11px] font-bold leading-4 text-brand-dark">{card.title}</p>
+              <p className={`text-[10px] leading-5 text-brand-mid ${expanded === index ? "" : "line-clamp-3"}`}>
+                {card.energy_desc}
+              </p>
+              <p className="mt-2 rounded-full bg-[#F3EBDD] px-2 py-1 text-[10px] leading-4 text-brand-dark">
+                {card.plant_suggestion}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
 
 export default function LineTasksPage({ route, go }) {
@@ -217,6 +401,8 @@ export default function LineTasksPage({ route, go }) {
             {notice}
           </div>
         )}
+
+        <DivinationSection profile={member} />
 
         <section className="mb-5 rounded-2xl border border-brand-border-warm bg-white p-5">
           <div className="mb-4 flex items-center justify-between">

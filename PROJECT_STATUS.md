@@ -22,6 +22,9 @@
 > **2026-06-03 今日植本靈感卡片導流更新。**
 > `LineMemberHomePage` 的「今日植萃」卡可點擊進入 `/line/encyclopedia` 或商品詳情，「今日數字」卡可點擊進入 `/line/missions`，命理動態卡也導向任務中心；保留原輪播 UI 結構，支援鍵盤 Enter / Space、觸控縮放回饋與滑動防誤觸。
 
+> **2026-06-03 任務中心數字占卜模組完成。**
+> `LineTasksPage` 頂部新增「今日數字占卜」Zone 0，使用既有 `/api/member?resource=astro-daily-cards`，提供四張背面卡、抽取今日四卡、依序翻牌、今日 session 快取與展開卡片查看詳細內容；未新增 API 或資料庫變更。
+
 ---
 
 ## 基本資訊（不常變動）
