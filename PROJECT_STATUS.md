@@ -16,8 +16,8 @@
 > **2026-06-02 Production hotfix 已推送。**
 > 修復 `/api/dr-marvin/analyze` 在 Vercel 啟動失敗問題：`src/server/products.js` 原本錯誤指向不存在的 `src/data/products.js`，已改為根目錄 `data/products.js`。本機驗證 `api/dr-marvin/analyze.js` 可 import，`npm run build` 成功；commit `0ca96b3` 已 push 至 `main`。
 
-> **2026-06-02 命理資料庫與今日四卡 repo 整合完成，Production 待手動套用。**
-> 已新增 `supabase/astro_migration.sql`、`seed_numerology.sql`、`seed_zwds.sql`、`seed_daily_cards.sql`、`src/lib/astroCalc.js`，並在 `api/member.js` 增加 `resource=astro-init|astro-daily-cards`。`LineMemberHomePage` 今日植本靈感輪播已接入今日四卡資料來源。這四支 SQL 尚未由 Codex 執行，需 Bryan 依序於 Supabase SQL Editor 手動套用與驗證。
+> **2026-06-02 命理資料庫與今日四卡已套用至 Production Supabase。**
+> 已新增 `supabase/astro_migration.sql`、`seed_numerology.sql`、`seed_zwds.sql`、`seed_daily_cards.sql`、`src/lib/astroCalc.js`，並在 `api/member.js` 增加 `resource=astro-init|astro-daily-cards`。`LineMemberHomePage` 今日植本靈感輪播已接入今日四卡資料來源。Bryan 已回報四支 SQL 皆於 Supabase SQL Editor 執行完畢；目前尚待 count 查詢回報以完成筆數驗證。
 
 ---
 
@@ -78,7 +78,7 @@
 | LINE 會員 API | `api/member.js`（`resource=home|reports|astro-init|astro-daily-cards`） |
 | DB Schema 主檔 | `supabase/website_expansion.sql` |
 | DB RLS 修復 | `supabase/admin_rls_repair.sql` |
-| 命理資料庫 migration | `supabase/astro_migration.sql`（repo 已新增；Production 待 Bryan 手動套用） |
+| 命理資料庫 migration | `supabase/astro_migration.sql`（Bryan 已於 Production Supabase 套用） |
 | 命理資料庫 seed | `supabase/seed_numerology.sql`、`supabase/seed_zwds.sql`、`supabase/seed_daily_cards.sql` |
 | Dr. Marvin 題庫正式 migration | `supabase/dr_marvin_question_engine.sql` |
 | Dr. Marvin 抽題 API | `api/dr-marvin/questions.js` |
@@ -118,8 +118,8 @@
 | `inflammation_alerts` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 8 筆；seed 可重複執行 |
 | `anti_inflammation_protocols` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 21 筆；seed 可重複執行，已補舊 schema 相容前置修補 |
 | `member_question_history` | ✅ Production 已套用 / hotfix 已執行 | **2026-06-02**：Bryan 已於 SQL Editor 執行 `supabase/dr_marvin_member_question_history_session_patch.sql`，補齊 `assessment_session_id`、作答回填欄位與 schema cache reload；供 30 天抽題避重與作答回填使用 |
-| `member_astro_profiles` | 🟡 Repo migration 已新增 / Production 待套用 | **2026-06-02**：由 `supabase/astro_migration.sql` 建立；關聯 `profiles(id)`，保存主宰數、日數、九宮格、個體性之箭、紫微四化與太陽星座 |
-| `numerology_*` / `zwds_*` / `astro_zodiac_health` | 🟡 Repo migration / seed 已新增 / Production 待套用 | **2026-06-02**：包含生命靈數靜態知識庫、紫微斗數主星/天干四化/雙星聯集、今日四卡與抽卡牌組；需 Bryan 手動套用四支 SQL |
+| `member_astro_profiles` | ✅ Bryan 回報 Production 已套用 | **2026-06-02**：由 `supabase/astro_migration.sql` 建立；關聯 `profiles(id)`，保存主宰數、日數、九宮格、個體性之箭、紫微四化與太陽星座。尚待 count/schema 查詢回報完成驗證 |
+| `numerology_*` / `zwds_*` / `astro_zodiac_health` | ✅ Bryan 回報 Production 已套用 | **2026-06-02**：包含生命靈數靜態知識庫、紫微斗數主星/天干四化/雙星聯集、今日四卡與抽卡牌組；四支 SQL 已由 Bryan 手動套用。尚待 count 查詢回報完成筆數驗證 |
 | `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
 **assessment_reports 欄位確認（2026-05-29 production audit）：**
