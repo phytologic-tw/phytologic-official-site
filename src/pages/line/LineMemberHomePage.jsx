@@ -6,9 +6,7 @@ import {
   Bell,
   ChevronDown,
   ChevronUp,
-  ClipboardCheck,
   FileText,
-  Gift,
   Share2,
   ShoppingBag,
   Stethoscope,
@@ -19,17 +17,14 @@ import LineMemberLayout from "./LineMemberLayout";
 // ── 靜態資料 ──────────────────────────────────────────────
 
 const PRIMARY_ACTIONS = [
-  { id: "checkin",    label: "今日打卡",   sub: "完成打卡・拿能量", icon: ClipboardCheck, path: "/line/checkin"    },
-  { id: "reports",   label: "我的報告",   sub: "查看健康趨勢",     icon: FileText,       path: "/line/reports"    },
-  { id: "assessment",label: "Dr. Marvin", sub: "深度健康檢測",     icon: Stethoscope,    path: "/line/assessment" },
-  { id: "shop",      label: "植萃商城",   sub: "健康好物選購",     icon: ShoppingBag,    path: "/line/shop"       },
-];
-
-const SECONDARY_ACTIONS = [
-  { id: "tasks",    label: "任務中心", sub: "任務拿獎勵",       icon: Gift,     path: "/line/missions"  },
-  { id: "profile",  label: "我的帳戶", sub: "個人資訊管理",     icon: UserRound,path: "/line/profile"   },
-  { id: "referral", label: "推薦好友", sub: "邀請好友一起健康", icon: Share2,   path: "/line/referral"  },
-  { id: "news",     label: "最新活動", sub: "活動與優惠資訊",   icon: Bell,     path: "/line/news"      },
+  { id: "missions", label: "任務中心", sub: "打卡 · 任務 · 拿獎勵", emoji: "🎯", path: "/line/missions" },
+  { id: "reports", label: "我的報告", sub: "查看健康趨勢", icon: FileText, path: "/line/reports" },
+  { id: "assessment", label: "Dr. Marvin", sub: "深度健康檢測", icon: Stethoscope, path: "/line/assessment" },
+  { id: "encyclopedia", label: "植本百科", sub: "食材 × 植化素", emoji: "📖", path: "/line/encyclopedia", primaryIcon: true },
+  { id: "shop", label: "植萃商城", sub: "健康好物選購", icon: ShoppingBag, path: "/line/shop" },
+  { id: "profile", label: "我的帳戶", sub: "個人資訊管理", icon: UserRound, path: "/line/profile" },
+  { id: "referral", label: "推薦好友", sub: "邀請好友一起健康", icon: Share2, path: "/line/referral" },
+  { id: "news", label: "最新活動", sub: "活動與優惠資訊", icon: Bell, path: "/line/events" },
 ];
 
 const NUMEROLOGY_MSG = {
@@ -108,7 +103,6 @@ export default function LineMemberHomePage({ route, go }) {
   const [homeData, setHomeData]           = useState(null);
   const [loading, setLoading]             = useState(true);
   const [carouselIdx, setCarouselIdx]     = useState(0);
-  const [showMore, setShowMore]           = useState(false);
   const [sevenExpanded, setSevenExpanded] = useState(false);
   const [sessionSeed]                     = useState(Math.random);
   const carouselRef                       = useRef(null);
@@ -180,18 +174,18 @@ export default function LineMemberHomePage({ route, go }) {
   const dayOfWeek    = new Date().getDay();
 
   function handleCarouselScroll() {
-    if (!carouselRef.current) return;
     const el = carouselRef.current;
-    const idx = Math.round(el.scrollLeft / (el.scrollWidth / CARD_IDS.length));
+    if (!el || !el.firstElementChild) return;
+    const cardWidth = el.firstElementChild.offsetWidth + 12;
+    const idx = Math.round(el.scrollLeft / cardWidth);
     setCarouselIdx(Math.min(Math.max(idx, 0), CARD_IDS.length - 1));
   }
 
   // ── Zone 2 card renderer ──────────────────────────────
   function renderCard(cardId) {
     const base = {
-      width: "calc(100% - 40px)",
+      flex: "0 0 calc(100% - 40px)",
       minWidth: "calc(100% - 40px)",
-      flexShrink: 0,
       scrollSnapAlign: "start",
       borderRadius: "14px",
       padding: "14px 16px",
@@ -335,7 +329,38 @@ export default function LineMemberHomePage({ route, go }) {
   return (
     <LineMemberLayout route={route} go={go} member={profile}>
       <style>{`
+        .phyto-carousel-wrap { overflow: hidden; padding-left: 20px; }
+        .phyto-carousel {
+          display: flex;
+          gap: 12px;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          padding-right: 20px;
+          -webkit-overflow-scrolling: touch;
+        }
         .phyto-carousel::-webkit-scrollbar { display: none }
+        .phyto-carousel-dots {
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+          padding: 10px 0 4px;
+        }
+        .phyto-carousel-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #C8C0B0;
+          transition: background 0.2s, width 0.2s;
+          flex-shrink: 0;
+          display: block;
+        }
+        .phyto-carousel-dot.active {
+          background: #3D5A30;
+          width: 18px;
+          border-radius: 999px;
+        }
         @keyframes phyto-spin { to { transform: rotate(360deg) } }
       `}</style>
 
@@ -403,44 +428,32 @@ export default function LineMemberHomePage({ route, go }) {
             <span style={{ fontSize: "11px", color: "#8A9A6A" }}>{carouselIdx + 1} / {CARD_IDS.length}</span>
           </div>
 
-          <div
-            ref={carouselRef}
-            onScroll={handleCarouselScroll}
-            className="phyto-carousel"
-            style={{
-              display: "flex", gap: "10px",
-              overflowX: "auto", scrollSnapType: "x mandatory",
-              WebkitOverflowScrolling: "touch",
-              scrollbarWidth: "none", msOverflowStyle: "none",
-              paddingLeft: "20px", paddingRight: "20px",
-            }}
-          >
-            {cardOrder.map((id) => renderCard(id))}
+          <div className="phyto-carousel-wrap">
+            <div
+              ref={carouselRef}
+              onScroll={handleCarouselScroll}
+              className="phyto-carousel"
+            >
+              {cardOrder.map((id) => renderCard(id))}
+            </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "5px", marginTop: "8px" }}>
+          <div className="phyto-carousel-dots">
             {CARD_IDS.map((_, i) => (
               <span
                 key={i}
-                style={{
-                  width: i === carouselIdx ? "14px" : "5px",
-                  height: "5px",
-                  borderRadius: "999px",
-                  background: i === carouselIdx ? "#2D5016" : "rgba(201,169,110,0.5)",
-                  transition: "all 0.25s ease",
-                  display: "block",
-                }}
+                className={`phyto-carousel-dot ${i === carouselIdx ? "active" : ""}`}
               />
             ))}
           </div>
         </div>
 
-        {/* ── Zone 3 — Quick Actions (2×2 + secondary) ── */}
+        {/* ── Zone 3 — Quick Actions (2×4) ── */}
         <div style={{ flexShrink: 0 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
             {PRIMARY_ACTIONS.map((action) => {
               const Icon = action.icon;
-              const isDone = action.id === "checkin" && hasCheckedIn;
+              const isDone = action.id === "missions" && hasCheckedIn;
               return (
                 <button
                   key={action.id}
@@ -449,19 +462,23 @@ export default function LineMemberHomePage({ route, go }) {
                   style={{
                     background: "#fff", borderRadius: "14px",
                     padding: "14px 12px",
-                    border: "none", cursor: isDone ? "default" : "pointer",
+                    border: "none",
+                    cursor: isDone ? "default" : "pointer",
                     display: "flex", alignItems: "center", gap: "10px",
-                    opacity: isDone ? 0.75 : 1,
+                    opacity: isDone ? 0.65 : 1,
+                    pointerEvents: isDone ? "none" : "auto",
                   }}
                 >
                   <div style={{
                     width: "38px", height: "38px", borderRadius: "10px",
-                    background: "#E8F0E0", flexShrink: 0,
+                    background: action.primaryIcon ? "var(--color-primary, #2D5016)" : "#E8F0E0", flexShrink: 0,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "#3D5A30",
+                    color: action.primaryIcon ? "#fff" : "#3D5A30",
                   }}>
                     {isDone
-                      ? <span style={{ fontSize: "18px" }}>✓</span>
+                      ? <span style={{ fontSize: "18px" }}>✅</span>
+                      : action.emoji
+                      ? <span style={{ fontSize: "18px" }}>{action.emoji}</span>
                       : <Icon size={18} strokeWidth={1.8} />
                     }
                   </div>
@@ -470,68 +487,13 @@ export default function LineMemberHomePage({ route, go }) {
                       {action.label}
                     </p>
                     <p style={{ fontSize: "10px", color: "#8A9A6A", margin: 0, lineHeight: 1.3 }}>
-                      {isDone ? "今日已完成 ✓" : action.sub}
+                      {isDone ? "今日已打卡 ✓" : action.sub}
                     </p>
                   </div>
                 </button>
               );
             })}
           </div>
-
-          {/* 更多功能 toggle */}
-          <button
-            type="button"
-            onClick={() => setShowMore((v) => !v)}
-            style={{
-              width: "100%", marginTop: "8px",
-              background: "none", border: "none",
-              fontSize: "12px", color: "#8A9A6A",
-              cursor: "pointer", padding: "4px",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "4px",
-              fontFamily: "'Noto Serif TC', Georgia, serif",
-            }}
-          >
-            {showMore ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {showMore ? "收起功能" : "更多功能"}
-          </button>
-
-          {showMore && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "6px" }}>
-              {SECONDARY_ACTIONS.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    onClick={() => go(action.path)}
-                    style={{
-                      background: "#fff", borderRadius: "14px",
-                      padding: "14px 12px",
-                      border: "none", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: "10px",
-                    }}
-                  >
-                    <div style={{
-                      width: "38px", height: "38px", borderRadius: "10px",
-                      background: "#F5F0E8", flexShrink: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "#3D5A30",
-                    }}>
-                      <Icon size={18} strokeWidth={1.8} />
-                    </div>
-                    <div style={{ minWidth: 0, textAlign: "left" }}>
-                      <p style={{ fontSize: "13px", fontWeight: 700, color: "#1A2F15", margin: "0 0 2px", lineHeight: 1.2 }}>
-                        {action.label}
-                      </p>
-                      <p style={{ fontSize: "10px", color: "#8A9A6A", margin: 0, lineHeight: 1.3 }}>
-                        {action.sub}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
 
         {/* ── Zone 4 — 7-Day Plan (collapsed by default) ─ */}
