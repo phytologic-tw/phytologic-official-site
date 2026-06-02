@@ -19,6 +19,9 @@
 > **2026-06-02 命理資料庫與今日四卡已套用至 Production Supabase。**
 > 已新增 `supabase/astro_migration.sql`、`seed_numerology.sql`、`seed_zwds.sql`、`seed_daily_cards.sql`、`src/lib/astroCalc.js`，並在 `api/member.js` 增加 `resource=astro-init|astro-daily-cards`。`LineMemberHomePage` 今日植本靈感輪播已接入今日四卡資料來源。Bryan 已回報四支 SQL 皆於 Supabase SQL Editor 執行完畢；count 驗證顯示四表正確、兩表缺資料：`numerology_daily_cards` 27/36、`numerology_card_deck` 36/40。2026-06-03 Bryan 已回報 `supabase/astro_daily_cards_count_patch.sql` 套用完成，預期 count 已補齊為 36/40。
 
+> **2026-06-03 今日植本靈感卡片導流更新。**
+> `LineMemberHomePage` 的「今日植萃」卡可點擊進入 `/line/encyclopedia`，「今日數字」卡可點擊進入 `/line/missions`；保留原輪播 UI 結構並支援鍵盤 Enter / Space 觸發。
+
 ---
 
 ## 基本資訊（不常變動）

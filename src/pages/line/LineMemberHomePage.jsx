@@ -257,7 +257,16 @@ export default function LineMemberHomePage({ route, go }) {
 
       case "number":
         return (
-          <div key="number" style={{ ...base, background: "#fff" }}>
+          <div
+            key="number"
+            onClick={() => go("/line/missions")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") go("/line/missions");
+            }}
+            style={{ ...base, background: "#fff", cursor: "pointer" }}
+          >
             <p style={{ ...lbl, color: "#8A9A6A" }}>今日數字</p>
             <span style={{ fontSize: "40px", fontWeight: 700, color: "#2D5016", lineHeight: 1 }}>
               {todayNumber ?? "?"}
@@ -296,14 +305,28 @@ export default function LineMemberHomePage({ route, go }) {
 
       case "plant":
         return (
-          <div key="plant" style={{ ...base, background: "linear-gradient(135deg,#3D5A30,#2D5016)" }}>
-            <p style={{ ...lbl, color: "rgba(255,255,255,0.6)" }}>今日植物</p>
+          <div
+            key="plant"
+            onClick={() => go("/line/encyclopedia")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") go("/line/encyclopedia");
+            }}
+            style={{ ...base, background: "linear-gradient(135deg,#3D5A30,#2D5016)", cursor: "pointer" }}
+          >
+            <p style={{ ...lbl, color: "rgba(255,255,255,0.6)" }}>今日植萃</p>
             <p style={{ fontSize: "18px", fontWeight: 700, color: "#C9A96E", margin: 0, lineHeight: 1.3 }}>
               {plantName}
             </p>
-            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.4 }}>
-              {inspiration || "植物的力量，從今日開始積累。"}
-            </p>
+            <div>
+              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.4 }}>
+                {inspiration || "植物的力量，從今日開始積累。"}
+              </p>
+              <p style={{ fontSize: "10px", color: "#C9A96E", margin: "4px 0 0", lineHeight: 1.2 }}>
+                了解更多 →
+              </p>
+            </div>
           </div>
         );
 
