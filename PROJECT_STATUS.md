@@ -13,6 +13,9 @@
 > **2026-06-02 Dr. Marvin 題庫引擎可用化完成。**
 > 已新增正式 migration `dr_marvin_question_engine.sql`、25 題抽題 API `/api/dr-marvin/questions`，並將 `/line/assessment` 接上動態題庫與報告 API。Bryan 已於 Supabase SQL Editor 套用完成並驗證：`question_bank` 475 筆、`inflammation_alerts` 8 筆、`anti_inflammation_protocols` 21 筆、`member_question_history` 存在。
 
+> **2026-06-02 Production hotfix 已推送。**
+> 修復 `/api/dr-marvin/analyze` 在 Vercel 啟動失敗問題：`src/server/products.js` 原本錯誤指向不存在的 `src/data/products.js`，已改為根目錄 `data/products.js`。本機驗證 `api/dr-marvin/analyze.js` 可 import，`npm run build` 成功；commit `0ca96b3` 已 push 至 `main`。
+
 ---
 
 ## 基本資訊（不常變動）
