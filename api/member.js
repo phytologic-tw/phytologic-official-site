@@ -1,3 +1,4 @@
+import { calcFullAstroProfile, calcFlowNumber } from "../src/lib/astroCalc.js";
 import { calcLevel, calcTitle, getSupabaseAdmin, normalizeProfile } from "../src/server/member-utils.js";
 
 const TASK_REWARDS = {
@@ -221,6 +222,88 @@ async function readReports({ supabase, profile, lineUserId }) {
   };
 }
 
+async function initAstroProfile({ supabase, profileId, birthDate }) {
+  const astroProfile = calcFullAstroProfile(birthDate);
+  if (!astroProfile) return { error: "birth_date required" };
+
+  const { data: stemData } = await supabase
+    .from("zwds_heavenly_stems")
+    .select("hua_lu,hua_quan,hua_ke,hua_ji")
+    .eq("stem", astroProfile.birth_year_stem)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("member_astro_profiles")
+    .upsert({
+      profile_id: profileId,
+      ...astroProfile,
+      innate_hua_lu: stemData?.hua_lu || null,
+      innate_hua_quan: stemData?.hua_quan || null,
+      innate_hua_ke: stemData?.hua_ke || null,
+      innate_hua_ji: stemData?.hua_ji || null,
+      computed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "profile_id" });
+
+  if (error) return { error: error.message };
+  return {
+    success: true,
+    master_number: astroProfile.master_number,
+    zodiac_sign: astroProfile.zodiac_sign,
+  };
+}
+
+async function readAstroDailyCards({ supabase, profileId }) {
+  const flowNumber = calcFlowNumber();
+  const [{ data: cards, error: cardsError }, { data: deckCards, error: deckError }] = await Promise.all([
+    supabase
+      .from("numerology_daily_cards")
+      .select("*")
+      .eq("flow_number", flowNumber),
+    supabase
+      .from("numerology_card_deck")
+      .select("*")
+      .eq("number", flowNumber),
+  ]);
+
+  if (cardsError) throw cardsError;
+  if (deckError) throw deckError;
+
+  const drawnCard = deckCards?.length
+    ? deckCards[Math.floor(Math.random() * deckCards.length)]
+    : null;
+
+  let zwdsInsight = null;
+  if (profileId) {
+    const { data: astro } = await supabase
+      .from("member_astro_profiles")
+      .select("birth_year_stem,innate_hua_lu,innate_hua_ji,master_number,zodiac_sign")
+      .eq("profile_id", profileId)
+      .maybeSingle();
+
+    if (astro?.birth_year_stem) {
+      zwdsInsight = {
+        master_number: astro.master_number,
+        zodiac_sign: astro.zodiac_sign,
+        innate_hua_lu: astro.innate_hua_lu,
+        innate_hua_ji: astro.innate_hua_ji,
+      };
+    }
+  }
+
+  const cardsByType = (cards || []).reduce((acc, card) => {
+    acc[card.card_type] = card;
+    return acc;
+  }, {});
+
+  return {
+    flow_number: flowNumber,
+    cards: cardsByType,
+    drawn_card: drawnCard,
+    zwds_insight: zwdsInsight,
+  };
+}
+
 export default async function handler(req, res) {
   if (!["GET", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
 
@@ -228,7 +311,7 @@ export default async function handler(req, res) {
     ? req.body?.resource || req.query?.resource || "home"
     : req.query?.resource || "home";
 
-  if (!["home", "reports"].includes(resource)) {
+  if (!["home", "reports", "astro-init", "astro-daily-cards"].includes(resource)) {
     return res.status(400).json({ error: "Unsupported member resource." });
   }
 
@@ -236,15 +319,44 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const lineUserId = req.method === "POST"
-    ? req.body?.lineUserId || req.body?.line_user_id
-    : req.query?.lineUserId || req.query?.line_user_id;
-  if (!lineUserId || typeof lineUserId !== "string" || !lineUserId.startsWith("U")) {
-    return res.status(400).json({ error: "Invalid LINE userId" });
+  if (resource === "astro-daily-cards" && req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  if (resource === "astro-init" && req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const supabase = getSupabaseAdmin();
+
+    if (resource === "astro-daily-cards") {
+      const payload = await readAstroDailyCards({
+        supabase,
+        profileId: req.query?.profile_id || null,
+      });
+      return res.status(200).json(payload);
+    }
+
+    if (resource === "astro-init") {
+      const profileId = req.body?.profile_id;
+      const birthDate = req.body?.birth_date;
+      if (!profileId || !birthDate) {
+        return res.status(400).json({ error: "profile_id and birth_date required" });
+      }
+
+      const payload = await initAstroProfile({ supabase, profileId, birthDate });
+      if (payload.error) return res.status(500).json({ error: payload.error });
+      return res.status(200).json(payload);
+    }
+
+    const lineUserId = req.method === "POST"
+      ? req.body?.lineUserId || req.body?.line_user_id
+      : req.query?.lineUserId || req.query?.line_user_id;
+    if (!lineUserId || typeof lineUserId !== "string" || !lineUserId.startsWith("U")) {
+      return res.status(400).json({ error: "Invalid LINE userId" });
+    }
+
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
