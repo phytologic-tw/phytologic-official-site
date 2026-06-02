@@ -104,6 +104,9 @@ export default function LineMemberHomePage({ route, go }) {
   const [loading, setLoading]             = useState(true);
   const [carouselIdx, setCarouselIdx]     = useState(0);
   const [sevenExpanded, setSevenExpanded] = useState(false);
+  const [dailyCards, setDailyCards]       = useState(null);
+  const [drawnCard, setDrawnCard]         = useState(null);
+  const [flowNumber, setFlowNumber]       = useState(null);
   const [sessionSeed]                     = useState(Math.random);
   const carouselRef                       = useRef(null);
 
@@ -132,6 +135,40 @@ export default function LineMemberHomePage({ route, go }) {
           setHomeData(result);
           setMember(result.profile);
           sessionStorage.setItem("line_member", JSON.stringify(result.profile));
+
+          const profileId = result.profile?.id;
+          const cardsParams = new URLSearchParams({ resource: "astro-daily-cards" });
+          if (profileId) cardsParams.set("profile_id", profileId);
+          fetch(`/api/member?${cardsParams.toString()}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((cardsData) => {
+              if (!cardsData) return;
+              setDailyCards(cardsData.cards || null);
+              setDrawnCard(cardsData.drawn_card || null);
+              setFlowNumber(cardsData.flow_number || null);
+            })
+            .catch((err) => console.error("fetchDailyCards error:", err));
+
+          const astroInitKey = profileId ? `astro_profile_initialized:${profileId}` : null;
+          const astroInitialized = astroInitKey ? sessionStorage.getItem(astroInitKey) === "true" : false;
+          if (profileId && result.profile?.birth_date && !result.profile?.master_number && !astroInitialized) {
+            fetch("/api/member?resource=astro-init", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                profile_id: profileId,
+                birth_date: result.profile.birth_date,
+              }),
+            })
+              .then((r) => (r.ok ? r.json() : null))
+              .then((astroData) => {
+                if (!astroData?.master_number) return;
+                setMember((cur) => cur ? { ...cur, master_number: astroData.master_number } : cur);
+                if (astroInitKey) sessionStorage.setItem(astroInitKey, "true");
+              })
+              .catch((err) => console.error("initAstroProfile error:", err));
+          }
+
           if (!result.daily_insight_generated) {
             fetch("/api/dr-marvin/insight", {
               method: "POST",
@@ -166,6 +203,9 @@ export default function LineMemberHomePage({ route, go }) {
   const displayName  = profile?.display_name || profile?.line_display_name || "會員";
   const healthScore  = profile?.health_score ?? null;
   const lifeNumber   = profile?.life_number || profile?.numerology_number;
+  const todayNumber  = flowNumber || lifeNumber;
+  const energyCard   = dailyCards?.energy;
+  const todayColor   = dailyCards?.color;
   const hasCheckedIn = homeData?.has_checked_in_today ?? false;
   const sevenDay     = homeData?.seven_day_plan;
   const showSevenDay = sevenDay && (sevenDay.current_day ?? 0) > 0 && (sevenDay.current_day ?? 0) <= 7;
@@ -220,12 +260,14 @@ export default function LineMemberHomePage({ route, go }) {
           <div key="number" style={{ ...base, background: "#fff" }}>
             <p style={{ ...lbl, color: "#8A9A6A" }}>今日數字</p>
             <span style={{ fontSize: "40px", fontWeight: 700, color: "#2D5016", lineHeight: 1 }}>
-              {lifeNumber ?? "?"}
+              {todayNumber ?? "?"}
             </span>
             <p style={{ fontSize: "11px", color: "#5A6A4A", margin: 0, lineHeight: 1.4 }}>
-              {lifeNumber
-                ? (NUMEROLOGY_MSG[lifeNumber] || "今日能量充沛，把握身體的節奏。")
-                : "完成健康評估後解鎖生命靈數"}
+              {energyCard?.content ||
+                energyCard?.positive_affirmation ||
+                (todayNumber
+                  ? (NUMEROLOGY_MSG[todayNumber] || "今日能量充沛，把握身體的節奏。")
+                  : "今日能量正在為您計算中")}
             </p>
           </div>
         );
@@ -233,10 +275,21 @@ export default function LineMemberHomePage({ route, go }) {
       case "outfit":
         return (
           <div key="outfit" style={{ ...base, background: "linear-gradient(135deg,#D8B07A,#C9A96E)" }}>
-            <p style={{ ...lbl, color: "rgba(255,255,255,0.75)" }}>今日穿搭</p>
-            <span style={{ fontSize: "28px", lineHeight: 1 }}>👗</span>
+            <p style={{ ...lbl, color: "rgba(255,255,255,0.75)" }}>今日好色</p>
+            <span
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                background: todayColor?.color_hex || "#F5F0E8",
+                border: "1px solid rgba(255,255,255,0.45)",
+                display: "inline-block",
+              }}
+            />
             <p style={{ fontSize: "12px", fontWeight: 600, color: "#1A2F15", margin: 0, lineHeight: 1.4 }}>
-              {OUTFIT_VIBES[dayOfWeek % 7]}
+              {todayColor?.lucky_color
+                ? `${todayColor.lucky_color} · ${todayColor.lucky_direction || "順著身體的方向"}`
+                : OUTFIT_VIBES[dayOfWeek % 7]}
             </p>
           </div>
         );
@@ -268,9 +321,11 @@ export default function LineMemberHomePage({ route, go }) {
       case "quote":
         return (
           <div key="quote" style={{ ...base, background: "#1A2F15", justifyContent: "center", gap: "6px" }}>
-            <p style={{ ...lbl, color: "rgba(201,169,110,0.7)" }}>今日一句話</p>
+            <p style={{ ...lbl, color: "rgba(201,169,110,0.7)" }}>
+              {drawnCard?.card_title || "今日一句話"}
+            </p>
             <p style={{ fontSize: "13px", fontWeight: 600, color: "#fff", lineHeight: 1.7, margin: 0, textAlign: "center" }}>
-              「{DAILY_QUOTES[dayOfWeek % 7]}」
+              「{drawnCard?.card_message || DAILY_QUOTES[dayOfWeek % 7]}」
             </p>
           </div>
         );
