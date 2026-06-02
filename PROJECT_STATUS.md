@@ -109,7 +109,7 @@
 | `question_bank` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 475 筆；seed 可重複執行，已補舊 schema 相容前置修補 |
 | `inflammation_alerts` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 8 筆；seed 可重複執行 |
 | `anti_inflammation_protocols` | ✅ Production 已套用 | **2026-06-02**：Bryan SQL Editor 驗證 21 筆；seed 可重複執行，已補舊 schema 相容前置修補 |
-| `member_question_history` | ✅ Production 已套用 | **2026-06-02**：table 存在，FK 統一指向 `profiles(id)`，供 30 天抽題避重與作答回填使用 |
+| `member_question_history` | ✅ Production 已套用 / hotfix 已執行 | **2026-06-02**：Bryan 已於 SQL Editor 執行 `supabase/dr_marvin_member_question_history_session_patch.sql`，補齊 `assessment_session_id`、作答回填欄位與 schema cache reload；供 30 天抽題避重與作答回填使用 |
 | `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
 **assessment_reports 欄位確認（2026-05-29 production audit）：**
