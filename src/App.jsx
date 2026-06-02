@@ -39,6 +39,9 @@ const LineTasksPage = React.lazy(() => import("./pages/line/LineTasksPage"));
 const LineEventsPage = React.lazy(() => import("./pages/line/LineEventsPage"));
 const LineReferralPage = React.lazy(() => import("./pages/line/LineReferralPage"));
 const LineShopPage = React.lazy(() => import("./pages/line/LineShopPage"));
+const EncyclopediaListPage = React.lazy(() => import("./pages/line/EncyclopediaListPage"));
+const LineEncyclopediaProductPage = React.lazy(() => import("./pages/line/ProductDetailPage"));
+const WikiDetailPage = React.lazy(() => import("./pages/line/WikiDetailPage"));
 
 const logo = "/logo.png";
 const lineId = "@phytologic";
@@ -1562,7 +1565,7 @@ export default function PhytologicWebsite() {
       ? <LineCheckinPage route={route} go={go} />
       : route === "/line/profile"
       ? <LineProfilePage route={route} go={go} />
-      : route === "/line/tasks"
+      : route === "/line/tasks" || route === "/line/missions"
       ? <LineTasksPage route={route} go={go} />
       : route === "/line/events"
       ? <LineEventsPage route={route} go={go} />
@@ -1570,6 +1573,12 @@ export default function PhytologicWebsite() {
       ? <LineReferralPage route={route} go={go} />
       : route === "/line/shop"
       ? <LineShopPage route={route} go={go} />
+      : route === "/line/encyclopedia"
+      ? <EncyclopediaListPage route={route} go={go} />
+      : /^\/line\/encyclopedia\/[^/]+\/wiki\/[^/]+$/.test(route)
+      ? <WikiDetailPage route={route} go={go} />
+      : /^\/line\/encyclopedia\/[^/]+$/.test(route)
+      ? <LineEncyclopediaProductPage route={route} go={go} />
       : route === "/line/assessment"
       ? <LineAssessmentPage route={route} go={go} />
       : <LineEntry go={go} />;
