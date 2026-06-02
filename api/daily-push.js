@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { buildDailyPlanPrompt } from "./_prompts.js";
+import { buildDailyPlanPrompt } from "../src/server/prompts.js";
 
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;

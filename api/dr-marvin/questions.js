@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { getSupabaseAdmin } from "../_member-utils.js";
+import { getSupabaseAdmin } from "../../src/server/member-utils.js";
 
 const SYSTEMS = [
   "brain_nerve",

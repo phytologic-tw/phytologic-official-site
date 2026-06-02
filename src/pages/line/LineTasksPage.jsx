@@ -59,7 +59,7 @@ export default function LineTasksPage({ route, go }) {
         const [history, homeResponse] = await Promise.all([
           getCheckinHistory(cached.id, 14),
           cached.line_user_id
-            ? fetch(`/api/member/home?lineUserId=${encodeURIComponent(cached.line_user_id)}`)
+            ? fetch(`/api/member?resource=home&lineUserId=${encodeURIComponent(cached.line_user_id)}`)
             : Promise.resolve(null),
         ]);
 
@@ -118,7 +118,7 @@ export default function LineTasksPage({ route, go }) {
     setNotice("");
 
     try {
-      const response = await fetch("/api/member/home", {
+      const response = await fetch("/api/member?resource=home", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lineUserId: member.line_user_id, taskId }),

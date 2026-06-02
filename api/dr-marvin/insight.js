@@ -1,12 +1,12 @@
 import {
   getSupabaseAdmin,
   normalizeProfile,
-} from "../_member-utils.js";
+} from "../../src/server/member-utils.js";
 import {
   calcLifeNumber,
   getBloodTypeTrait,
   getLifeNumberTrait,
-} from "../_prompts.js";
+} from "../../src/server/prompts.js";
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 

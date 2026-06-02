@@ -5,7 +5,7 @@ import {
   getTaiwanDateDaysAgo,
   getTaiwanToday,
   normalizeProfile,
-} from "./_member-utils.js";
+} from "../src/server/member-utils.js";
 
 const BASE_LE = 10;
 

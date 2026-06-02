@@ -3,8 +3,8 @@ import {
   calcTitle,
   getSupabaseAdmin,
   normalizeProfile,
-} from "../_member-utils.js";
-import { findProduct, getProducts } from "../_products.js";
+} from "../../src/server/member-utils.js";
+import { findProduct, getProducts } from "../../src/server/products.js";
 
 const SYSTEM_LABELS = {
   sleep: "睡眠指數",

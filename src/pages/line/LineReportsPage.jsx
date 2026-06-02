@@ -62,7 +62,8 @@ export default function LineReportsPage({ route, go }) {
 
       try {
         const params = new URLSearchParams({ lineUserId: storedMember.line_user_id });
-        const response = await fetch(`/api/member/reports?${params.toString()}`);
+        params.set("resource", "reports");
+        const response = await fetch(`/api/member?${params.toString()}`);
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "報告讀取失敗");
 

@@ -1,11 +1,11 @@
-import { calcLifeNumber, calcZodiac } from "./_prompts.js";
+import { calcLifeNumber, calcZodiac } from "../src/server/prompts.js";
 import {
   getSupabaseAdmin,
   inferPromoterType,
   normalizeAttribution,
   normalizeProfile,
   pickDefinedEntries,
-} from "./_member-utils.js";
+} from "../src/server/member-utils.js";
 
 const DEFAULT_MEMBER_REFERRAL_CP = 500;
 

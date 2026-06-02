@@ -1,4 +1,4 @@
-import { requireAdmin } from "./_admin-utils.js";
+import { requireAdmin } from "../src/server/admin-utils.js";
 
 const allowedTables = new Set(["partners", "announcements", "gallery_items", "assessment_reports", "contact_submissions"]);
 

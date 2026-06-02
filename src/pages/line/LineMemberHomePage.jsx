@@ -125,7 +125,8 @@ export default function LineMemberHomePage({ route, go }) {
       setLoading(true);
       try {
         const params = new URLSearchParams({ lineUserId: storedMember.line_user_id });
-        const response = await fetch(`/api/member/home?${params.toString()}`);
+        params.set("resource", "home");
+        const response = await fetch(`/api/member?${params.toString()}`);
         if (response.ok) {
           const result = await response.json();
           setHomeData(result);

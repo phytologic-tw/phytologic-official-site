@@ -40,7 +40,7 @@
 | PostCSS / Autoprefixer | ✅ 正常 | 前端樣式工具 |
 | Supabase JS | ✅ 正常 | `@supabase/supabase-js: ^2.105.4` |
 | LINE LIFF SDK | 🔧 進行中 | `@line/liff: ^2.29.0`，已有 LIFF 初始化與頁面 |
-| Vercel Serverless | ✅ 正常 | `api/*.js` |
+| Vercel Serverless | ✅ 正常 | `api/*.js` 目前 12 支 function，符合 Hobby 上限 |
 | Anthropic API | 🔧 進行中 | 未安裝 `anthropic` 套件，目前 `api/analyze.js` 用 `fetch` 呼叫 |
 | Framer Motion | ✅ 正常 | `framer-motion: latest` |
 | Lucide React | ✅ 正常 | `lucide-react: latest` |
@@ -68,6 +68,8 @@
 | AI 分析 API | `api/analyze.js` |
 | 後台管理 API（舊 passcode/service role 流程） | `api/admin.js` |
 | LINE Webhook | `api/line-webhook.js` |
+| Server-only utility | `src/server/`（原 `api/_*.js` 已移出 `/api`，避免被 Vercel 算作 function） |
+| LINE 會員 API | `api/member.js`（`resource=home|reports`） |
 | DB Schema 主檔 | `supabase/website_expansion.sql` |
 | DB RLS 修復 | `supabase/admin_rls_repair.sql` |
 | Dr. Marvin 題庫正式 migration | `supabase/dr_marvin_question_engine.sql` |
@@ -280,7 +282,7 @@
   - Zone 4：今日植本靈感橫向輪播（scroll-snap、卡片左緣對齊 page-padding、dot indicator）
   - Zone 5：8 快捷功能 2×4 grid（今日打卡合併入任務中心；已打卡時顯示 `今日已打卡 ✓`、opacity 0.65；新增植本百科入口）
   - Zone 6：七日健康啟動計畫進度條（條件顯示，僅在進行中時渲染）
-  - 保留原始 useEffect 資料讀取邏輯（`/api/member/home` + `/api/dr-marvin/insight`）
+- 保留原始 useEffect 資料讀取邏輯（`/api/member?resource=home` + `/api/dr-marvin/insight`）
 - ✅ `npm run build` — 0 errors，✓ 2252 modules transformed
 
 ### Phase 2 — 植本百科三層架構（2026-06-02 完成）
@@ -301,7 +303,7 @@
 - ✅ `src/pages/line/LineMemberHomePage.jsx` — Mission Hub 規格（已由 Phase 1B 重構）
 - ✅ `src/pages/line/LineMemberLayout.jsx` — 底部導航（已由 Phase 1B 重構為無導航）
 - ✅ `npm run build` — 0 errors，✓ 2252 modules transformed
-- ✅ 資料來源：`/api/member/home`（已有 `has_checked_in_today`、`reports_count`、`streak_days`、`p_points`、`seven_day_plan`）
+- ✅ 資料來源：`/api/member?resource=home`（已有 `has_checked_in_today`、`reports_count`、`streak_days`、`p_points`、`seven_day_plan`）
 
 ### 下一階段
 

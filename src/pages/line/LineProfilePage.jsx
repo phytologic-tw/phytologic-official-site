@@ -72,7 +72,7 @@ export default function LineProfilePage({ route, go }) {
       }
 
       try {
-        const response = await fetch(`/api/member/home?lineUserId=${encodeURIComponent(cached.line_user_id)}`);
+        const response = await fetch(`/api/member?resource=home&lineUserId=${encodeURIComponent(cached.line_user_id)}`);
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "會員資料讀取失敗");
         if (!mounted) return;

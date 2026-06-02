@@ -1,5 +1,5 @@
-import { getSupabaseAdmin, normalizeAttribution, pickDefinedEntries } from "./_member-utils.js";
-import { requireAdmin } from "./_admin-utils.js";
+import { getSupabaseAdmin, normalizeAttribution, pickDefinedEntries } from "../src/server/member-utils.js";
+import { requireAdmin } from "../src/server/admin-utils.js";
 
 function normalizePromoterPayload(body = {}) {
   const id = String(body.id || "").trim().toUpperCase();
