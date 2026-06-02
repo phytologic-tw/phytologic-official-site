@@ -1,4 +1,4 @@
-import { PRODUCTS, activeProducts, findProductById, productPromptList } from "../data/products.js";
+import { PRODUCTS, activeProducts, findProductById, productPromptList } from "../../data/products.js";
 
 let cachedProducts = null;
 let cachedAt = 0;
