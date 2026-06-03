@@ -1,5 +1,8 @@
 import { calcFullAstroProfile, calcFlowNumber } from "../src/lib/astroCalc.js";
 import { calcLevel, calcTitle, getSupabaseAdmin, normalizeProfile } from "../src/server/member-utils.js";
+import { calcLifeNumber, getBloodTypeTrait, getLifeNumberTrait } from "../src/server/prompts.js";
+
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const TASK_REWARDS = {
   profile_complete: { type: "starter", le: 30, cp: 0, label: "完成會員建檔" },
@@ -118,6 +121,280 @@ function getTaiwanToday() {
   return new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Taipei",
   }).format(new Date());
+}
+
+function normalizeNumberCardInterpretation(value, fallback) {
+  const source = value && typeof value === "object" ? value : {};
+  const sections = source.sections && typeof source.sections === "object" ? source.sections : {};
+  return {
+    title: source.title || fallback.title,
+    summary: source.summary || fallback.summary,
+    energy: source.energy || fallback.energy,
+    body_hint: source.body_hint || fallback.body_hint,
+    lifestyle_advice: source.lifestyle_advice || fallback.lifestyle_advice,
+    sections: {
+      food: sections.food || fallback.sections.food,
+      clothing: sections.clothing || fallback.sections.clothing,
+      living: sections.living || fallback.sections.living,
+      movement: sections.movement || fallback.sections.movement,
+      learning: sections.learning || fallback.sections.learning,
+      joy: sections.joy || fallback.sections.joy,
+    },
+  };
+}
+
+function buildFallbackNumberCardInterpretation(profile, cardNumber, numerologyRef = {}) {
+  const name = profile?.nickname || profile?.line_display_name || "你";
+  const lifeNumber = profile?.life_number || profile?.numerology_number || (profile?.birth_date ? calcLifeNumber(profile.birth_date) : null);
+  const lifeTrait = lifeNumber ? getLifeNumberTrait(lifeNumber) : null;
+  const cardTitle = numerologyRef.deck_card?.card_title || numerologyRef.daily_card?.title || `第 ${cardNumber} 號植本數字卡`;
+  const cardMessage = numerologyRef.deck_card?.card_message || numerologyRef.daily_card?.content || "今天先把身體放回穩定節奏，讓植物性營養、補水與休息成為最基本的支撐。";
+
+  return {
+    title: cardTitle,
+    summary: `${name}，今日數字 ${cardNumber} 提醒你把注意力放回身體的真實節奏。${cardMessage}`,
+    energy: lifeTrait?.personality
+      ? `你的生命靈數 ${lifeNumber} 帶有「${lifeTrait.personality}」的傾向，今天適合用更安靜、可執行的小行動整理能量。`
+      : `今日數字 ${cardNumber} 適合從一個可完成的小行動開始，避免把健康計畫一次排得太滿。`,
+    body_hint: lifeTrait?.stressPattern
+      ? `留意 ${lifeTrait.stressPattern} 相關訊號；這不是診斷，而是提醒你觀察身體壓力是否累積。`
+      : "留意睡眠、消化、肩頸與精神飽和度，今天先降低過度刺激。",
+    lifestyle_advice: "喝水、補充一份原型蔬果，並保留一段不被打擾的休息時間。",
+    sections: {
+      food: "選擇溫和、原型、植物性比例高的餐點，避免用精緻糖快速提神。",
+      clothing: "穿著以舒適、透氣、容易活動為主，讓身體少一層負擔。",
+      living: "整理一個小角落，讓視線和呼吸都有比較乾淨的停靠點。",
+      movement: "用散步、伸展或緩慢活動啟動循環，不需要追求強度。",
+      learning: "今天適合吸收少量但能實踐的健康知識，讀完後留下三句重點。",
+      joy: "安排一件能讓感官放鬆的小事，例如音樂、植物、熱飲或安靜獨處。",
+    },
+  };
+}
+
+async function callAnthropicJson(prompt) {
+  if (!ANTHROPIC_API_KEY) return null;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 900,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(`Anthropic failed: ${JSON.stringify(data)}`);
+  const text = data.content?.map((item) => item.text || "").join("").trim();
+  if (!text) return null;
+
+  const jsonText = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+  return JSON.parse(jsonText);
+}
+
+async function buildNumberCardNumerologyRef({ supabase, profile, cardNumber }) {
+  const lifeNumber = profile.life_number || profile.numerology_number || (profile.birth_date ? calcLifeNumber(profile.birth_date) : null);
+  const [{ data: masterNumber }, { data: dailyCard }, { data: deckCards }, { data: astroProfile }] = await Promise.all([
+    lifeNumber
+      ? supabase
+          .from("numerology_master_numbers")
+          .select("master_number,label,core_tags,life_goal,best_expression,shadow_trait,ai_prompt_hint,health_tendency,element_affinity")
+          .eq("master_number", lifeNumber)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase
+      .from("numerology_daily_cards")
+      .select("title,content,positive_affirmation")
+      .eq("flow_number", cardNumber)
+      .eq("card_type", "draw_card")
+      .maybeSingle(),
+    supabase
+      .from("numerology_card_deck")
+      .select("card_title,card_message,action_hint,energy_type,illustration_key")
+      .eq("number", cardNumber),
+    supabase
+      .from("member_astro_profiles")
+      .select("master_number,zodiac_sign,birth_year_stem,innate_hua_lu,innate_hua_ji")
+      .eq("profile_id", profile.id)
+      .maybeSingle(),
+  ]);
+
+  return {
+    life_number: lifeNumber,
+    life_trait: lifeNumber ? getLifeNumberTrait(lifeNumber) : null,
+    blood_trait: getBloodTypeTrait(profile.blood_type),
+    master_number: masterNumber || null,
+    daily_card: dailyCard || null,
+    deck_card: Array.isArray(deckCards) && deckCards.length ? deckCards[0] : null,
+    astro_profile: astroProfile || null,
+  };
+}
+
+function buildNumberCardPrompt({ profile, cardNumber, numerologyRef, fallback }) {
+  const name = profile.nickname || profile.line_display_name || "健康夥伴";
+  return `你是植本邏輯 PHYTOLOGIC 的 Dr. Marvin，一位溫柔、克制、科學感的植物健康引導顧問。
+
+請根據會員資料、今日抽到的數字卡與命理資料庫，產生今日數字卡解說。
+
+規則：
+- 只輸出 JSON，不要 Markdown，不要解釋
+- 必須是繁體中文
+- 不得診斷疾病、不得承諾療效、不得恐懼行銷
+- 不得使用固定假文案，要結合下方會員資料與命理資料
+- JSON key 必須完全符合格式
+
+輸出格式：
+{
+  "title": "",
+  "summary": "",
+  "energy": "",
+  "body_hint": "",
+  "lifestyle_advice": "",
+  "sections": {
+    "food": "",
+    "clothing": "",
+    "living": "",
+    "movement": "",
+    "learning": "",
+    "joy": ""
+  }
+}
+
+會員資料：
+暱稱：${name}
+生日：${profile.birth_date || profile.birthdate || "未填"}
+生命靈數：${numerologyRef.life_number || "未完成"}
+血型：${profile.blood_type || "未填"}
+性別：${profile.gender || "未填"}
+飲食習慣：${profile.diet_pattern || profile.diet_type || "未填"}
+壓力指數：${profile.stress_level || profile.stress_score || "未填"}
+在意部位：${Array.isArray(profile.health_concerns) ? profile.health_concerns.join("、") : profile.health_concerns || "未填"}
+健康分數：${profile.health_score ?? "未建立"}
+
+今日抽到數字：${cardNumber}
+
+命理資料庫：
+生命靈數特質：${JSON.stringify(numerologyRef.life_trait || {})}
+血型傾向：${JSON.stringify(numerologyRef.blood_trait || {})}
+生命靈數資料表：${JSON.stringify(numerologyRef.master_number || {})}
+今日數字卡資料：${JSON.stringify(numerologyRef.daily_card || {})}
+牌組資料：${JSON.stringify(numerologyRef.deck_card || {})}
+紫微/星座資料：${JSON.stringify(numerologyRef.astro_profile || {})}
+
+若資料不足，請仍以會員已提供資料產生具體可行的解說。fallback 參考但不可逐字照抄：${JSON.stringify(fallback)}`;
+}
+
+async function generateNumberCardInterpretation({ supabase, profile, cardNumber }) {
+  const numerologyRef = await buildNumberCardNumerologyRef({ supabase, profile, cardNumber });
+  const fallback = buildFallbackNumberCardInterpretation(profile, cardNumber, numerologyRef);
+
+  try {
+    const aiJson = await callAnthropicJson(buildNumberCardPrompt({ profile, cardNumber, numerologyRef, fallback }));
+    return {
+      interpretation: normalizeNumberCardInterpretation(aiJson, fallback),
+      aiGenerated: Boolean(aiJson),
+    };
+  } catch (error) {
+    console.error("[member/number-card] AI generation failed:", error.message);
+    return {
+      interpretation: fallback,
+      aiGenerated: false,
+    };
+  }
+}
+
+async function readNumberCardById({ supabase, profileId, cardId }) {
+  const { data, error } = await supabase
+    .from("daily_number_cards")
+    .select("id,profile_id,card_number,draw_date,ai_interpretation,created_at,updated_at")
+    .eq("profile_id", profileId)
+    .eq("id", cardId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data || null;
+}
+
+async function getOrCreateTodayNumberCard({ supabase, profile, date = getTaiwanToday() }) {
+  const { data: existing, error: existingError } = await supabase
+    .from("daily_number_cards")
+    .select("id,profile_id,card_number,draw_date,ai_interpretation,created_at,updated_at")
+    .eq("profile_id", profile.id)
+    .eq("draw_date", date)
+    .maybeSingle();
+
+  if (existingError) throw existingError;
+  if (existing?.ai_interpretation) return { card: existing, created: false };
+
+  let card = existing;
+  if (!card) {
+    const cardNumber = Math.floor(Math.random() * 9) + 1;
+    const { data: inserted, error: insertError } = await supabase
+      .from("daily_number_cards")
+      .insert({
+        profile_id: profile.id,
+        card_number: cardNumber,
+        draw_date: date,
+      })
+      .select("id,profile_id,card_number,draw_date,ai_interpretation,created_at,updated_at")
+      .single();
+
+    if (insertError) {
+      if (insertError.code === "23505") {
+        const { data: conflictCard, error: conflictError } = await supabase
+          .from("daily_number_cards")
+          .select("id,profile_id,card_number,draw_date,ai_interpretation,created_at,updated_at")
+          .eq("profile_id", profile.id)
+          .eq("draw_date", date)
+          .maybeSingle();
+        if (conflictError) throw conflictError;
+        card = conflictCard;
+      } else {
+        throw insertError;
+      }
+    } else {
+      card = inserted;
+    }
+  }
+
+  if (!card) throw new Error("number_card_create_failed");
+  if (card.ai_interpretation) return { card, created: false };
+
+  const { interpretation, aiGenerated } = await generateNumberCardInterpretation({
+    supabase,
+    profile,
+    cardNumber: card.card_number,
+  });
+
+  const { data: updated, error: updateError } = await supabase
+    .from("daily_number_cards")
+    .update({
+      ai_interpretation: { ...interpretation, ai_generated: aiGenerated },
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", card.id)
+    .select("id,profile_id,card_number,draw_date,ai_interpretation,created_at,updated_at")
+    .single();
+
+  if (updateError) throw updateError;
+  return { card: updated, created: !existing };
+}
+
+async function readNumberCardHistory({ supabase, profileId }) {
+  const { data, error } = await supabase
+    .from("daily_number_cards")
+    .select("id,card_number,draw_date,ai_interpretation,created_at,updated_at")
+    .eq("profile_id", profileId)
+    .order("draw_date", { ascending: false })
+    .limit(30);
+
+  if (error) throw error;
+  return data || [];
 }
 
 function getTaiwanWeekKey(today) {
@@ -600,11 +877,11 @@ export default async function handler(req, res) {
     ? req.body?.resource || req.query?.resource || "home"
     : req.query?.resource || "home";
 
-  if (!["home", "reports", "astro-init", "astro-daily-cards", "daily-cards", "card-draw"].includes(resource)) {
+  if (!["home", "reports", "astro-init", "astro-daily-cards", "daily-cards", "card-draw", "number-card-today", "number-card-history", "number-card-detail"].includes(resource)) {
     return res.status(400).json({ error: "Unsupported member resource." });
   }
 
-  if (["reports", "daily-cards"].includes(resource) && req.method !== "GET") {
+  if (["reports", "daily-cards", "number-card-history", "number-card-detail"].includes(resource) && req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
@@ -617,6 +894,10 @@ export default async function handler(req, res) {
   }
 
   if (resource === "card-draw" && req.method !== "POST") {
+    return res.status(405).json({ success: false, error: "method_not_allowed" });
+  }
+
+  if (resource === "number-card-today" && !["GET", "POST"].includes(req.method)) {
     return res.status(405).json({ success: false, error: "method_not_allowed" });
   }
 
@@ -671,6 +952,45 @@ export default async function handler(req, res) {
         date: req.query?.date || null,
       });
       return res.status(200).json(payload);
+    }
+
+    if (resource === "number-card-today") {
+      const { card, created } = await getOrCreateTodayNumberCard({
+        supabase,
+        profile,
+        date: getTaiwanToday(),
+      });
+      return res.status(200).json({
+        success: true,
+        created,
+        card,
+      });
+    }
+
+    if (resource === "number-card-history") {
+      const cards = await readNumberCardHistory({
+        supabase,
+        profileId: profile.id,
+      });
+      return res.status(200).json({
+        success: true,
+        cards,
+      });
+    }
+
+    if (resource === "number-card-detail") {
+      const cardId = req.query?.cardId || req.query?.card_id;
+      if (!cardId) return res.status(400).json({ success: false, error: "card_id_required" });
+      const card = await readNumberCardById({
+        supabase,
+        profileId: profile.id,
+        cardId,
+      });
+      if (!card) return res.status(404).json({ success: false, error: "card_not_found" });
+      return res.status(200).json({
+        success: true,
+        card,
+      });
     }
 
     if (resource === "card-draw") {

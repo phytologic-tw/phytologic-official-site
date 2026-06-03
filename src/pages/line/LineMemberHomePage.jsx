@@ -13,6 +13,7 @@ import {
   UserRound,
 } from "lucide-react";
 import LineMemberLayout from "./LineMemberLayout";
+import { getNumberCardTheme } from "../../lib/numberCardTheme";
 
 // ── 靜態資料 ──────────────────────────────────────────────
 
@@ -79,6 +80,8 @@ const PLANT_CARD_CATEGORIES = [
   { id: "learning", label: "育", title: "今日學習養分", subtitle: "待滋養" },
   { id: "leisure", label: "樂", title: "今日愉悅能量", subtitle: "待綻放" },
 ];
+
+const NUMBER_CARD_SLIDES = [{ id: "today" }];
 
 // ── 工具函式 ──────────────────────────────────────────────
 
@@ -187,11 +190,11 @@ export default function LineMemberHomePage({ route, go }) {
   const [loading, setLoading]             = useState(true);
   const [carouselIdx, setCarouselIdx]     = useState(0);
   const [sevenExpanded, setSevenExpanded] = useState(false);
-  const [todayPlantCards]                 = useState(readStoredPlantCards);
+  const [todayNumberCard, setTodayNumberCard] = useState(null);
   const carouselRef                       = useRef(null);
   const touchStartXRef                    = useRef(0);
   const suppressClickRef                  = useRef(false);
-  const cardOrder                         = useMemo(() => PLANT_CARD_CATEGORIES, []);
+  const cardOrder                         = useMemo(() => NUMBER_CARD_SLIDES, []);
 
   // ── Data fetching（保留原始邏輯）────────────────────────
   useEffect(() => {
@@ -250,6 +253,16 @@ export default function LineMemberHomePage({ route, go }) {
               })
               .catch(() => {});
           }
+
+          fetch("/api/member?resource=number-card-today", {
+            headers: { "x-line-user-id": storedMember.line_user_id },
+          })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((cardResult) => {
+              if (!cardResult?.card) return;
+              setTodayNumberCard(cardResult.card);
+            })
+            .catch((err) => console.error("numberCardToday error:", err));
         }
       } catch {
         console.warn("[LineMemberHomePage] API unavailable, using cached data");
@@ -318,9 +331,9 @@ export default function LineMemberHomePage({ route, go }) {
   function handleCarouselScroll() {
     const el = carouselRef.current;
     if (!el || !el.firstElementChild) return;
-    const cardWidth = el.firstElementChild.offsetWidth;
+    const cardWidth = el.firstElementChild.offsetWidth + 12;
     const idx = Math.round(el.scrollLeft / cardWidth);
-    setCarouselIdx(Math.min(Math.max(idx, 0), PLANT_CARD_CATEGORIES.length - 1));
+    setCarouselIdx(Math.min(Math.max(idx, 0), cardOrder.length - 1));
   }
 
   function handlePlantCardTouchStart(event) {
@@ -331,50 +344,43 @@ export default function LineMemberHomePage({ route, go }) {
     const endX = event.changedTouches?.[0]?.clientX ?? touchStartXRef.current;
     const delta = Math.abs(endX - touchStartXRef.current);
     suppressClickRef.current = true;
-    if (delta < 10) safeGo("/line/cards");
+    if (delta < 10) safeGo("/line/cards/today");
   }
 
-  function renderPlantCard(category) {
-    const drawn = todayPlantCards[category.id];
-    const number = drawn?.number || drawn?.drawn_number;
-    const advice = drawn?.short_advice || "";
-    const adviceLines = advice.length > 8 ? [advice.slice(0, 8), advice.slice(8, 16)] : [advice].filter(Boolean);
+  function renderPlantCard() {
+    const number = todayNumberCard?.card_number;
+    const theme = getNumberCardTheme(number);
+    const interpretation = todayNumberCard?.ai_interpretation || {};
+    const summary = interpretation.summary || "抽卡中，今日卡會自動建立。";
 
     return (
       <button
-        key={category.id}
+        key="today-number-card"
         type="button"
         onClick={() => {
           if (suppressClickRef.current) {
             suppressClickRef.current = false;
             return;
           }
-          safeGo("/line/cards");
+          safeGo("/line/cards/today");
         }}
         onTouchStart={handlePlantCardTouchStart}
         onTouchEnd={handlePlantCardTouchEnd}
         className="plant-category-card"
+        style={{
+          background: theme.bg,
+          color: theme.fg,
+          borderColor: theme.border,
+        }}
       >
-        <div className="plant-category-card-icon">
-          <PlantCategoryIcon category={category.id} />
+        <div className="plant-category-card-number-wrap">
+          <span style={{ color: theme.accent }}>{number || "?"}</span>
         </div>
         <div className="plant-category-card-copy">
-          <p className="plant-category-card-label">{category.label}</p>
-          {number ? (
-            <>
-              <p className="plant-category-card-number">{number}</p>
-              <div className="plant-category-card-advice">
-                {adviceLines.map((line) => <span key={line}>{line}</span>)}
-              </div>
-              <p className="plant-category-card-cta">查看詳細 →</p>
-            </>
-          ) : (
-            <>
-              <p className="plant-category-card-title">{category.title}</p>
-              <p className="plant-category-card-title">{category.subtitle}</p>
-              <p className="plant-category-card-cta">點擊抽取植本卡牌 →</p>
-            </>
-          )}
+          <p className="plant-category-card-label" style={{ color: theme.accent }}>{theme.name}</p>
+          <p className="plant-category-card-title">{interpretation.title || "今日植本數字卡"}</p>
+          <p className="plant-category-card-summary">{summary}</p>
+          <p className="plant-category-card-cta" style={{ color: theme.accent }}>查看詳細 →</p>
         </div>
       </button>
     );
@@ -577,7 +583,7 @@ export default function LineMemberHomePage({ route, go }) {
         .phyto-carousel-wrap { overflow: hidden; }
         .phyto-carousel {
           display: flex;
-          gap: 0;
+          gap: 12px;
           overflow-x: auto;
           scroll-snap-type: x mandatory;
           touch-action: pan-x;
@@ -622,7 +628,7 @@ export default function LineMemberHomePage({ route, go }) {
           color: #FFFFFF;
           padding: 0 18px;
           display: grid;
-          grid-template-columns: 88px minmax(0, 1fr);
+          grid-template-columns: 82px minmax(0, 1fr);
           align-items: center;
           text-align: left;
           overflow: hidden;
@@ -643,10 +649,18 @@ export default function LineMemberHomePage({ route, go }) {
         .plant-category-card + .plant-category-card {
           margin-left: 0;
         }
-        .plant-category-card-icon,
+        .plant-category-card-number-wrap,
         .plant-category-card-copy {
           position: relative;
           z-index: 1;
+        }
+        .plant-category-card-number-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 62px;
+          line-height: 1;
+          font-weight: 700;
         }
         .plant-category-card-label {
           margin: 0 0 8px;
@@ -656,25 +670,19 @@ export default function LineMemberHomePage({ route, go }) {
         }
         .plant-category-card-title {
           margin: 0;
-          font-size: 19px;
+          font-size: 18px;
           line-height: 1.35;
           font-weight: 700;
-          color: #FFFFFF;
         }
-        .plant-category-card-number {
-          margin: 0 0 4px;
-          font-size: 34px;
-          line-height: 1;
-          font-weight: 700;
-          color: #C9A96E;
-        }
-        .plant-category-card-advice {
-          display: grid;
-          gap: 2px;
-          margin-top: 4px;
+        .plant-category-card-summary {
+          margin: 8px 0 0;
           font-size: 14px;
-          line-height: 1.35;
-          color: rgba(255,255,255,0.88);
+          line-height: 1.5;
+          opacity: 0.82;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         .plant-category-card-cta {
           margin: 18px 0 0;
@@ -752,7 +760,7 @@ export default function LineMemberHomePage({ route, go }) {
             <span style={{ fontSize: "13px", fontWeight: 600, color: "#1A2F15" }}>今日植本卡牌</span>
             <button
               type="button"
-              onClick={() => safeGo("/line/cards")}
+              onClick={() => safeGo("/line/cards/today")}
               style={{
                 border: 0,
                 background: "transparent",
@@ -762,7 +770,7 @@ export default function LineMemberHomePage({ route, go }) {
                 fontFamily: "'Noto Serif TC', Georgia, serif",
               }}
             >
-              前往抽卡 ›
+              查看詳細 ›
             </button>
           </div>
 
@@ -772,12 +780,12 @@ export default function LineMemberHomePage({ route, go }) {
               onScroll={handleCarouselScroll}
               className="phyto-carousel"
             >
-              {cardOrder.map((category) => renderPlantCard(category))}
+              {cardOrder.map((item) => renderPlantCard(item))}
             </div>
           </div>
 
           <div className="phyto-carousel-dots">
-            {PLANT_CARD_CATEGORIES.map((_, i) => (
+            {cardOrder.map((_, i) => (
               <span
                 key={i}
                 className={`phyto-carousel-dot ${i === carouselIdx ? "active" : ""}`}
