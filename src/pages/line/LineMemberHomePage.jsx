@@ -75,13 +75,11 @@ const CARD_IDS = ["health", "number", "outfit", "plant", "diet", "quote", "task"
 const PLANT_CARD_CATEGORIES = [
   { id: "food", label: "食", title: "今日飲食能量", subtitle: "待揭曉" },
   { id: "clothing", label: "衣", title: "今日穿搭頻率", subtitle: "待感應" },
-  { id: "home", label: "住", title: "今日居家場域", subtitle: "待調和" },
-  { id: "travel", label: "行", title: "今日行動能量", subtitle: "待啟動" },
+  { id: "living", label: "住", title: "今日居住場域", subtitle: "待調和" },
+  { id: "movement", label: "行", title: "今日行動節奏", subtitle: "待啟動" },
   { id: "learning", label: "育", title: "今日學習養分", subtitle: "待滋養" },
-  { id: "leisure", label: "樂", title: "今日愉悅能量", subtitle: "待綻放" },
+  { id: "joy", label: "樂", title: "今日愉悅能量", subtitle: "待綻放" },
 ];
-
-const NUMBER_CARD_SLIDES = [{ id: "today" }];
 
 // ── 工具函式 ──────────────────────────────────────────────
 
@@ -190,11 +188,14 @@ export default function LineMemberHomePage({ route, go }) {
   const [loading, setLoading]             = useState(true);
   const [carouselIdx, setCarouselIdx]     = useState(0);
   const [sevenExpanded, setSevenExpanded] = useState(false);
-  const [todayNumberCard, setTodayNumberCard] = useState(null);
+  const [todayNumberCards, setTodayNumberCards] = useState([]);
   const carouselRef                       = useRef(null);
   const touchStartXRef                    = useRef(0);
   const suppressClickRef                  = useRef(false);
-  const cardOrder                         = useMemo(() => NUMBER_CARD_SLIDES, []);
+  const cardOrder                         = useMemo(
+    () => todayNumberCards.length ? todayNumberCards : [{ id: "entry", entry: true }],
+    [todayNumberCards]
+  );
 
   // ── Data fetching（保留原始邏輯）────────────────────────
   useEffect(() => {
@@ -259,8 +260,7 @@ export default function LineMemberHomePage({ route, go }) {
           })
             .then((r) => (r.ok ? r.json() : null))
             .then((cardResult) => {
-              if (!cardResult?.card) return;
-              setTodayNumberCard(cardResult.card);
+              setTodayNumberCards(cardResult?.cards || []);
             })
             .catch((err) => console.error("numberCardToday error:", err));
         }
@@ -340,32 +340,62 @@ export default function LineMemberHomePage({ route, go }) {
     touchStartXRef.current = event.touches?.[0]?.clientX ?? 0;
   }
 
-  function handlePlantCardTouchEnd(event) {
+  function handlePlantCardTouchEnd(event, path) {
     const endX = event.changedTouches?.[0]?.clientX ?? touchStartXRef.current;
     const delta = Math.abs(endX - touchStartXRef.current);
     suppressClickRef.current = true;
-    if (delta < 10) safeGo("/line/cards/today");
+    if (delta < 10) safeGo(path);
   }
 
-  function renderPlantCard() {
-    const number = todayNumberCard?.card_number;
+  function renderPlantCard(card) {
+    if (card?.entry) {
+      return (
+        <button
+          key="number-card-entry"
+          type="button"
+          onClick={() => {
+            if (suppressClickRef.current) {
+              suppressClickRef.current = false;
+              return;
+            }
+            safeGo("/line/cards");
+          }}
+          onTouchStart={handlePlantCardTouchStart}
+          onTouchEnd={(event) => handlePlantCardTouchEnd(event, "/line/cards")}
+          className="plant-category-card entry-card"
+        >
+          <div className="plant-category-card-number-wrap">
+            <span>?</span>
+          </div>
+          <div className="plant-category-card-copy">
+            <p className="plant-category-card-label">今日入口</p>
+            <p className="plant-category-card-title">來抽張數字吧</p>
+            <p className="plant-category-card-summary">看看今天的能量指數如何！</p>
+            <p className="plant-category-card-cta">前往抽卡 →</p>
+          </div>
+        </button>
+      );
+    }
+
+    const category = PLANT_CARD_CATEGORIES.find((item) => item.id === card.category);
+    const number = card?.card_number;
     const theme = getNumberCardTheme(number);
-    const interpretation = todayNumberCard?.ai_interpretation || {};
-    const summary = interpretation.summary || "抽卡中，今日卡會自動建立。";
+    const interpretation = card?.ai_interpretation || {};
+    const summary = interpretation.meaning || interpretation.summary || "今日解說正在整理中。";
 
     return (
       <button
-        key="today-number-card"
+        key={card.id}
         type="button"
         onClick={() => {
           if (suppressClickRef.current) {
             suppressClickRef.current = false;
             return;
           }
-          safeGo("/line/cards/today");
+          safeGo(`/line/cards/detail/${card.id}`);
         }}
         onTouchStart={handlePlantCardTouchStart}
-        onTouchEnd={handlePlantCardTouchEnd}
+        onTouchEnd={(event) => handlePlantCardTouchEnd(event, `/line/cards/detail/${card.id}`)}
         className="plant-category-card"
         style={{
           background: theme.bg,
@@ -374,11 +404,11 @@ export default function LineMemberHomePage({ route, go }) {
         }}
       >
         <div className="plant-category-card-number-wrap">
-          <span style={{ color: theme.accent }}>{number || "?"}</span>
+          <span style={{ color: theme.accent }}>{number}</span>
         </div>
         <div className="plant-category-card-copy">
-          <p className="plant-category-card-label" style={{ color: theme.accent }}>{theme.name}</p>
-          <p className="plant-category-card-title">{interpretation.title || "今日植本數字卡"}</p>
+          <p className="plant-category-card-label" style={{ color: theme.accent }}>{category?.label || "植本"} · {theme.name}</p>
+          <p className="plant-category-card-title">{interpretation.title || category?.title || "今日植本數字卡"}</p>
           <p className="plant-category-card-summary">{summary}</p>
           <p className="plant-category-card-cta" style={{ color: theme.accent }}>查看詳細 →</p>
         </div>
@@ -637,6 +667,14 @@ export default function LineMemberHomePage({ route, go }) {
           font-family: 'Noto Serif TC', Georgia, serif;
           -webkit-tap-highlight-color: transparent;
         }
+        .plant-category-card.entry-card {
+          background: #2D5016;
+          color: #FFFFFF;
+          border-color: rgba(201,169,110,0.34);
+        }
+        .plant-category-card.entry-card .plant-category-card-number-wrap {
+          color: #C9A96E;
+        }
         .plant-category-card::before {
           content: "";
           position: absolute;
@@ -760,7 +798,7 @@ export default function LineMemberHomePage({ route, go }) {
             <span style={{ fontSize: "13px", fontWeight: 600, color: "#1A2F15" }}>今日植本卡牌</span>
             <button
               type="button"
-              onClick={() => safeGo("/line/cards/today")}
+              onClick={() => safeGo("/line/cards")}
               style={{
                 border: 0,
                 background: "transparent",
@@ -770,7 +808,7 @@ export default function LineMemberHomePage({ route, go }) {
                 fontFamily: "'Noto Serif TC', Georgia, serif",
               }}
             >
-              查看詳細 ›
+              前往抽卡 ›
             </button>
           </div>
 
@@ -784,14 +822,16 @@ export default function LineMemberHomePage({ route, go }) {
             </div>
           </div>
 
-          <div className="phyto-carousel-dots">
-            {cardOrder.map((_, i) => (
-              <span
-                key={i}
-                className={`phyto-carousel-dot ${i === carouselIdx ? "active" : ""}`}
-              />
-            ))}
-          </div>
+          {cardOrder.length > 1 ? (
+            <div className="phyto-carousel-dots">
+              {cardOrder.map((_, i) => (
+                <span
+                  key={i}
+                  className={`phyto-carousel-dot ${i === carouselIdx ? "active" : ""}`}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {/* ── Zone 3 — Quick Actions (2×4) ── */}

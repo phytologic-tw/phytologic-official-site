@@ -1,7 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import LineMemberLayout from "./LineMemberLayout";
 import { getNumberCardTheme } from "../../lib/numberCardTheme";
+
+const CARD_CATEGORIES = [
+  { id: "food", label: "食", title: "今日飲食能量" },
+  { id: "clothing", label: "衣", title: "今日穿著頻率" },
+  { id: "living", label: "住", title: "今日居住場域" },
+  { id: "movement", label: "行", title: "今日行動節奏" },
+  { id: "learning", label: "育", title: "今日學習養分" },
+  { id: "joy", label: "樂", title: "今日愉悅能量" },
+];
 
 function readStoredMember() {
   try {
@@ -12,29 +21,26 @@ function readStoredMember() {
   }
 }
 
-function formatDate(value) {
-  if (!value) return "";
+function formatToday() {
   return new Intl.DateTimeFormat("zh-TW", {
     timeZone: "Asia/Taipei",
     month: "numeric",
     day: "numeric",
-  }).format(new Date(`${value}T00:00:00+08:00`));
-}
-
-function getCardTitle(card) {
-  return card?.ai_interpretation?.title || `第 ${card?.card_number || "?"} 號植本數字卡`;
-}
-
-function getCardSummary(card) {
-  return card?.ai_interpretation?.summary || "今日解說正在整理中。";
+  }).format(new Date());
 }
 
 export default function LineCardsPage({ route, go }) {
   const [member] = useState(readStoredMember);
-  const [todayCard, setTodayCard] = useState(null);
-  const [historyCards, setHistoryCards] = useState([]);
+  const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [drawingCategory, setDrawingCategory] = useState("");
+  const [flippingCategory, setFlippingCategory] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  const cardsByCategory = useMemo(
+    () => Object.fromEntries(cards.map((card) => [card.category, card])),
+    [cards]
+  );
 
   useEffect(() => {
     async function loadCards() {
@@ -47,26 +53,15 @@ export default function LineCardsPage({ route, go }) {
       setLoading(true);
       setErrorMsg("");
       try {
-        const headers = { "x-line-user-id": storedMember.line_user_id };
-        const [todayResponse, historyResponse] = await Promise.all([
-          fetch("/api/member?resource=number-card-today", { headers }),
-          fetch("/api/member?resource=number-card-history", { headers }),
-        ]);
-
-        const todayResult = await todayResponse.json();
-        const historyResult = await historyResponse.json();
-        if (!todayResponse.ok || !todayResult.success) {
-          throw new Error(todayResult.error || "today_card_failed");
-        }
-        if (!historyResponse.ok || !historyResult.success) {
-          throw new Error(historyResult.error || "history_failed");
-        }
-
-        setTodayCard(todayResult.card);
-        setHistoryCards(historyResult.cards || []);
+        const response = await fetch("/api/member?resource=number-card-today", {
+          headers: { "x-line-user-id": storedMember.line_user_id },
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.error || "today_cards_failed");
+        setCards(result.cards || []);
       } catch (error) {
         console.error("[LineCardsPage] load failed:", error);
-        setErrorMsg("抽卡資料暫時無法載入，請稍後再試。");
+        setErrorMsg("今日卡牌暫時無法載入，請稍後再試。");
       } finally {
         setLoading(false);
       }
@@ -77,10 +72,117 @@ export default function LineCardsPage({ route, go }) {
 
   if (!member?.line_user_id) return null;
 
-  const theme = getNumberCardTheme(todayCard?.card_number);
+  async function drawCategory(category) {
+    const existing = cardsByCategory[category];
+    if (existing) {
+      go(`/line/cards/detail/${existing.id}`);
+      return;
+    }
+
+    setErrorMsg("");
+    setDrawingCategory(category);
+    setFlippingCategory(category);
+    try {
+      const response = await fetch("/api/member?resource=number-card-draw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-line-user-id": member.line_user_id,
+        },
+        body: JSON.stringify({ category }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || "draw_failed");
+
+      setCards((current) => {
+        const withoutCategory = current.filter((card) => card.category !== result.card.category);
+        return [...withoutCategory, result.card].sort((a, b) => {
+          const aIndex = CARD_CATEGORIES.findIndex((item) => item.id === a.category);
+          const bIndex = CARD_CATEGORIES.findIndex((item) => item.id === b.category);
+          return aIndex - bIndex;
+        });
+      });
+    } catch (error) {
+      console.error("[LineCardsPage] draw failed:", error);
+      setErrorMsg("這張卡暫時無法翻開，請稍後再試。");
+    } finally {
+      setDrawingCategory("");
+      window.setTimeout(() => setFlippingCategory(""), 620);
+    }
+  }
 
   return (
     <LineMemberLayout route={route} go={go} member={member}>
+      <style>{`
+        .number-card-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+        .number-card-slot {
+          aspect-ratio: 3 / 4;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          perspective: 900px;
+          font-family: 'Noto Serif TC', Georgia, serif;
+          cursor: pointer;
+        }
+        .number-card-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transform-style: preserve-3d;
+          transition: transform 0.58s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .number-card-inner.flipped {
+          transform: rotateY(180deg);
+        }
+        .number-card-face {
+          position: absolute;
+          inset: 0;
+          border-radius: 14px;
+          overflow: hidden;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        .number-card-back {
+          background: #2D5016;
+          border: 1px solid rgba(201,169,110,0.36);
+          color: #FFFFFF;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          gap: 8px;
+        }
+        .number-card-back::before,
+        .number-card-front::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image:
+            repeating-linear-gradient(0deg, rgba(201,169,110,0.055) 0px, rgba(201,169,110,0.055) 1px, transparent 1px, transparent 20px),
+            repeating-linear-gradient(60deg, rgba(201,169,110,0.055) 0px, rgba(201,169,110,0.055) 1px, transparent 1px, transparent 20px);
+          pointer-events: none;
+        }
+        .number-card-front {
+          transform: rotateY(180deg);
+          border: 1px solid rgba(201,169,110,0.28);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 14px;
+        }
+        .number-card-face-content {
+          position: relative;
+          z-index: 1;
+        }
+      `}</style>
+
       <header style={{ height: 56, padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <button
           type="button"
@@ -91,102 +193,73 @@ export default function LineCardsPage({ route, go }) {
           返回
         </button>
         <h1 style={{ margin: 0, fontSize: 16, color: "#1A2F15", fontWeight: 700 }}>植本卡牌</h1>
-        <span style={{ width: 42 }} />
+        <span style={{ fontSize: 12, color: "#8A9A6A" }}>{formatToday()}</span>
       </header>
 
       <div style={{ padding: "0 20px 28px" }}>
+        <section style={{ marginBottom: 14 }}>
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.7, color: "#5A6A4A" }}>
+            今日已翻 <strong style={{ color: "#C9A96E" }}>{cards.length}</strong> / 6 張。點擊任一面向翻開今日數字。
+          </p>
+        </section>
+
         {loading ? (
           <div style={{ minHeight: 260, display: "grid", placeItems: "center", color: "#3D5A30", gap: 10 }}>
             <Loader2 size={28} className="animate-spin" />
-            <p style={{ margin: 0, fontSize: 13 }}>抽卡中</p>
-          </div>
-        ) : errorMsg ? (
-          <div style={{ border: "1px solid #F0CACA", borderRadius: 12, padding: 14, color: "#A34848", background: "#FFF" }}>
-            {errorMsg}
+            <p style={{ margin: 0, fontSize: 13 }}>讀取今日卡牌</p>
           </div>
         ) : (
           <>
-            <section>
-              <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 700, color: "#1A2F15" }}>今日抽卡</p>
-              {todayCard ? (
-                <button
-                  type="button"
-                  onClick={() => go("/line/cards/today")}
-                  style={{
-                    width: "100%",
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: 14,
-                    background: theme.bg,
-                    color: theme.fg,
-                    padding: "18px 18px",
-                    textAlign: "left",
-                    display: "grid",
-                    gridTemplateColumns: "86px minmax(0,1fr) 18px",
-                    alignItems: "center",
-                    gap: 12,
-                    fontFamily: "'Noto Serif TC', Georgia, serif",
-                    cursor: "pointer",
-                  }}
-                >
-                  <span style={{ fontSize: 54, lineHeight: 1, fontWeight: 700, color: theme.accent }}>{todayCard.card_number}</span>
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: "block", fontSize: 12, opacity: 0.72, marginBottom: 6 }}>{theme.name} · {formatDate(todayCard.draw_date)}</span>
-                    <span style={{ display: "block", fontSize: 18, lineHeight: 1.35, fontWeight: 700 }}>{getCardTitle(todayCard)}</span>
-                    <span style={{ display: "block", marginTop: 8, fontSize: 12, lineHeight: 1.6, opacity: 0.82 }}>{getCardSummary(todayCard)}</span>
-                  </span>
-                  <ChevronRight size={18} />
-                </button>
-              ) : (
-                <div style={{ borderRadius: 14, background: "#FFFFFF", padding: 18, color: "#5A6A4A" }}>
-                  今日卡尚未建立，重新整理後會自動建立今日卡。
-                </div>
-              )}
-            </section>
+            {errorMsg ? (
+              <div style={{ marginBottom: 12, border: "1px solid #F0CACA", borderRadius: 12, padding: 12, color: "#A34848", background: "#FFF" }}>
+                {errorMsg}
+              </div>
+            ) : null}
 
-            <section style={{ marginTop: 24 }}>
-              <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 700, color: "#1A2F15" }}>歷史紀錄</p>
-              {historyCards.length ? (
-                <div style={{ display: "grid", gap: 10 }}>
-                  {historyCards.map((card) => {
-                    const itemTheme = getNumberCardTheme(card.card_number);
-                    const isToday = card.id === todayCard?.id;
-                    return (
-                      <button
-                        key={card.id}
-                        type="button"
-                        onClick={() => go(isToday ? "/line/cards/today" : `/line/cards/history/${card.id}`)}
-                        style={{
-                          border: "1px solid rgba(138,154,106,0.18)",
-                          borderRadius: 12,
-                          background: "#FFFFFF",
-                          padding: "12px 14px",
-                          display: "grid",
-                          gridTemplateColumns: "42px minmax(0,1fr) 18px",
-                          alignItems: "center",
-                          gap: 10,
-                          textAlign: "left",
-                          fontFamily: "'Noto Serif TC', Georgia, serif",
-                        }}
+            <section className="number-card-grid">
+              {CARD_CATEGORIES.map((category) => {
+                const card = cardsByCategory[category.id];
+                const isDrawing = drawingCategory === category.id;
+                const isFlipped = Boolean(card) || flippingCategory === category.id;
+                const theme = getNumberCardTheme(card?.card_number);
+
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    className="number-card-slot"
+                    disabled={isDrawing}
+                    onClick={() => drawCategory(category.id)}
+                    aria-label={`${category.label} ${card ? `第 ${card.card_number} 號` : "尚未翻開"}`}
+                  >
+                    <div className={`number-card-inner ${isFlipped ? "flipped" : ""}`}>
+                      <div className="number-card-face number-card-back">
+                        <div className="number-card-face-content">
+                          {isDrawing ? (
+                            <Loader2 size={28} className="animate-spin" color="rgba(255,255,255,0.75)" />
+                          ) : (
+                            <p style={{ margin: 0, fontSize: 52, lineHeight: 1, color: "#C9A96E", fontWeight: 700 }}>?</p>
+                          )}
+                          <p style={{ margin: "10px 0 2px", fontSize: 18, fontWeight: 700 }}>{category.label}</p>
+                          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.68)" }}>{category.title}</p>
+                        </div>
+                      </div>
+                      <div
+                        className="number-card-face number-card-front"
+                        style={{ background: theme.bg, color: theme.fg, borderColor: theme.border }}
                       >
-                        <span style={{ width: 38, height: 38, borderRadius: 10, background: itemTheme.bg, color: itemTheme.accent, display: "grid", placeItems: "center", fontSize: 22, fontWeight: 700 }}>
-                          {card.card_number}
-                        </span>
-                        <span style={{ minWidth: 0 }}>
-                          <span style={{ display: "block", fontSize: 12, color: "#8A9A6A" }}>{formatDate(card.draw_date)}{isToday ? " · 今日" : ""}</span>
-                          <span style={{ display: "block", marginTop: 3, fontSize: 14, fontWeight: 700, color: "#1A2F15", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {getCardTitle(card)}
-                          </span>
-                        </span>
-                        <ChevronRight size={16} color="#8A9A6A" />
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div style={{ borderRadius: 12, background: "#FFFFFF", padding: 14, color: "#8A9A6A", fontSize: 13 }}>
-                  尚無歷史紀錄。今日卡建立後會顯示在這裡。
-                </div>
-              )}
+                        <div className="number-card-face-content">
+                          <p style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{category.label}</p>
+                          <p style={{ margin: "10px 0", fontSize: 82, lineHeight: 0.95, fontWeight: 700, color: theme.accent }}>
+                            {card?.card_number || "?"}
+                          </p>
+                          <p style={{ margin: 0, fontSize: 11, opacity: 0.76 }}>{card ? "查看詳細" : "翻牌中"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </section>
           </>
         )}

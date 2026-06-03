@@ -1565,7 +1565,7 @@ export default function PhytologicWebsite() {
       ? <LineReportsPage route={route} go={go} />
       : route === "/line/cards"
       ? <LineCardsPage route={route} go={go} />
-      : route === "/line/cards/today" || /^\/line\/cards\/history\/[^/]+$/.test(route)
+      : /^\/line\/cards\/detail\/[^/]+$/.test(route)
       ? <LineCardDetailPage route={route} go={go} />
       : route === "/line/checkin"
       ? <LineCheckinPage route={route} go={go} />

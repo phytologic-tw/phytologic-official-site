@@ -3,7 +3,7 @@
 -- Daily number cards migration
 --
 -- Purpose:
---   Store one random number card per profile per Taiwan calendar date.
+--   Store one random number card per profile/date/category.
 --
 -- Execution target:
 --   Supabase SQL Editor
@@ -18,12 +18,13 @@ create extension if not exists pgcrypto;
 create table if not exists public.daily_number_cards (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references public.profiles(id) on delete cascade,
+  category text not null check (category in ('food', 'clothing', 'living', 'movement', 'learning', 'joy')),
   card_number integer not null check (card_number between 1 and 9),
   draw_date date not null,
   ai_interpretation jsonb,
   created_at timestamptz default now(),
   updated_at timestamptz default now(),
-  unique (profile_id, draw_date)
+  unique (profile_id, draw_date, category)
 );
 
 alter table public.daily_number_cards enable row level security;
@@ -50,5 +51,5 @@ create policy "後端 service role 可寫入每日數字卡"
   using (true)
   with check (true);
 
-create index if not exists idx_daily_number_cards_profile_date
-  on public.daily_number_cards (profile_id, draw_date desc);
+create index if not exists idx_daily_number_cards_profile_date_category
+  on public.daily_number_cards (profile_id, draw_date desc, category);
