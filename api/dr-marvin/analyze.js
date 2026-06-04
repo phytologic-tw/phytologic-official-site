@@ -26,14 +26,39 @@ const PRODUCT_RULES = {
   digestion: "lime",
   musculoskeletal: "cinna",
   circulation: "rose",
-  energy: "berry",
-  brain_nerve: "berry",
+  energy: "cinna",
+  brain_nerve: "snow",
   digestive: "lime",
   detox_liver: "lime",
   blood_sugar_cardio: "lime",
   endocrine_hormone: "rose",
   muscle_bone: "cinna",
   immune: "snow",
+};
+
+const SECONDARY_PRODUCT_RULES = {
+  sleep: "berry",
+  digestion: "white_gold_base",
+  musculoskeletal: "platinum",
+  circulation: "lime",
+  energy: "platinum",
+  brain_nerve: "berry",
+  digestive: "white_gold_base",
+  detox_liver: "white_gold_base",
+  blood_sugar_cardio: "lime",
+  endocrine_hormone: "lime",
+  muscle_bone: "platinum",
+  immune: "snow",
+};
+
+const DEFAULT_SECONDARY_BY_PRIMARY = {
+  snow: "berry",
+  lime: "white_gold_base",
+  rose: "lime",
+  cinna: "platinum",
+  berry: "snow",
+  platinum: "lime",
+  white_gold_base: "lime",
 };
 
 function normalizeAnswers(rawAnswers) {
@@ -82,19 +107,52 @@ function rankFocusDimensions(scores) {
     .map(([label, score]) => ({ label, score }));
 }
 
-function productForDimension(label, products) {
+function systemKeyForLabel(label) {
   const entry = Object.entries(SYSTEM_LABELS).find(([, systemLabel]) => systemLabel === label);
-  const productId = PRODUCT_RULES[entry?.[0]] || PRODUCT_RULES.energy;
+  return entry?.[0] || "energy";
+}
+
+function productForDimension(label, products) {
+  const productId = PRODUCT_RULES[systemKeyForLabel(label)] || PRODUCT_RULES.energy;
   return findProduct(productId, products) || findProduct("berry", products);
+}
+
+function secondaryProductForDimension(label, primary, products) {
+  const systemKey = systemKeyForLabel(label);
+  const preferredId = SECONDARY_PRODUCT_RULES[systemKey] || DEFAULT_SECONDARY_BY_PRIMARY[primary?.id] || "berry";
+  const preferred = findProduct(preferredId, products);
+  if (preferred && preferred.id !== primary?.id) return preferred;
+
+  const fallbackId = DEFAULT_SECONDARY_BY_PRIMARY[primary?.id] || "berry";
+  const fallback = findProduct(fallbackId, products);
+  if (fallback && fallback.id !== primary?.id) return fallback;
+
+  return products.find((product) => product.id !== primary?.id && product.metadata?.product_role !== "base_carrier")
+    || products.find((product) => product.id !== primary?.id)
+    || primary;
+}
+
+function productSafetySummary(product) {
+  const notes = product?.metadata?.safety_notes;
+  if (!notes) return "";
+  const cautions = [
+    ...(notes.absolute_avoid || []),
+    ...(notes.relative_caution || []),
+    ...(notes.consult_professional || []),
+  ];
+  if (!cautions.length) return "";
+  return `飲食注意：${cautions.slice(0, 2).join("；")}。`;
 }
 
 function buildReportContent({ profile, scores, healthScore, primary, secondary, focus }) {
   const name = profile.nickname || profile.line_display_name || "你";
   const focusText = focus.map((item) => `${item.label} ${item.score} 分`).join("、");
+  const safetyText = [productSafetySummary(primary), productSafetySummary(secondary)].filter(Boolean).join("\n");
   return [
     `${name}，這次 Dr. Marvin 檢測的綜合健康分數是 ${healthScore} 分。`,
     `目前最需要關注的是：${focusText}。這代表身體正在提醒你，把日常節奏調回穩定會比追求一次性的補救更重要。`,
     `主推薦為 ${primary.name}，副推薦為 ${secondary.name}。建議這週先固定飲用主推薦，並搭配睡眠、飲水與飲食紀錄。`,
+    safetyText || "若有慢性病、孕期、特殊藥物或飲食限制，請先與專業人員確認飲用安排。",
     "本週三個行動：固定每日飲用一次植萃、睡前 30 分鐘放下螢幕、每天補足水分並記錄身體感受。",
     profile.life_number || profile.numerology_number
       ? `以生命靈數 ${profile.life_number || profile.numerology_number} 來看，你適合用可重複的小儀式建立安全感；穩定的節奏會讓身體更快回到自己的邏輯。`
@@ -137,7 +195,7 @@ export default async function handler(req, res) {
     );
     const focus = rankFocusDimensions(scores);
     const primary = productForDimension(focus[0]?.label, products);
-    const secondary = productForDimension(focus[1]?.label, products);
+    const secondary = secondaryProductForDimension(focus[1]?.label || focus[0]?.label, primary, products);
     const reportContent = buildReportContent({ profile, scores, healthScore, primary, secondary, focus });
 
     const { data: report, error: reportError } = await supabase

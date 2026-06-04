@@ -1,12 +1,18 @@
 import React from "react";
 import LineMemberLayout from "./LineMemberLayout";
+import { activeProducts, PRODUCTS as PRODUCT_CATALOG } from "../../../data/products";
 
-const PRODUCTS = [
-  { id: "green-latte", name: "植本綠拿鐵 經典款", tag: "Green Latte · 植本主力", emoji: "🍵" },
-  { id: "energy-boost", name: "能量植萃 升級版", tag: "Energy · 機能強化", emoji: "🌺" },
-  { id: "detox", name: "植本淨化 排毒力", tag: "Detox · 機能淨化", emoji: "🍃" },
-  { id: "sleep", name: "深眠植物飲", tag: "Sleep · 夜間修復", emoji: "🌙" },
-];
+const PRODUCT_EMOJI = {
+  white_gold_base: "🥛",
+  snow: "🤍",
+  lime: "🌿",
+  rose: "🌹",
+  cinna: "🟡",
+  berry: "🫐",
+  platinum: "⚪",
+};
+
+const PRODUCTS = activeProducts(PRODUCT_CATALOG);
 
 function readStoredMember() {
   try {
@@ -69,21 +75,21 @@ export default function EncyclopediaListPage({ route, go }) {
             >
               <div style={{
                 height: 100,
-                background: "#E8F0E0",
+                background: product.bg_color || "#E8F0E0",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 36,
               }}>
-                {product.emoji}
+                {PRODUCT_EMOJI[product.id] || "🌱"}
               </div>
               <div style={{ padding: "10px 12px 12px" }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#1A2F15", lineHeight: 1.35 }}>{product.name}</div>
-                <div style={{ fontSize: 10, color: "#8A9A6A", marginTop: 2 }}>{product.tag}</div>
+                <div style={{ fontSize: 10, color: "#8A9A6A", marginTop: 2 }}>{product.theme}</div>
                 <div style={{
                   display: "inline-block",
-                  background: "#E8F0E0",
-                  color: "#3D5A30",
+                  background: product.bg_color || "#E8F0E0",
+                  color: product.text_color || "#3D5A30",
                   fontSize: 9,
                   fontWeight: 700,
                   padding: "2px 7px",

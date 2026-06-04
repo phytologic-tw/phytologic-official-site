@@ -24,6 +24,7 @@ function normalizeProduct(row) {
     bg_color: row.bg_color,
     text_color: row.text_color,
     status: row.status || "active",
+    metadata: row.metadata || {},
   };
 }
 
@@ -34,7 +35,7 @@ export async function getProducts(supabase, { allowFallback = true } = {}) {
   if (supabase) {
     const { data, error } = await supabase
       .from("products")
-      .select("id,slug,sort_order,name,short_name,color_name,theme,description,focus,tags,audience,ingredients,best_for,system_keys,line_summary,bg_color,text_color,status")
+      .select("id,slug,sort_order,name,short_name,color_name,theme,description,focus,tags,audience,ingredients,best_for,system_keys,line_summary,bg_color,text_color,status,metadata")
       .eq("status", "active")
       .order("sort_order", { ascending: true });
 
@@ -57,7 +58,11 @@ export function getStaticProducts() {
 }
 
 export function findProduct(id, products = PRODUCTS) {
-  return findProductById(id, products) || findProductById(id, PRODUCTS);
+  return findProductById(id, products)
+    || products.find((product) => product.metadata?.canonical_id === id)
+    || findProductById(id, PRODUCTS)
+    || PRODUCTS.find((product) => product.metadata?.canonical_id === id)
+    || null;
 }
 
 export function buildProductPromptList(products = PRODUCTS) {

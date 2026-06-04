@@ -19,6 +19,9 @@
 > **2026-06-02 命理資料庫與今日四卡已套用至 Production Supabase。**
 > 已新增 `supabase/astro_migration.sql`、`seed_numerology.sql`、`seed_zwds.sql`、`seed_daily_cards.sql`、`src/lib/astroCalc.js`，並在 `api/member.js` 增加 `resource=astro-init|astro-daily-cards`。`LineMemberHomePage` 今日植本靈感輪播已接入今日四卡資料來源。Bryan 已回報四支 SQL 皆於 Supabase SQL Editor 執行完畢；count 驗證顯示四表正確、兩表缺資料：`numerology_daily_cards` 27/36、`numerology_card_deck` 36/40。2026-06-03 Bryan 已回報 `supabase/astro_daily_cards_count_patch.sql` 套用完成，預期 count 已補齊為 36/40。
 
+> **2026-06-04 文件治理重建 + Bryan 核心決策確認。**
+> 建立 `PHYTOLOGIC_MEMBER_SYSTEM_MASTER_SPEC_V1.0.md` 為唯一官方規格書；重建 `AGENTS.md` 為唯一 AI 協作規範入口；封存舊版 Digital Spec / AGENT.md。Bryan 核心決策確認：**取消今日四卡**（已有六向度抽卡取代）、官網 7 題 / 深度 25 題、商城購物車、只做每日任務與輕遊戲、AI daily insight 必須保留（依會員基本資料與命理資料生成一句佳句或名人語句）。新讀取優先順序：`AGENTS.md` → `PHYTOLOGIC_MEMBER_SYSTEM_MASTER_SPEC_V1.0.md` → `MEMBER_SYSTEM_SPEC_V5_0.md` → `PROJECT_STATUS.md` → `CHANGELOG.md`。
+
 > **2026-06-03 今日植本靈感卡片導流更新。**
 > `LineMemberHomePage` 的「今日植萃」卡可點擊進入 `/line/encyclopedia` 或商品詳情，「今日數字」卡可點擊進入 `/line/missions`，命理動態卡也導向任務中心；保留原輪播 UI 結構，支援鍵盤 Enter / Space、觸控縮放回饋與滑動防誤觸。
 
@@ -27,6 +30,15 @@
 
 > **2026-06-03 植本六向度抽卡 C → B → A → D 已完成。**
 > Bryan 已於 Supabase SQL Editor 套用 `supabase/20260603_daily_card_readings.sql`。已新增 `/line/cards` 抽卡頁、會員首頁六向度卡牌輪播、`api/member?resource=card-draw|daily-cards` 與「我的報告 > 每日卡牌」頁籤；本機 `npm run build` 成功。`card-draw` 已合併進 `api/member.js`，`api/` 目前維持 12 支 function，符合 Vercel Hobby 上限。
+
+> **2026-06-04 商品資料庫文件型 V1 已建立，app fallback 與 Supabase upsert candidate 已完成。**
+> `04_AI/ai-architecture/products/product-database-v1.json` 與 `recommendation-rules-v1.json` 已建立，補齊白金基底液、五色植萃、鉑金植萃七品項、售價、對外合規話術、Dr. Marvin 推薦對應與 safety gate。`data/products.js` 已同步 7 品項 fallback，並新增 `supabase/20260604_products_v2_catalog.sql`。本機 `npm run build` 成功；尚未套用 production Supabase。
+
+> **2026-06-04 商品推薦邏輯已接入 V2 方向。**
+> `HealthAssessment.jsx` 與 `api/dr-marvin/analyze.js` 已更新：白金基底液不作主推薦，鉑金植萃先作進階輔助；深度分析避免主副推薦相同，並把商品注意事項摘要放入報告文字。本機 `npm run build` 成功。
+
+> **2026-06-04 植本百科已接入商品資料庫 7 品項。**
+> `EncyclopediaListPage.jsx` 改讀正式 `data/products.js`，不再使用舊 placeholder 商品。`ProductDetailPage.jsx` 已改為商品資料庫驅動，呈現定位、材料、注意事項與推薦邏輯；`LineReportsPage.jsx` 商品名稱 mapping 支援 canonical ID。本機 `npm run build` 成功。
 
 ---
 
@@ -94,6 +106,10 @@
 | Dr. Marvin 題庫正式 migration | `supabase/dr_marvin_question_engine.sql` |
 | Dr. Marvin 抽題 API | `api/dr-marvin/questions.js` |
 | 植本六向度抽卡 API | `api/member.js`（`POST /api/member?resource=card-draw`；合併於既有 member function，避免超過 Vercel Hobby 12 支 function 上限） |
+| 商品資料庫文件型 V1 | `../../04_AI/ai-architecture/products/product-database-v1.json`（尚未套用 production Supabase） |
+| 商品推薦規則文件型 V1 | `../../04_AI/ai-architecture/products/recommendation-rules-v1.json` |
+| 商品資料庫 V2 upsert candidate | `supabase/20260604_products_v2_catalog.sql`（尚未套用 production） |
+| 商品資料庫 V2 SQL Editor 順序 | `supabase/PRODUCTS_V2_SQL_EDITOR_ORDER.md` |
 | Dr. Marvin 題庫 seed | `supabase/seed_question_bank.sql` |
 | Dr. Marvin 交集警示 seed | `supabase/seed_inflammation_alerts.sql` |
 | Dr. Marvin 抗發炎處方 seed | `supabase/seed_anti_inflammation_protocols.sql` |
@@ -134,6 +150,7 @@
 | `member_astro_profiles` | ✅ Bryan 回報 Production 已套用 | **2026-06-02**：由 `supabase/astro_migration.sql` 建立；關聯 `profiles(id)`，保存主宰數、日數、九宮格、個體性之箭、紫微四化與太陽星座。尚待 count/schema 查詢回報完成驗證 |
 | `numerology_*` / `zwds_*` / `astro_zodiac_health` | ✅ Production 已套用 / 今日四卡補丁已完成 | **2026-06-02 count 驗證**：`numerology_master_numbers` 11、`zwds_stars` 14、`zwds_heavenly_stems` 10、`astro_zodiac_health` 12 正確；`numerology_daily_cards` 27/36、`numerology_card_deck` 36/40。**2026-06-03**：Bryan 已回報 `astro_daily_cards_count_patch.sql` 套用完成，預期補齊為 `numerology_daily_cards` 36、`numerology_card_deck` 40 |
 | `daily_card_readings` | ✅ Bryan 回報 Production 已套用 | **2026-06-03 TASK C**：`supabase/20260603_daily_card_readings.sql` 已新增並由 Bryan 套用，用於記錄每人每日 `food` / `clothing` / `home` / `travel` / `learning` / `leisure` 六向度抽卡；`/line/cards`、會員首頁卡牌輪播與我的報告每日卡牌頁籤已串接 |
+| `products` | ✅ table 既有 / V2 candidate 已建立 | **2026-06-04**：新增 `supabase/20260604_products_v2_catalog.sql`，以既有短 ID 相容方式 upsert 7 品項，canonical ID 放入 `metadata.canonical_id`；尚未由 Bryan 回報 production 套用 |
 | `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
 **assessment_reports 欄位確認（2026-05-29 production audit）：**
@@ -208,8 +225,8 @@
 | `/line/cards` | 植本六向度每日卡牌抽取頁 | ✅ 已完成（2026-06-03） |
 | `/line/shop` | LINE 商城導流 | 🔧 進行中 |
 | `/line/assessment` | My Dr. Marvin 25 題動態問卷 | ✅ 已接 API（Production 題庫已套用） |
-| `/line/encyclopedia` | 植本百科商品陳列（第一層） | ✅ 已完成（2026-06-02） |
-| `/line/encyclopedia/:productId` | 商品詳情五 Tab（第二層） | ✅ 已完成（2026-06-02） |
+| `/line/encyclopedia` | 植本百科商品陳列（第一層） | ✅ 已接商品資料庫 7 品項（2026-06-04） |
+| `/line/encyclopedia/:productId` | 商品詳情四 Tab（定位 / 材料 / 注意 / 推薦） | ✅ 已接商品資料庫 7 品項（2026-06-04） |
 | `/line/encyclopedia/:productId/wiki/:ingredientId` | 植物原料百科（第三層） | ✅ 已完成（2026-06-02） |
 
 ---
@@ -369,6 +386,7 @@
 
 | 日期 | 更新重點 |
 |------|------|
+| 2026-06-04 | 文件治理重建：建立 MASTER SPEC、重建 AGENTS.md、封存舊版規格；確認 Bryan 決策：取消今日四卡、官網 7 題、深度 25 題、商城購物車、AI daily insight 保留 |
 | 2026-06-02 | Phase 1B/2 UI 更新：`LineMemberHomePage.jsx` 今日打卡合併入任務中心、快捷格新增植本百科、今日植本靈感輪播對齊 page-padding；新增植本百科三層頁面 `/line/encyclopedia`、`/line/encyclopedia/:productId`、`/line/encyclopedia/:productId/wiki/:ingredientId`；`vite.config.js` 調整 chunk warning threshold；npm run build ✓ 0 errors / 0 warnings |
 | 2026-05-30 | Phase 1B 會員首頁重構：`LineMemberLayout.jsx` 底部導覽列完全移除（100dvh + safe-area）；`LineMemberHomePage.jsx` 6 Zone 單頁設計（健康分數卡 + 弧形儀表 + 五維指數 + 靈感輪播 scroll-snap + 8 快捷 grid + 七日計畫進度條）；npm run build ✓ 0 errors |
 | 2026-05-29 | Phase 1 第一個垂直切片：LINE LIFF 會員首頁（Mission Hub）完成；`LineMemberHomePage.jsx` 對齊 MEMBER_SYSTEM_PAGES_SPEC_V1.1 規格（三點數 LE/CP/P、今日任務 CTA、洞察免責聲明、Dr.Marvin 知識卡切換、週一情境提示）；`LineMemberLayout.jsx` 底部導航對齊規格；npm run build ✓ 0 errors |

@@ -4,14 +4,15 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight, FileText, Leaf, Stethoscope } from "lucide-react";
 import LineMemberLayout from "./LineMemberLayout";
+import { PRODUCTS as PRODUCT_CATALOG } from "../../../data/products";
 
-const PRODUCT_NAMES = {
-  snow: "雪山植萃",
-  lime: "青檸植萃",
-  rose: "玫瑰植萃",
-  cinna: "桂香植萃",
-  berry: "紫莓植萃",
-};
+const PRODUCT_NAMES = Object.fromEntries(
+  PRODUCT_CATALOG.flatMap((product) => [
+    [product.id, product.name],
+    [product.slug, product.name],
+    [product.metadata?.canonical_id, product.name],
+  ].filter(([key]) => key))
+);
 
 const REPORT_TABS = [
   { id: "health", label: "健康趨勢" },

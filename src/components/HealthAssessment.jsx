@@ -23,11 +23,13 @@ const initialProfile = {
 };
 
 const PRODUCT_CATEGORY_MAP = {
+  white_gold_base: [],
   snow: ["sleep", "stress", "immune"],
   lime: ["digestion", "metabolism"],
   rose: ["female", "beauty"],
   cinna: ["muscle", "exercise"],
   berry: ["eye", "screen"],
+  platinum: ["muscle", "exercise"],
 };
 
 const PRODUCTS = PRODUCT_CATALOG.map((product) => ({
@@ -37,6 +39,8 @@ const PRODUCTS = PRODUCT_CATALOG.map((product) => ({
   desc: product.description,
   focus: product.focus,
   categories: PRODUCT_CATEGORY_MAP[product.id] || product.system_keys || [],
+  role: product.metadata?.product_role || "functional_drink",
+  safetyNotes: product.metadata?.safety_notes || null,
 }));
 
 const QUESTION_BANK = [
@@ -104,15 +108,31 @@ function buildCategoryScores(questions, answers) {
 }
 
 function getRecommendedProducts(categoryScores, profile) {
-  const productScores = PRODUCTS.map((product) => {
+  const recommendableProducts = PRODUCTS.filter((product) => product.role !== "base_carrier");
+  const productScores = recommendableProducts.map((product) => {
     const categoryScore = product.categories.reduce((sum, category) => sum + (categoryScores[category] || 0), 0);
     const femaleBeautyBoost = product.id === "rose" && profile.gender === "女" ? 1 : 0;
-    return { ...product, score: categoryScore + femaleBeautyBoost };
+    const platinumAdvancedPenalty = product.id === "platinum" && categoryScore > 0 ? -1 : 0;
+    return { ...product, score: categoryScore + femaleBeautyBoost + platinumAdvancedPenalty };
   }).sort((a, b) => b.score - a.score);
 
   const primary = productScores[0] || PRODUCTS[0];
-  const secondary = productScores.find((product) => product.id !== primary.id && product.score === primary.score) || productScores.find((product) => product.id !== primary.id);
+  const secondary = productScores.find((product) => product.id !== primary.id && product.score === primary.score)
+    || (primary.id === "cinna" ? productScores.find((product) => product.id === "platinum") : null)
+    || productScores.find((product) => product.id !== primary.id);
   return { primary, secondary };
+}
+
+function productSafetyText(product) {
+  const notes = product?.safetyNotes;
+  if (!notes) return "";
+  const cautions = [
+    ...(notes.absolute_avoid || []),
+    ...(notes.relative_caution || []),
+    ...(notes.consult_professional || []),
+  ];
+  if (!cautions.length) return "";
+  return `注意事項：${cautions.slice(0, 2).join("；")}。`;
 }
 
 function parseAiResult(text, fallback) {
@@ -143,7 +163,10 @@ function buildProfileSummary(profile, bmi) {
 }
 
 function buildPrompt({ profileSummary, total, levelLabel, categorySummary, answerSummary, primary, secondary }) {
-  const productSummary = PRODUCTS.map((product) => `${product.id}｜${product.name}｜${product.desc}｜對應：${product.focus}`).join("\n");
+  const productSummary = PRODUCTS
+    .filter((product) => product.role !== "base_carrier")
+    .map((product) => `${product.id}｜${product.name}｜${product.desc}｜對應：${product.focus}｜${productSafetyText(product)}`)
+    .join("\n");
 
   return `你是植本邏輯（PHYTOLOGIC）的 Dr.Marvin 健康系統顧問，擅長以生活型態與植物機能飲品做日常健康建議。
 
@@ -167,7 +190,7 @@ ${productSummary}
 請只回傳 JSON，不要 Markdown，不要補充 JSON 以外文字。格式如下：
 {
   "analysis": "150-220字繁體中文分析。用「您」直接說明目前最關鍵的生活狀態、可能原因，以及為什麼這款飲品最適合。",
-  "recommendedProductId": "snow 或 lime 或 rose 或 cinna 或 berry",
+  "recommendedProductId": "snow 或 lime 或 rose 或 cinna 或 berry 或 platinum",
   "recommendedProductName": "飲品名稱",
   "lifestyleChange": "一個具體、今天就能開始的生活改變方式，60字以內"
 }`;
@@ -301,7 +324,7 @@ export default function HealthAssessment({ onComplete } = {}) {
 
     const { primary, secondary } = result.recommendations;
     const fallback = {
-      analysis: `您目前的快篩總分為 ${result.total} 分，屬於「${result.levelLabel}」。從回答來看，較需要留意的是 ${result.categorySummary}。這通常與睡眠節律、壓力累積、外食型態、久坐或恢復不足有關。Dr.Marvin 建議優先選擇 ${primary.name}，以植物機能支持日常狀態；${secondary ? `也可把 ${secondary.name} 作為輔助選擇。` : ""}`,
+      analysis: `您目前的快篩總分為 ${result.total} 分，屬於「${result.levelLabel}」。從回答來看，較需要留意的是 ${result.categorySummary}。這通常與睡眠節律、壓力累積、外食型態、久坐或恢復不足有關。Dr.Marvin 建議優先選擇 ${primary.name}，以植物機能支持日常狀態；${secondary ? `也可把 ${secondary.name} 作為輔助選擇。` : ""}${productSafetyText(primary) ? ` ${productSafetyText(primary)}` : ""}`,
       recommendedProductId: primary.id,
       recommendedProductName: primary.name,
       lifestyleChange: "今天先固定一個睡前儀式，晚餐增加深色蔬菜，並安排10分鐘輕快步行。",
@@ -390,7 +413,7 @@ export default function HealthAssessment({ onComplete } = {}) {
         topSignals: result.topSignals,
         answerSummary: result.answerSummary,
         questions: answerRows,
-        recommendationLogic: "digestion/metabolism→青檸；sleep/stress/immune→雪山；female/beauty→玫瑰；muscle/exercise→桂香；eye/screen→紫莓",
+        recommendationLogic: "digestion/metabolism→青檸；sleep/stress/immune→雪山；female/beauty→玫瑰；muscle/exercise→桂香；eye/screen→紫莓；platinum 作為運動/蛋白進階輔助；white_gold_base 作為基底不作快篩主推薦",
       },
       has_joined_line: hasJoinedLine,
       created_at: createdAt,
