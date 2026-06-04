@@ -40,6 +40,9 @@
 > **2026-06-04 植本百科已接入商品資料庫 7 品項。**
 > `EncyclopediaListPage.jsx` 改讀正式 `data/products.js`，不再使用舊 placeholder 商品。`ProductDetailPage.jsx` 已改為商品資料庫驅動，呈現定位、材料、注意事項與推薦邏輯；`LineReportsPage.jsx` 商品名稱 mapping 支援 canonical ID。本機 `npm run build` 成功。
 
+> **2026-06-04 Production deploy target 已校正。**
+> 正式 Vercel project 為 `phytologic-official-site-esme`，正式驗收網域為 `https://www.phytologic.tw`。`phytologic-official-site` 僅為 GitHub repo 名稱，不得誤當 production Vercel project。商品資料庫更新已用 `npx --yes vercel@latest deploy --prod` 直接部署至 `phytologic-official-site-esme`，Vercel 回報 deployment `READY` 並 alias 到 `www.phytologic.tw`。
+
 ---
 
 ## 基本資訊（不常變動）
@@ -47,9 +50,10 @@
 | 項目 | 內容 |
 |------|------|
 | 專案名稱 | 植本邏輯 PHYTOLOGIC |
-| 正式網站 | https://phytologic.tw |
-| 後台入口 | https://phytologic.tw/admin |
-| GitHub | phytologic-tw/phytologic-official-site |
+| 正式網站 | https://www.phytologic.tw |
+| 後台入口 | https://www.phytologic.tw/admin |
+| GitHub repo | phytologic-tw/phytologic-official-site |
+| Production Vercel project | phytologic-official-site-esme |
 | 部署平台 | Vercel |
 | 資料庫 | Supabase |
 | 主要聯絡 | bryan@phytologic.tw |

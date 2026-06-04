@@ -30,6 +30,28 @@ dist/
 
 ## Vercel 部署方式
 
+### Production Canonical Target
+
+**正式 production Vercel project 必須使用：**
+
+```txt
+phytologic-official-site-esme
+```
+
+**正式驗收網域必須使用：**
+
+```txt
+https://www.phytologic.tw
+```
+
+注意：`phytologic-official-site` 是 GitHub repo 名稱，不等於目前 production Vercel project 名稱。未來部署、驗收、手機端 LIFF 檢查與 Vercel CLI 操作，都不得把 `phytologic-official-site` 誤當 production project。
+
+建議 production 部署指令：
+
+```bash
+npx --yes vercel@latest deploy --prod
+```
+
 1. 將整個資料夾上傳到 GitHub。
 2. 登入 Vercel。
 3. New Project → Import GitHub Repository。
