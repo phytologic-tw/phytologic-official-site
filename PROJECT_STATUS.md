@@ -31,8 +31,8 @@
 > **2026-06-03 植本六向度抽卡 C → B → A → D 已完成。**
 > Bryan 已於 Supabase SQL Editor 套用 `supabase/20260603_daily_card_readings.sql`。已新增 `/line/cards` 抽卡頁、會員首頁六向度卡牌輪播、`api/member?resource=card-draw|daily-cards` 與「我的報告 > 每日卡牌」頁籤；本機 `npm run build` 成功。`card-draw` 已合併進 `api/member.js`，`api/` 目前維持 12 支 function，符合 Vercel Hobby 上限。
 
-> **2026-06-04 商品資料庫文件型 V1 已建立，app fallback 與 Supabase upsert candidate 已完成。**
-> `04_AI/ai-architecture/products/product-database-v1.json` 與 `recommendation-rules-v1.json` 已建立，補齊白金基底液、五色植萃、鉑金植萃七品項、售價、對外合規話術、Dr. Marvin 推薦對應與 safety gate。`data/products.js` 已同步 7 品項 fallback，並新增 `supabase/20260604_products_v2_catalog.sql`。本機 `npm run build` 成功；尚未套用 production Supabase。
+> **2026-06-04 商品資料庫文件型 V1 已建立，app fallback 與 Production Supabase 已套用。**
+> `04_AI/ai-architecture/products/product-database-v1.json` 與 `recommendation-rules-v1.json` 已建立，補齊白金基底液、五色植萃、鉑金植萃七品項、售價、對外合規話術、Dr. Marvin 推薦對應與 safety gate。`data/products.js` 已同步 7 品項 fallback，並新增 `supabase/20260604_products_v2_catalog.sql`。本機 `npm run build` 成功；Bryan 已回報該 SQL 已於 Supabase SQL Editor 套用完成。
 
 > **2026-06-04 商品推薦邏輯已接入 V2 方向。**
 > `HealthAssessment.jsx` 與 `api/dr-marvin/analyze.js` 已更新：白金基底液不作主推薦，鉑金植萃先作進階輔助；深度分析避免主副推薦相同，並把商品注意事項摘要放入報告文字。本機 `npm run build` 成功。
@@ -110,9 +110,9 @@
 | Dr. Marvin 題庫正式 migration | `supabase/dr_marvin_question_engine.sql` |
 | Dr. Marvin 抽題 API | `api/dr-marvin/questions.js` |
 | 植本六向度抽卡 API | `api/member.js`（`POST /api/member?resource=card-draw`；合併於既有 member function，避免超過 Vercel Hobby 12 支 function 上限） |
-| 商品資料庫文件型 V1 | `../../04_AI/ai-architecture/products/product-database-v1.json`（尚未套用 production Supabase） |
+| 商品資料庫文件型 V1 | `../../04_AI/ai-architecture/products/product-database-v1.json`（Bryan 已回報 production Supabase 已套用） |
 | 商品推薦規則文件型 V1 | `../../04_AI/ai-architecture/products/recommendation-rules-v1.json` |
-| 商品資料庫 V2 upsert candidate | `supabase/20260604_products_v2_catalog.sql`（尚未套用 production） |
+| 商品資料庫 V2 upsert | `supabase/20260604_products_v2_catalog.sql`（Bryan 已回報 production 已套用） |
 | 商品資料庫 V2 SQL Editor 順序 | `supabase/PRODUCTS_V2_SQL_EDITOR_ORDER.md` |
 | Dr. Marvin 題庫 seed | `supabase/seed_question_bank.sql` |
 | Dr. Marvin 交集警示 seed | `supabase/seed_inflammation_alerts.sql` |
@@ -154,7 +154,7 @@
 | `member_astro_profiles` | ✅ Bryan 回報 Production 已套用 | **2026-06-02**：由 `supabase/astro_migration.sql` 建立；關聯 `profiles(id)`，保存主宰數、日數、九宮格、個體性之箭、紫微四化與太陽星座。尚待 count/schema 查詢回報完成驗證 |
 | `numerology_*` / `zwds_*` / `astro_zodiac_health` | ✅ Production 已套用 / 今日四卡補丁已完成 | **2026-06-02 count 驗證**：`numerology_master_numbers` 11、`zwds_stars` 14、`zwds_heavenly_stems` 10、`astro_zodiac_health` 12 正確；`numerology_daily_cards` 27/36、`numerology_card_deck` 36/40。**2026-06-03**：Bryan 已回報 `astro_daily_cards_count_patch.sql` 套用完成，預期補齊為 `numerology_daily_cards` 36、`numerology_card_deck` 40 |
 | `daily_card_readings` | ✅ Bryan 回報 Production 已套用 | **2026-06-03 TASK C**：`supabase/20260603_daily_card_readings.sql` 已新增並由 Bryan 套用，用於記錄每人每日 `food` / `clothing` / `home` / `travel` / `learning` / `leisure` 六向度抽卡；`/line/cards`、會員首頁卡牌輪播與我的報告每日卡牌頁籤已串接 |
-| `products` | ✅ table 既有 / V2 candidate 已建立 | **2026-06-04**：新增 `supabase/20260604_products_v2_catalog.sql`，以既有短 ID 相容方式 upsert 7 品項，canonical ID 放入 `metadata.canonical_id`；尚未由 Bryan 回報 production 套用 |
+| `products` | ✅ table 既有 / V2 已套用 | **2026-06-04**：新增 `supabase/20260604_products_v2_catalog.sql`，以既有短 ID 相容方式 upsert 7 品項，canonical ID 放入 `metadata.canonical_id`；Bryan 已回報 production Supabase 套用完成 |
 | `city_climate` | ⚠️ 資料不足 | **2026-05-29 audit**：table 存在但只有 `city`/`temperature`/`humidity`，缺少季節/氣候描述欄位，影響 AI 報告品質（不阻斷功能） |
 
 **assessment_reports 欄位確認（2026-05-29 production audit）：**

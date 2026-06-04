@@ -1,13 +1,13 @@
 # Products V2 SQL Editor Order
 
 > 建立日期：2026-06-04
-> 用途：商品資料庫 V2 進 production Supabase 前的人工執行順序。
+> 用途：商品資料庫 V2 進 production Supabase 的人工執行順序與後續驗證。
 
 ## 目前狀態
 
-`20260604_products_v2_catalog.sql` 是 upsert seed candidate，不會重建 `public.products`，也不會刪除既有資料。
+`20260604_products_v2_catalog.sql` 是 upsert seed，不會重建 `public.products`，也不會刪除既有資料。
 
-本檔尚未由 Bryan 回報套用 production。
+Bryan 已於 2026-06-04 回報本 SQL 已於 Supabase SQL Editor 套用 production。後續可依本檔的 read-only 查詢驗證 7 品項與 `metadata.canonical_id`。
 
 ## 執行前檢查
 
