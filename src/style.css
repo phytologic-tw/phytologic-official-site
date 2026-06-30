@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Surfaces */
+  --bg-base:        #F7F5F0;
+  --ink-primary:    #2A2826;
+  --ink-secondary:  #6B6660;
+
+  /* Soul Colors */
+  --soul-white:     #E9ECEB;   /* 雪山植萃・無界白 */
+  --soul-green:     #4F7A5C;   /* 青檸植萃・山林綠 */
+  --soul-red:       #C2272D;   /* 玫瑰植萃・烈血紅 */
+  --soul-yellow:    #D9A02E;   /* 桂香植萃・傲嬌黃 */
+  --soul-amethyst:  #9B6FC4;   /* 紫莓植萃・水晶紫 */
+  --soul-beige:     #E0D5BD;   /* 鉑金植萃・米白 */
+
+  /* Layout */
+  --max-content-width: 1200px;
+  --space-section-desktop: 140px;
+  --space-section-mobile: 64px;
+
+  /* Motion */
+  --motion-duration: 700ms;
+  --motion-easing: cubic-bezier(0.25, 0, 0.1, 1);
+}
+
+/* 全站字體基底 */
+body {
+  background-color: var(--bg-base);
+  color: var(--ink-primary);
+  font-family: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 品牌敘事文字專用 */
+.font-serif {
+  font-family: 'Noto Serif TC', 'Source Han Serif TC', serif;
+}
+
+/* 捲動進場動畫基底 */
+.fade-up {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
