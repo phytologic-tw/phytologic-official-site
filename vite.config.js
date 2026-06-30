@@ -110,6 +110,11 @@ export default defineConfig(({ mode }) => {
     build: {
       chunkSizeWarningLimit: 800,
     },
+    resolve: {
+      alias: {
+        "@phytologic-design": path.resolve(process.cwd(), "src", "design-system"),
+      },
+    },
     plugins: [react(), localAnalyzeApi(env)],
   };
 });
