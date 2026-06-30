@@ -94,7 +94,7 @@ export default function SiteFooter() {
               letterSpacing: '0.06em',
             }}
           >
-            {/* TODO: Bryan 提供正式聯絡資訊後填入 */}
+              <p>lyra@phytologic.tw</p>
             <p>phytologic.tw</p>
           </div>
         </div>

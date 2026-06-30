@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { NAV_LINKS } from '../lib/navConfig'
 
-// TODO: 待 Bryan 提供真實 LINE 官方帳號連結後替換
-const LINE_OA_URL = 'https://line.me/R/ti/p/@TODO_REPLACE_WITH_REAL_OA_ID'
+const LINE_OA_URL = 'https://line.me/R/ti/p/@248xuoic'
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
