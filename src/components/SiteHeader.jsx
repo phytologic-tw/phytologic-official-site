@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { NAV_LINKS } from '../lib/navConfig'
 
 const LINE_OA_URL = 'https://line.me/R/ti/p/@248xuoic'
@@ -24,8 +25,8 @@ export default function SiteHeader() {
       }}
     >
       {/* Logo */}
-      <a
-        href="/"
+      <Link
+        to="/"
         style={{
           fontFamily: 'Noto Serif TC, serif',
           fontSize: '15px',
@@ -36,7 +37,7 @@ export default function SiteHeader() {
         }}
       >
         PHYTOLOGIC 植本邏輯
-      </a>
+      </Link>
 
       {/* 桌面導覽 */}
       <nav
@@ -48,9 +49,9 @@ export default function SiteHeader() {
         className="desktop-nav"
       >
         {NAV_LINKS.map(({ label, href }) => (
-          <a
+          <Link
             key={href}
-            href={href}
+            to={href}
             style={{
               fontSize: '13px',
               fontWeight: 400,
@@ -63,7 +64,7 @@ export default function SiteHeader() {
             onMouseLeave={e => (e.target.style.color = 'var(--ink-secondary)')}
           >
             {label}
-          </a>
+          </Link>
         ))}
 
         {/* 固定 CTA */}
@@ -123,9 +124,9 @@ export default function SiteHeader() {
           }}
         >
           {NAV_LINKS.map(({ label, href }) => (
-            <a
+            <Link
               key={href}
-              href={href}
+              to={href}
               onClick={() => setMenuOpen(false)}
               style={{
                 fontSize: '15px',
@@ -135,7 +136,7 @@ export default function SiteHeader() {
               }}
             >
               {label}
-            </a>
+            </Link>
           ))}
           <a
             href={LINE_OA_URL}

@@ -3,16 +3,9 @@
     { "path": "/api/daily-push", "schedule": "0 0 * * *" }
   ],
   "rewrites": [
-    { "source": "/about", "destination": "/" },
-    { "source": "/products", "destination": "/" },
-    { "source": "/products/:path*", "destination": "/" },
-    { "source": "/assessment", "destination": "/" },
-    { "source": "/join", "destination": "/" },
+    { "source": "/ideology", "destination": "/" },
     { "source": "/contact", "destination": "/" },
-    { "source": "/partners", "destination": "/" },
-    { "source": "/esg", "destination": "/" },
-    { "source": "/news", "destination": "/" },
-    { "source": "/gallery", "destination": "/" },
+    { "source": "/series/:path*", "destination": "/" },
     { "source": "/admin", "destination": "/" },
     { "source": "/admin/:path*", "destination": "/" },
     { "source": "/line", "destination": "/" },
