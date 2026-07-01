@@ -31,8 +31,8 @@ const SERIES_DATA = {
   terroir: `桂花香氣細緻而深遠，是整個系列最先被聞見、也最後留在記憶裡的那一層。
 薑黃的金黃色澤讓這杯飲品從顏色開始就有了主張，甜玉米的飽滿甜潤在其中托底——三者的氣味與色溫疊在一起，像台灣秋收時節的田野，暖而有份量。`,
   tripleGoodNote: '好喝，是因為想繼續有力氣，陪在重要的人身邊。',
-  prevSeries: { label: '玫瑰植萃', href: '/series/rose' },
-  nextSeries: { label: '紫莓植萃', href: '/series/purple-berry' },
+  prevSeries: { label: '玫瑰植萃', href: '/series/rose-red' },
+  nextSeries: { label: '紫莓植萃', href: '/series/berry-purple' },
 }
 /* ─── END 系列內容 ─── */
 

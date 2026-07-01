@@ -31,8 +31,8 @@ const SERIES_DATA = {
   terroir: `玫瑰花瓣在清晨採摘時香氣最完整，那份若有若無的花香是這個系列最難忘的第一印象。
 甜菜根的飽滿色澤與百香果的熱帶酸香在其後展開，一個沉穩，一個明亮——玫瑰的香氣在尾韻中再度浮現，縈繞而不膩。`,
   tripleGoodNote: '好看，從裡到外都算數。',
-  prevSeries: { label: '青檸植萃', href: '/series/green' },
-  nextSeries: { label: '桂香植萃', href: '/series/cinnamon' },
+  prevSeries: { label: '青檸植萃', href: '/series/lime-green' },
+  nextSeries: { label: '桂香植萃', href: '/series/cinnamon-gold' },
 }
 /* ─── END 系列內容 ─── */
 

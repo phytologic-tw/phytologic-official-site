@@ -31,7 +31,7 @@ const SERIES_DATA = {
 芭樂與檸檬是這個系列風味的核心，一個清甜圓潤，一個明亮酸香，兩者相遇像是台灣夏日早晨的氣味，熟悉而讓人精神一振——黑木耳帶來的那一點膠質滑潤，讓這份清爽多了些份量，喝完不覺空。`,
   tripleGoodNote: '好喝，是因為日常的食材本來就不需要理由。',
   prevSeries: { label: '雪山植萃', href: '/series/snow-mountain' },
-  nextSeries: { label: '玫瑰植萃', href: '/series/rose' },
+  nextSeries: { label: '玫瑰植萃', href: '/series/rose-red' },
 }
 /* ─── END 系列內容 ─── */
 

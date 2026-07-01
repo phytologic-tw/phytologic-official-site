@@ -32,7 +32,7 @@ const SERIES_DATA = {
 生核桃的油脂豐潤在尾韻緩緩展開，讓整杯喝來有溫度，也有份量。`,
   tripleGoodNote: '好吸收，是因為原料本身就是身體熟悉的語言。',
   prevSeries: null,
-  nextSeries: { label: '青檸植萃', href: '/series/green' },
+  nextSeries: { label: '青檸植萃', href: '/series/lime-green' },
 }
 /* ─── END 系列內容 ─── */
 

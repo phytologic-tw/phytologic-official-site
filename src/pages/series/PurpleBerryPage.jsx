@@ -30,7 +30,7 @@ const SERIES_DATA = {
   terroir: `藍莓與桑椹是這個系列最直接的語言——深紫的色澤、濃縮的果香，兩者疊在一起，是入口前就先被看見的那種美麗。
 木鱉果的橙紅在其中托出另一層溫度，讓整杯飲品的色彩不只停在紫，而是有了深度——像黃昏時天色從藍轉橙的那個過渡，短暫而難以複製。`,
   tripleGoodNote: '好看，是因為值得被珍惜的事物本來就應該被看見。',
-  prevSeries: { label: '桂香植萃', href: '/series/cinnamon' },
+  prevSeries: { label: '桂香植萃', href: '/series/cinnamon-gold' },
   nextSeries: { label: '鉑金植萃', href: '/series/platinum' },
 }
 /* ─── END 系列內容 ─── */

@@ -31,7 +31,7 @@ const SERIES_DATA = {
   tastingNote: '口感綿密滑順，豆香自然醇厚，南杏帶來輕盈的堅果香氣，尾韻溫和不搶戲，適合每天喝、不膩。',
   terroir: `大黃豆、大薏仁、南杏片，三種台灣餐桌上熟悉的食材，不需要解釋，也不需要說服——它們本來就在那裡，慢慢泡、慢慢蒸，時間做的事，多說反而多餘。`,
   tripleGoodNote: '好喝，是因為每天都願意喝，才算數。',
-  prevSeries: { label: '紫莓植萃', href: '/series/purple-berry' },
+  prevSeries: { label: '紫莓植萃', href: '/series/berry-purple' },
   nextSeries: null,
 }
 /* ─── END 系列內容 ─── */
