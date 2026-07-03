@@ -183,9 +183,10 @@ export default function HomePage() {
         </FadeUp>
 
         <div
+          className="series-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '4px',
           }}
         >
@@ -392,6 +393,11 @@ export default function HomePage() {
       <SiteFooter />
 
       <style>{`
+        @media (max-width: 768px) {
+          .series-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
         @keyframes bob {
           0%, 100% { transform: translateX(-50%) translateY(0); }
           50% { transform: translateX(-50%) translateY(6px); }
