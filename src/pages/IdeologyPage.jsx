@@ -237,11 +237,22 @@ export default function IdeologyPage() {
               fontWeight: 600,
               color: 'var(--ink-primary)',
               letterSpacing: '0.06em',
+              marginBottom: '12px',
+            }}
+          >
+            植本邏輯支持永續飲食計劃
+          </h2>
+          <p
+            style={{
+              fontFamily: 'Noto Serif TC, serif',
+              fontSize: '15px',
+              color: 'var(--ink-secondary)',
+              letterSpacing: '0.08em',
               marginBottom: '40px',
             }}
           >
             為什麼堅持台灣在地食材
-          </h2>
+          </p>
           <p
             style={{
               fontSize: '15px',

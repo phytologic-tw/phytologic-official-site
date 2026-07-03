@@ -2,9 +2,7 @@
  * 玫瑰植萃頁面 — 複製自 SnowMountainPage.jsx
  *
  * 複製時只需修改以下區塊：
- *   1. SERIES_DATA 物件（系列名稱、色票、文案）
- *   2. 背景佔位色（seriesColor 的淺色版本）
- *   3. 圖片路徑（TODO 區段）
+ *   1. SERIES_DATA 物件（系列名稱、色票、文案、圖片路徑）
  *
  * 結構與動畫邏輯不需要修改。
  */
@@ -13,17 +11,24 @@ import SiteHeader from '../../components/SiteHeader'
 import SiteFooter from '../../components/SiteFooter'
 import { FadeUp } from '../../components/FadeUp'
 
-/* ─── 系列內容（複製時替換此物件）─── */
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.substring(0, 2), 16)
+  const g = parseInt(h.substring(2, 4), 16)
+  const b = parseInt(h.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 const SERIES_DATA = {
-  soulColor: 'var(--soul-red)',        /* 烈血紅 #C2272D */
   soulColorHex: '#C2272D',
+  panelBg: '#FBF1F1',
+  heroImage: '/images/series/rose-red.png',
   seriesName: '玫瑰植萃',
-  soulColorName: '烈血紅',
   meaningLabel: '鮮豔的紅',
-  tagline: '愛美不只是想抓住年輕的尾巴',
-  familyVoice: `年輕的時候愛美是為了幸福，
-當了媽媽以後的愛美是想讓家庭幸福，
-去班親會時讓兒子帥一把。`,
+  tagline: '為女性日常設計，溫柔照顧氣色與光澤。',
+  familyVoice: `好的氣色，從來不是靠遮蓋，而是從裡面養出來的。
+玫瑰植萃以甜菜根、紫甘藍、芭樂、百香果與玫瑰花瓣共同構成。百香果與檸檬帶來明亮酸甜，甜菜根提供自然厚度，玫瑰花瓣在尾韻留下那一縷若有若無的香氣。
+喝起來，像是對自己好好說了一聲早安。`,
   ingredients: ['甜菜根', '紫甘藍', '銀耳', '紅棗', '芭樂', '百香果', '檸檬', '玫瑰花瓣'],
   servingSize: '每份 285g',
   howToDrink: '建議早晨或下午飲用，常溫或微涼皆宜，花香在室溫下更為舒展。',
@@ -34,13 +39,13 @@ const SERIES_DATA = {
   prevSeries: { label: '青檸植萃', href: '/series/lime-green' },
   nextSeries: { label: '桂香植萃', href: '/series/cinnamon-gold' },
 }
-/* ─── END 系列內容 ─── */
 
 
 export default function RosePage() {
   const {
-    soulColor,
     soulColorHex,
+    panelBg,
+    heroImage,
     seriesName,
     meaningLabel,
     tagline,
@@ -55,82 +60,42 @@ export default function RosePage() {
     prevSeries,
   } = SERIES_DATA
 
+  const tintBg = hexToRgba(soulColorHex, 0.08)
+  const tintBorder = hexToRgba(soulColorHex, 0.18)
+  const tintBorderSubtle = hexToRgba(soulColorHex, 0.2)
+
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── 滿版主畫面 ── */}
+      {/* ── 左右分割主畫面 ── */}
       <section
+        className="series-split"
         style={{
-          position: 'relative',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
           paddingTop: '64px', /* Header 高度 */
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
         }}
       >
-        {/*
-          TODO: 圖片替換區
-          規格：AI 生成（Adobe Firefly）
-          題材：花田或果園的黃昏暖光，暖色調的柔和夕陽光影
-          人物：僅限母親與孩子在戶外活動的逆光剪影或背影，禁止完整人臉
-          比例：16:9 或更高，桌面至少 1440×900，mobile 建議 portrait crop
-          路徑：替換時修改下方 backgroundImage
-        */}
+        {/* 左：文字面板 */}
         <div
-          aria-hidden="true"
+          className="series-text-panel"
           style={{
-            position: 'absolute',
-            inset: 0,
-            /* 暫用漸層佔位，替換成圖片時改為：
-               backgroundImage: 'url(/images/rose-hero.jpg)',
-               backgroundSize: 'cover',
-               backgroundPosition: 'center',
-            */
-            background: `
-              linear-gradient(
-                160deg,
-                ${soulColorHex}99 0%,
-                #a85a5a 40%,
-                #6b2020 100%
-              )
-            `,
-          }}
-        />
-
-        {/* 深色疊層，確保文字對比 */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.52) 100%)',
-          }}
-        />
-
-        {/* 文字內容層 */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            maxWidth: '680px',
-            width: '100%',
-            padding: '0 32px',
+            background: panelBg,
+            minHeight: 'calc(100vh - 64px)',
+            padding: 'clamp(48px, 8vw, 96px) clamp(32px, 5vw, 72px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0',
+            justifyContent: 'center',
           }}
         >
           {/* Block 1：系列名稱 + 核心句 */}
-          <FadeUp delay={0}>
+          <FadeUp delay={0} style={{ marginBottom: '32px' }}>
             <div
               style={{
                 display: 'inline-block',
                 borderLeft: `3px solid ${soulColorHex}`,
                 paddingLeft: '16px',
-                marginBottom: '40px',
               }}
             >
               <p
@@ -138,6 +103,7 @@ export default function RosePage() {
                   fontSize: '11px',
                   color: soulColorHex,
                   letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
                   marginBottom: '8px',
                   fontWeight: 500,
                 }}
@@ -147,9 +113,9 @@ export default function RosePage() {
               <h1
                 style={{
                   fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 'clamp(28px, 5vw, 44px)',
+                  fontSize: 'clamp(28px, 3.5vw, 48px)',
                   fontWeight: 600,
-                  color: '#ffffff',
+                  color: 'var(--ink-primary)',
                   lineHeight: 1.3,
                   letterSpacing: '0.06em',
                   marginBottom: '8px',
@@ -160,9 +126,9 @@ export default function RosePage() {
               <p
                 style={{
                   fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 'clamp(14px, 2vw, 17px)',
-                  color: 'rgba(255,255,255,0.85)',
-                  letterSpacing: '0.14em',
+                  fontSize: 'clamp(13px, 1.4vw, 16px)',
+                  color: 'var(--ink-secondary)',
+                  letterSpacing: '0.1em',
                 }}
               >
                 {tagline}
@@ -171,18 +137,18 @@ export default function RosePage() {
           </FadeUp>
 
           {/* Block 2：家庭心聲 */}
-          <FadeUp delay={200} style={{ marginBottom: '48px' }}>
+          <FadeUp delay={200} style={{ marginBottom: '32px' }}>
             <blockquote
               style={{
                 fontFamily: 'Noto Serif TC, serif',
-                fontSize: 'clamp(15px, 2.2vw, 18px)',
-                color: 'rgba(255,255,255,0.9)',
-                lineHeight: '2',
+                fontSize: 'clamp(14px, 1.4vw, 17px)',
+                color: 'var(--ink-primary)',
+                lineHeight: '2.1',
                 letterSpacing: '0.06em',
-                borderLeft: 'none',
+                whiteSpace: 'pre-line',
                 margin: 0,
                 padding: 0,
-                whiteSpace: 'pre-line',
+                border: 'none',
               }}
             >
               {familyVoice}
@@ -190,14 +156,13 @@ export default function RosePage() {
           </FadeUp>
 
           {/* Block 3：產品資訊區 */}
-          <FadeUp delay={400} style={{ marginBottom: '48px' }}>
+          <FadeUp delay={400} style={{ marginBottom: '32px' }}>
             <div
               style={{
-                backgroundColor: 'rgba(255,255,255,0.10)',
-                backdropFilter: 'blur(8px)',
+                backgroundColor: tintBg,
                 borderRadius: '2px',
-                padding: '28px 32px',
-                border: `1px solid rgba(255,255,255,0.2)`,
+                padding: '28px',
+                border: `1px solid ${tintBorder}`,
               }}
             >
               <p
@@ -205,6 +170,7 @@ export default function RosePage() {
                   fontSize: '10px',
                   color: soulColorHex,
                   letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
                   marginBottom: '20px',
                   fontWeight: 500,
                 }}
@@ -228,14 +194,14 @@ export default function RosePage() {
           </FadeUp>
 
           {/* Block 4：風土語言 */}
-          <FadeUp delay={600} style={{ marginBottom: '40px' }}>
+          <FadeUp delay={600} style={{ marginBottom: '32px' }}>
             <p
               style={{
                 fontFamily: 'Noto Serif TC, serif',
-                fontSize: 'clamp(13px, 1.8vw, 15px)',
-                color: 'rgba(255,255,255,0.75)',
-                lineHeight: '2.2',
-                letterSpacing: '0.08em',
+                fontSize: 'clamp(13px, 1.4vw, 15px)',
+                color: 'var(--ink-secondary)',
+                lineHeight: '2.1',
+                letterSpacing: '0.06em',
                 whiteSpace: 'pre-line',
               }}
             >
@@ -248,9 +214,9 @@ export default function RosePage() {
             <p
               style={{
                 fontSize: '12px',
-                color: 'rgba(255,255,255,0.55)',
+                color: 'var(--ink-secondary)',
                 letterSpacing: '0.12em',
-                borderTop: '1px solid rgba(255,255,255,0.2)',
+                borderTop: `1px solid ${tintBorderSubtle}`,
                 paddingTop: '20px',
               }}
             >
@@ -259,29 +225,17 @@ export default function RosePage() {
           </FadeUp>
         </div>
 
-        {/* 向下滾動提示 */}
+        {/* 右：圖片面板 */}
         <div
-          style={{
-            position: 'absolute',
-            bottom: '36px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-            opacity: 0.5,
-            animation: 'bob 2s ease-in-out infinite',
-          }}
+          className="series-image-panel"
           aria-hidden="true"
-        >
-          <span style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.15em' }}>
-            SCROLL
-          </span>
-          <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
-            <path d="M8 0v20M1 13l7 7 7-7" stroke="#fff" strokeWidth="1.2" />
-          </svg>
-        </div>
+          style={{
+            minHeight: 'calc(100vh - 64px)',
+            backgroundImage: `url(${heroImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+          }}
+        />
       </section>
 
       {/* ── 系列切換頁尾導引 ── */}
@@ -315,15 +269,10 @@ export default function RosePage() {
       <SiteFooter />
 
       <style>{`
-        @keyframes bob {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(6px); }
-        }
-
         @media (max-width: 768px) {
-          section > div[style] {
-            padding: 0 20px !important;
-          }
+          .series-split { grid-template-columns: 1fr !important; }
+          .series-image-panel { min-height: 50vh !important; order: -1; }
+          .series-text-panel { min-height: auto !important; padding: 48px 24px !important; }
         }
       `}</style>
     </div>
@@ -336,7 +285,7 @@ function InfoRow({ label, value }) {
       <span
         style={{
           fontSize: '11px',
-          color: 'rgba(255,255,255,0.5)',
+          color: 'var(--ink-secondary)',
           letterSpacing: '0.12em',
           paddingTop: '2px',
         }}
@@ -346,9 +295,9 @@ function InfoRow({ label, value }) {
       <span
         style={{
           fontSize: '13px',
-          color: 'rgba(255,255,255,0.88)',
+          color: 'var(--ink-primary)',
           lineHeight: '1.7',
-          letterSpacing: '0.06em',
+          letterSpacing: '0.04em',
         }}
       >
         {value}

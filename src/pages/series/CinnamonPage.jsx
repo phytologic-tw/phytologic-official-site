@@ -2,9 +2,7 @@
  * 桂香植萃頁面 — 複製自 SnowMountainPage.jsx
  *
  * 複製時只需修改以下區塊：
- *   1. SERIES_DATA 物件（系列名稱、色票、文案）
- *   2. 背景佔位色（seriesColor 的淺色版本）
- *   3. 圖片路徑（TODO 區段）
+ *   1. SERIES_DATA 物件（系列名稱、色票、文案、圖片路徑）
  *
  * 結構與動畫邏輯不需要修改。
  */
@@ -13,17 +11,24 @@ import SiteHeader from '../../components/SiteHeader'
 import SiteFooter from '../../components/SiteFooter'
 import { FadeUp } from '../../components/FadeUp'
 
-/* ─── 系列內容（複製時替換此物件）─── */
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.substring(0, 2), 16)
+  const g = parseInt(h.substring(2, 4), 16)
+  const b = parseInt(h.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 const SERIES_DATA = {
-  soulColor: 'var(--soul-yellow)',     /* 傲嬌黃 #D9A02E */
   soulColorHex: '#D9A02E',
+  panelBg: '#FBF7EE',
+  heroImage: '/images/series/cinnamon-gold.png',
   seriesName: '桂香植萃',
-  soulColorName: '傲嬌黃',
   meaningLabel: '保暖的黃',
-  tagline: '力量是為了守護家人',
-  familyVoice: `我希望未來陪老婆出門時，
-還能穿著吊嘎，
-用二頭肌幫她扛大包小包。`,
+  tagline: '運動後的黃金補給，充滿力量的日常活力飲。',
+  familyVoice: `身體需要能量，但不是任何一種都值得。
+桂香植萃以甜玉米、香蕉、紅蘿蔔、新鮮薑黃與桂花精釀液組成。桂花香氣柔和明亮，香蕉與玉米提供圓潤甜感，薑黃帶來溫暖尾韻——飽滿而不厚重，有力量但不過度。
+運動後喝，或是某個需要重新啟動自己的下午。`,
   ingredients: ['甜玉米', '紅蘿蔔', '黃甜椒', '百香果', '豆薯', '香蕉', '薑黃', '桂花精釀液', '南杏片'],
   servingSize: '每份 285g',
   howToDrink: '建議早晨或運動前後飲用，常溫最能釋放桂花香氣，溫熱飲用暖意更顯。',
@@ -34,13 +39,13 @@ const SERIES_DATA = {
   prevSeries: { label: '玫瑰植萃', href: '/series/rose-red' },
   nextSeries: { label: '紫莓植萃', href: '/series/berry-purple' },
 }
-/* ─── END 系列內容 ─── */
 
 
 export default function CinnamonPage() {
   const {
-    soulColor,
     soulColorHex,
+    panelBg,
+    heroImage,
     seriesName,
     meaningLabel,
     tagline,
@@ -55,82 +60,42 @@ export default function CinnamonPage() {
     prevSeries,
   } = SERIES_DATA
 
+  const tintBg = hexToRgba(soulColorHex, 0.08)
+  const tintBorder = hexToRgba(soulColorHex, 0.18)
+  const tintBorderSubtle = hexToRgba(soulColorHex, 0.2)
+
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── 滿版主畫面 ── */}
+      {/* ── 左右分割主畫面 ── */}
       <section
+        className="series-split"
         style={{
-          position: 'relative',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
           paddingTop: '64px', /* Header 高度 */
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
         }}
       >
-        {/*
-          TODO: 圖片替換區
-          規格：AI 生成（Adobe Firefly）
-          題材：金黃稻田或玉米田，正午到黃昏的飽滿陽光，大地豐收感
-          人物：僅限夫妻同行於田埂的逆光剪影或局部肢體互動畫面，禁止完整人臉
-          比例：16:9 或更高，桌面至少 1440×900，mobile 建議 portrait crop
-          路徑：替換時修改下方 backgroundImage
-        */}
+        {/* 左：文字面板 */}
         <div
-          aria-hidden="true"
+          className="series-text-panel"
           style={{
-            position: 'absolute',
-            inset: 0,
-            /* 暫用漸層佔位，替換成圖片時改為：
-               backgroundImage: 'url(/images/cinnamon-hero.jpg)',
-               backgroundSize: 'cover',
-               backgroundPosition: 'center',
-            */
-            background: `
-              linear-gradient(
-                160deg,
-                ${soulColorHex}cc 0%,
-                #c4882a 40%,
-                #8a5c10 100%
-              )
-            `,
-          }}
-        />
-
-        {/* 深色疊層，確保文字對比 */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.52) 100%)',
-          }}
-        />
-
-        {/* 文字內容層 */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            maxWidth: '680px',
-            width: '100%',
-            padding: '0 32px',
+            background: panelBg,
+            minHeight: 'calc(100vh - 64px)',
+            padding: 'clamp(48px, 8vw, 96px) clamp(32px, 5vw, 72px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0',
+            justifyContent: 'center',
           }}
         >
           {/* Block 1：系列名稱 + 核心句 */}
-          <FadeUp delay={0}>
+          <FadeUp delay={0} style={{ marginBottom: '32px' }}>
             <div
               style={{
                 display: 'inline-block',
                 borderLeft: `3px solid ${soulColorHex}`,
                 paddingLeft: '16px',
-                marginBottom: '40px',
               }}
             >
               <p
@@ -138,6 +103,7 @@ export default function CinnamonPage() {
                   fontSize: '11px',
                   color: soulColorHex,
                   letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
                   marginBottom: '8px',
                   fontWeight: 500,
                 }}
@@ -147,9 +113,9 @@ export default function CinnamonPage() {
               <h1
                 style={{
                   fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 'clamp(28px, 5vw, 44px)',
+                  fontSize: 'clamp(28px, 3.5vw, 48px)',
                   fontWeight: 600,
-                  color: '#ffffff',
+                  color: 'var(--ink-primary)',
                   lineHeight: 1.3,
                   letterSpacing: '0.06em',
                   marginBottom: '8px',
@@ -160,9 +126,9 @@ export default function CinnamonPage() {
               <p
                 style={{
                   fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 'clamp(14px, 2vw, 17px)',
-                  color: 'rgba(255,255,255,0.85)',
-                  letterSpacing: '0.14em',
+                  fontSize: 'clamp(13px, 1.4vw, 16px)',
+                  color: 'var(--ink-secondary)',
+                  letterSpacing: '0.1em',
                 }}
               >
                 {tagline}
@@ -171,18 +137,18 @@ export default function CinnamonPage() {
           </FadeUp>
 
           {/* Block 2：家庭心聲 */}
-          <FadeUp delay={200} style={{ marginBottom: '48px' }}>
+          <FadeUp delay={200} style={{ marginBottom: '32px' }}>
             <blockquote
               style={{
                 fontFamily: 'Noto Serif TC, serif',
-                fontSize: 'clamp(15px, 2.2vw, 18px)',
-                color: 'rgba(255,255,255,0.9)',
-                lineHeight: '2',
+                fontSize: 'clamp(14px, 1.4vw, 17px)',
+                color: 'var(--ink-primary)',
+                lineHeight: '2.1',
                 letterSpacing: '0.06em',
-                borderLeft: 'none',
+                whiteSpace: 'pre-line',
                 margin: 0,
                 padding: 0,
-                whiteSpace: 'pre-line',
+                border: 'none',
               }}
             >
               {familyVoice}
@@ -190,14 +156,13 @@ export default function CinnamonPage() {
           </FadeUp>
 
           {/* Block 3：產品資訊區 */}
-          <FadeUp delay={400} style={{ marginBottom: '48px' }}>
+          <FadeUp delay={400} style={{ marginBottom: '32px' }}>
             <div
               style={{
-                backgroundColor: 'rgba(255,255,255,0.10)',
-                backdropFilter: 'blur(8px)',
+                backgroundColor: tintBg,
                 borderRadius: '2px',
-                padding: '28px 32px',
-                border: `1px solid rgba(255,255,255,0.2)`,
+                padding: '28px',
+                border: `1px solid ${tintBorder}`,
               }}
             >
               <p
@@ -205,6 +170,7 @@ export default function CinnamonPage() {
                   fontSize: '10px',
                   color: soulColorHex,
                   letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
                   marginBottom: '20px',
                   fontWeight: 500,
                 }}
@@ -228,14 +194,14 @@ export default function CinnamonPage() {
           </FadeUp>
 
           {/* Block 4：風土語言 */}
-          <FadeUp delay={600} style={{ marginBottom: '40px' }}>
+          <FadeUp delay={600} style={{ marginBottom: '32px' }}>
             <p
               style={{
                 fontFamily: 'Noto Serif TC, serif',
-                fontSize: 'clamp(13px, 1.8vw, 15px)',
-                color: 'rgba(255,255,255,0.75)',
-                lineHeight: '2.2',
-                letterSpacing: '0.08em',
+                fontSize: 'clamp(13px, 1.4vw, 15px)',
+                color: 'var(--ink-secondary)',
+                lineHeight: '2.1',
+                letterSpacing: '0.06em',
                 whiteSpace: 'pre-line',
               }}
             >
@@ -248,9 +214,9 @@ export default function CinnamonPage() {
             <p
               style={{
                 fontSize: '12px',
-                color: 'rgba(255,255,255,0.55)',
+                color: 'var(--ink-secondary)',
                 letterSpacing: '0.12em',
-                borderTop: '1px solid rgba(255,255,255,0.2)',
+                borderTop: `1px solid ${tintBorderSubtle}`,
                 paddingTop: '20px',
               }}
             >
@@ -259,29 +225,17 @@ export default function CinnamonPage() {
           </FadeUp>
         </div>
 
-        {/* 向下滾動提示 */}
+        {/* 右：圖片面板 */}
         <div
-          style={{
-            position: 'absolute',
-            bottom: '36px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-            opacity: 0.5,
-            animation: 'bob 2s ease-in-out infinite',
-          }}
+          className="series-image-panel"
           aria-hidden="true"
-        >
-          <span style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.15em' }}>
-            SCROLL
-          </span>
-          <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
-            <path d="M8 0v20M1 13l7 7 7-7" stroke="#fff" strokeWidth="1.2" />
-          </svg>
-        </div>
+          style={{
+            minHeight: 'calc(100vh - 64px)',
+            backgroundImage: `url(${heroImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+          }}
+        />
       </section>
 
       {/* ── 系列切換頁尾導引 ── */}
@@ -315,15 +269,10 @@ export default function CinnamonPage() {
       <SiteFooter />
 
       <style>{`
-        @keyframes bob {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(6px); }
-        }
-
         @media (max-width: 768px) {
-          section > div[style] {
-            padding: 0 20px !important;
-          }
+          .series-split { grid-template-columns: 1fr !important; }
+          .series-image-panel { min-height: 50vh !important; order: -1; }
+          .series-text-panel { min-height: auto !important; padding: 48px 24px !important; }
         }
       `}</style>
     </div>
@@ -336,7 +285,7 @@ function InfoRow({ label, value }) {
       <span
         style={{
           fontSize: '11px',
-          color: 'rgba(255,255,255,0.5)',
+          color: 'var(--ink-secondary)',
           letterSpacing: '0.12em',
           paddingTop: '2px',
         }}
@@ -346,9 +295,9 @@ function InfoRow({ label, value }) {
       <span
         style={{
           fontSize: '13px',
-          color: 'rgba(255,255,255,0.88)',
+          color: 'var(--ink-primary)',
           lineHeight: '1.7',
-          letterSpacing: '0.06em',
+          letterSpacing: '0.04em',
         }}
       >
         {value}

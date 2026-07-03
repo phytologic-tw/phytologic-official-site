@@ -2,6 +2,47 @@
 
 ---
 
+## 2026-07-03 — 首頁 Hero 真實圖片（自動輪播）
+
+### Added
+- `public/images/home-hero-{mountain,field,forest,greenhouse}.png`：Bryan 提供 4 張 AI 生成真實圖片
+- `src/pages/HomePage.jsx`：Hero 區塊改為 4 張圖片自動輪播（6 秒 opacity 淡入淡出切換 + Ken Burns 微縮放），取代漸層佔位
+
+### Note
+- 此為 **CLAUDE.md §8「絕對禁止清單：Carousel 輪播」之明確例外**，經 Bryan 於對話中確認採用自動輪播，非誤用或疏漏
+- `src/components/SiteFooter.jsx`：移除過期註解「（待補）」，聯絡資訊實際已填妥
+
+---
+
+## 2026-07-02（二）— 六色系列頁改版
+
+### Changed
+- `src/pages/series/SnowMountainPage.jsx`（範本）+ 其餘五色頁：套入 Claude Design 視覺稿新版面，滿版深色疊圖 → 左右分割（左側淺色文字面板 + 右側滿版真實產品圖）；新增 `hexToRgba()` helper 依 soulColorHex 動態計算 PRODUCT INFO 卡片底色/邊框；移除 SCROLL 捲動提示（新版面不需要）
+- 六色 tagline / 家庭心聲（familyVoice）文案依視覺稿更新（例如雪山植萃 tagline 由「傳承的責任」改為「腦力族的溫和滋養，腸胃敏感者的日常修復」），ingredients/servingSize/howToDrink/tastingNote/terroir/tripleGoodNote 維持不變
+- Nav/Footer/CTA **未採用**視覺稿的電商版本（SHOP CTA、Newsletter 訂閱、PhytoWorld 會員專區），因與 MASTER SPEC「LINE OA 唯一轉換點」「PhytoWorld 不在此 repo 範圍」矛盾，維持既有 SiteHeader/SiteFooter
+
+### Added
+- `public/images/series/`：六張真實產品圖（snow-mountain.png / lime-green.png / rose-red.png / cinnamon-gold.png / berry-purple.png / platinum.png），取代原本的漸層佔位
+
+### Known Issues
+- `public/images/series/berry-purple.png` 瓶身英文標示錯誤印著「OSMANTHUS BOTANICAL ESSENCE」（應為桂香植萃專用），中文「紫莓植萃」正確；此為視覺稿原始圖片素材本身的錯誤，需重新生成
+
+---
+
+## 2026-07-02
+
+### Added
+- `src/pages/HomePage.jsx`：正式首頁，依 V2 §4 規範重建五段結構（Hero / 六大植萃系列入口 / 三好三無 / 信念主張 / 導流CTA），取代原本臨時佔位首頁
+- `src/pages/JournalPage.jsx`：植本誌前台頁，輪播區塊（手動水平捲動，不自動播放，符合全站禁跑馬燈/彈出式輪播規範）+ 內容列表（依發布日期新到舊排序）；內容為符合 V3.1 §5 CMS 欄位定義的假資料，待 Sanity 專案建立後替換
+
+### Changed
+- `src/App.jsx`：新增 `/journal` 路由，首頁改為引入 `HomePage.jsx`（移除內嵌的臨時佔位元件）
+- `src/lib/navConfig.js`：NAV_LINKS 新增「首頁」「植本誌」，補齊 V3 主導覽五大項目
+- `src/pages/IdeologyPage.jsx`：Section 4 標題新增正式計畫名稱「植本邏輯支持永續飲食計劃」，原標題「為什麼堅持台灣在地食材」改為副標
+- `PROJECT_STATUS.md`：首頁、植本誌前台列表由「待開發」更新為「已完成」；Open Items 第1、3、6、8項標記已決定（永續飲食計畫命名、動畫觸發方式維持捲動觸發、植本誌定名、首頁納入本次 rebuild 範圍）
+
+---
+
 ## 2026-07-01
 
 ### Added

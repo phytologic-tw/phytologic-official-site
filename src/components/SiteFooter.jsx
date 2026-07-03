@@ -84,7 +84,7 @@ export default function SiteFooter() {
             ))}
           </nav>
 
-          {/* 聯絡資訊（待補） */}
+          {/* 聯絡資訊 */}
           <div
             style={{
               textAlign: 'right',

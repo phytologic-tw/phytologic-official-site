@@ -2,9 +2,7 @@
  * 鉑金植萃頁面 — 複製自 SnowMountainPage.jsx
  *
  * 複製時只需修改以下區塊：
- *   1. SERIES_DATA 物件（系列名稱、色票、文案）
- *   2. 背景佔位色（seriesColor 的淺色版本）
- *   3. 圖片路徑（TODO 區段）
+ *   1. SERIES_DATA 物件（系列名稱、色票、文案、圖片路徑）
  *
  * 結構與動畫邏輯不需要修改。
  */
@@ -13,18 +11,24 @@ import SiteHeader from '../../components/SiteHeader'
 import SiteFooter from '../../components/SiteFooter'
 import { FadeUp } from '../../components/FadeUp'
 
-/* ─── 系列內容（複製時替換此物件）─── */
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.substring(0, 2), 16)
+  const g = parseInt(h.substring(2, 4), 16)
+  const b = parseInt(h.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 const SERIES_DATA = {
-  soulColor: 'var(--soul-beige)',      /* 米白 #E0D5BD */
   soulColorHex: '#E0D5BD',
+  panelBg: '#F7F4EE',
+  heroImage: '/images/series/platinum.png',
   seriesName: '鉑金植萃',
-  soulColorName: '米白',
   meaningLabel: '平衡的米白',
-  tagline: '有底氣才有精氣，有精氣才能神氣',
-  familyVoice: `多年商場的座右銘，
-要先立於不敗之地，
-而不敗之地就是健康，
-只有健康了，才能向上前進。`,
+  tagline: '高植物蛋白、低糖感，晨間啟動的乾淨基底。',
+  familyVoice: `有些東西，越簡單越有力量。
+鉑金植萃以大黃豆、大薏仁、南杏片與葛鬱金構成，豆穀香厚實，南杏帶來堅果香氣，葛鬱金讓質地更細緻滑順。
+不加糖，不複雜。只是一杯高植物蛋白、低糖感的晨間基底，讓你展開輕盈的一天。`,
   ingredients: ['大黃豆', '大薏仁', '南杏片'],
   servingSize: '每份 285g',
   howToDrink: '每天早晨飲用，一年四季皆宜，溫熱飲用最能呈現豆香與杏仁的溫潤底韻。',
@@ -34,13 +38,13 @@ const SERIES_DATA = {
   prevSeries: { label: '紫莓植萃', href: '/series/berry-purple' },
   nextSeries: null,
 }
-/* ─── END 系列內容 ─── */
 
 
 export default function PlatinumPage() {
   const {
-    soulColor,
     soulColorHex,
+    panelBg,
+    heroImage,
     seriesName,
     meaningLabel,
     tagline,
@@ -55,82 +59,42 @@ export default function PlatinumPage() {
     prevSeries,
   } = SERIES_DATA
 
+  const tintBg = hexToRgba(soulColorHex, 0.08)
+  const tintBorder = hexToRgba(soulColorHex, 0.18)
+  const tintBorderSubtle = hexToRgba(soulColorHex, 0.2)
+
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── 滿版主畫面 ── */}
+      {/* ── 左右分割主畫面 ── */}
       <section
+        className="series-split"
         style={{
-          position: 'relative',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
           paddingTop: '64px', /* Header 高度 */
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
         }}
       >
-        {/*
-          TODO: 圖片替換區
-          規格：AI 生成（Adobe Firefly）
-          題材：農田或大地景觀，晨光下的開闊田野，色調沉穩溫暖，比其他五色更日常生活化
-          人物：僅限清晨田間小路的渺小人物背影，禁止完整人臉，避免過度鮮豔
-          比例：16:9 或更高，桌面至少 1440×900，mobile 建議 portrait crop
-          路徑：替換時修改下方 backgroundImage
-        */}
+        {/* 左：文字面板 */}
         <div
-          aria-hidden="true"
+          className="series-text-panel"
           style={{
-            position: 'absolute',
-            inset: 0,
-            /* 暫用漸層佔位，替換成圖片時改為：
-               backgroundImage: 'url(/images/platinum-hero.jpg)',
-               backgroundSize: 'cover',
-               backgroundPosition: 'center',
-            */
-            background: `
-              linear-gradient(
-                160deg,
-                ${soulColorHex}cc 0%,
-                #c4b48a 40%,
-                #8a7a58 100%
-              )
-            `,
-          }}
-        />
-
-        {/* 深色疊層，確保文字對比 */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.52) 100%)',
-          }}
-        />
-
-        {/* 文字內容層 */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            maxWidth: '680px',
-            width: '100%',
-            padding: '0 32px',
+            background: panelBg,
+            minHeight: 'calc(100vh - 64px)',
+            padding: 'clamp(48px, 8vw, 96px) clamp(32px, 5vw, 72px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0',
+            justifyContent: 'center',
           }}
         >
           {/* Block 1：系列名稱 + 核心句 */}
-          <FadeUp delay={0}>
+          <FadeUp delay={0} style={{ marginBottom: '32px' }}>
             <div
               style={{
                 display: 'inline-block',
                 borderLeft: `3px solid ${soulColorHex}`,
                 paddingLeft: '16px',
-                marginBottom: '40px',
               }}
             >
               <p
@@ -138,6 +102,7 @@ export default function PlatinumPage() {
                   fontSize: '11px',
                   color: soulColorHex,
                   letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
                   marginBottom: '8px',
                   fontWeight: 500,
                 }}
@@ -147,9 +112,9 @@ export default function PlatinumPage() {
               <h1
                 style={{
                   fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 'clamp(28px, 5vw, 44px)',
+                  fontSize: 'clamp(28px, 3.5vw, 48px)',
                   fontWeight: 600,
-                  color: '#ffffff',
+                  color: 'var(--ink-primary)',
                   lineHeight: 1.3,
                   letterSpacing: '0.06em',
                   marginBottom: '8px',
@@ -160,9 +125,9 @@ export default function PlatinumPage() {
               <p
                 style={{
                   fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 'clamp(14px, 2vw, 17px)',
-                  color: 'rgba(255,255,255,0.85)',
-                  letterSpacing: '0.14em',
+                  fontSize: 'clamp(13px, 1.4vw, 16px)',
+                  color: 'var(--ink-secondary)',
+                  letterSpacing: '0.1em',
                 }}
               >
                 {tagline}
@@ -171,18 +136,18 @@ export default function PlatinumPage() {
           </FadeUp>
 
           {/* Block 2：家庭心聲 */}
-          <FadeUp delay={200} style={{ marginBottom: '48px' }}>
+          <FadeUp delay={200} style={{ marginBottom: '32px' }}>
             <blockquote
               style={{
                 fontFamily: 'Noto Serif TC, serif',
-                fontSize: 'clamp(15px, 2.2vw, 18px)',
-                color: 'rgba(255,255,255,0.9)',
-                lineHeight: '2',
+                fontSize: 'clamp(14px, 1.4vw, 17px)',
+                color: 'var(--ink-primary)',
+                lineHeight: '2.1',
                 letterSpacing: '0.06em',
-                borderLeft: 'none',
+                whiteSpace: 'pre-line',
                 margin: 0,
                 padding: 0,
-                whiteSpace: 'pre-line',
+                border: 'none',
               }}
             >
               {familyVoice}
@@ -190,14 +155,13 @@ export default function PlatinumPage() {
           </FadeUp>
 
           {/* Block 3：產品資訊區 */}
-          <FadeUp delay={400} style={{ marginBottom: '48px' }}>
+          <FadeUp delay={400} style={{ marginBottom: '32px' }}>
             <div
               style={{
-                backgroundColor: 'rgba(255,255,255,0.10)',
-                backdropFilter: 'blur(8px)',
+                backgroundColor: tintBg,
                 borderRadius: '2px',
-                padding: '28px 32px',
-                border: `1px solid rgba(255,255,255,0.2)`,
+                padding: '28px',
+                border: `1px solid ${tintBorder}`,
               }}
             >
               <p
@@ -205,6 +169,7 @@ export default function PlatinumPage() {
                   fontSize: '10px',
                   color: soulColorHex,
                   letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
                   marginBottom: '20px',
                   fontWeight: 500,
                 }}
@@ -228,14 +193,14 @@ export default function PlatinumPage() {
           </FadeUp>
 
           {/* Block 4：風土語言 */}
-          <FadeUp delay={600} style={{ marginBottom: '40px' }}>
+          <FadeUp delay={600} style={{ marginBottom: '32px' }}>
             <p
               style={{
                 fontFamily: 'Noto Serif TC, serif',
-                fontSize: 'clamp(13px, 1.8vw, 15px)',
-                color: 'rgba(255,255,255,0.75)',
-                lineHeight: '2.2',
-                letterSpacing: '0.08em',
+                fontSize: 'clamp(13px, 1.4vw, 15px)',
+                color: 'var(--ink-secondary)',
+                lineHeight: '2.1',
+                letterSpacing: '0.06em',
                 whiteSpace: 'pre-line',
               }}
             >
@@ -248,9 +213,9 @@ export default function PlatinumPage() {
             <p
               style={{
                 fontSize: '12px',
-                color: 'rgba(255,255,255,0.55)',
+                color: 'var(--ink-secondary)',
                 letterSpacing: '0.12em',
-                borderTop: '1px solid rgba(255,255,255,0.2)',
+                borderTop: `1px solid ${tintBorderSubtle}`,
                 paddingTop: '20px',
               }}
             >
@@ -259,29 +224,17 @@ export default function PlatinumPage() {
           </FadeUp>
         </div>
 
-        {/* 向下滾動提示 */}
+        {/* 右：圖片面板 */}
         <div
-          style={{
-            position: 'absolute',
-            bottom: '36px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-            opacity: 0.5,
-            animation: 'bob 2s ease-in-out infinite',
-          }}
+          className="series-image-panel"
           aria-hidden="true"
-        >
-          <span style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.15em' }}>
-            SCROLL
-          </span>
-          <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
-            <path d="M8 0v20M1 13l7 7 7-7" stroke="#fff" strokeWidth="1.2" />
-          </svg>
-        </div>
+          style={{
+            minHeight: 'calc(100vh - 64px)',
+            backgroundImage: `url(${heroImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+          }}
+        />
       </section>
 
       {/* ── 系列切換頁尾導引 ── */}
@@ -315,15 +268,10 @@ export default function PlatinumPage() {
       <SiteFooter />
 
       <style>{`
-        @keyframes bob {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(6px); }
-        }
-
         @media (max-width: 768px) {
-          section > div[style] {
-            padding: 0 20px !important;
-          }
+          .series-split { grid-template-columns: 1fr !important; }
+          .series-image-panel { min-height: 50vh !important; order: -1; }
+          .series-text-panel { min-height: auto !important; padding: 48px 24px !important; }
         }
       `}</style>
     </div>
@@ -336,7 +284,7 @@ function InfoRow({ label, value }) {
       <span
         style={{
           fontSize: '11px',
-          color: 'rgba(255,255,255,0.5)',
+          color: 'var(--ink-secondary)',
           letterSpacing: '0.12em',
           paddingTop: '2px',
         }}
@@ -346,9 +294,9 @@ function InfoRow({ label, value }) {
       <span
         style={{
           fontSize: '13px',
-          color: 'rgba(255,255,255,0.88)',
+          color: 'var(--ink-primary)',
           lineHeight: '1.7',
-          letterSpacing: '0.06em',
+          letterSpacing: '0.04em',
         }}
       >
         {value}
