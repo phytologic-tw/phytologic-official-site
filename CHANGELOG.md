@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-07-04 — 植本誌 Sanity CMS 串接
+
+### Added
+- `studio/`：Sanity Studio 後台原始碼，已部署至 `https://phytologic-journal.sanity.studio/`（Project ID `h3rw3ofo`，dataset `production`）
+- `studio/schemaTypes/post.js`：植本誌文章 schema（title/slug/category/publishedDate/featured/posterImage/body/requiresReview/reviewStatus）
+- `src/lib/sanityClient.js`：`@sanity/client` 前台查詢，僅讀取 `reviewStatus == "published"` 的文章
+
+### Changed
+- `src/pages/JournalPage.jsx`：移除假資料 `JOURNAL_ENTRIES`，改為 `useEffect` 呼叫 `fetchJournalEntries()` 讀取真實內容；`posterColor` 佔位改為 `posterImageUrl` 真實圖片（無圖時 fallback 灰階漸層）
+
+### Note
+- Sanity 專案的 CORS origins 已開放 `localhost:5173`／`127.0.0.1:5173`（開發）與 `phytologic.tw`／`www.phytologic.tw`（正式），前台為 public dataset 讀取，不需 API token
+
+---
+
 ## 2026-07-03 — 首頁 Hero 真實圖片（自動輪播）
 
 ### Added
