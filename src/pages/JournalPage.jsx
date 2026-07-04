@@ -1,87 +1,23 @@
 /**
  * 植本誌 — V3.1 §5 內容模型規格
  *
- * 目前無 Sanity 專案，以符合 CMS 欄位定義的假資料呈現前台結構
- * （title / category / publishedDate / featured / posterImage / body / requiresReview / reviewStatus）。
- * 待 Sanity 專案建立後，替換下方 JOURNAL_ENTRIES 為 Sanity client 查詢即可，版面結構不需更動。
+ * 內容從 Sanity CMS（phytologic-journal 專案）讀取，欄位對應：
+ * title / category / publishedDate / featured / posterImage / body / requiresReview / reviewStatus。
  *
  * 依 V3 §0 動態呈現規則，植本誌屬列表型/持續更新內容，不強制進場動畫（不使用 FadeUp）。
  * 「輪播區塊」以手動水平捲動呈現，不自動輪播、無彈跳，符合全站禁止跑馬燈/彈出式輪播的動效規範。
  */
 
+import { useEffect, useState } from 'react'
 import SiteHeader from '../components/SiteHeader'
 import SiteFooter from '../components/SiteFooter'
+import { fetchJournalEntries } from '../lib/sanityClient'
 
 const CATEGORY_LABEL = {
   video: '影片',
   article: '文章',
   event: '活動花絮',
 }
-
-/* ─── 假資料（待 Sanity 串接後移除）─── */
-const JOURNAL_ENTRIES = [
-  {
-    title: '晨光中的山藥田——雪山植萃的產地紀行',
-    category: 'event',
-    publishedDate: '2026-06-20',
-    featured: true,
-    posterColor: '#8fa0a8',
-    href: '#',
-    requiresReview: false,
-    reviewStatus: 'published',
-  },
-  {
-    title: '為什麼我們選擇台灣在地食材，而不是進口超級食物',
-    category: 'article',
-    publishedDate: '2026-06-12',
-    featured: true,
-    posterColor: '#4F7A5C',
-    href: '#',
-    requiresReview: true,
-    reviewStatus: 'published',
-  },
-  {
-    title: '一杯植萃的誕生：從清洗到裝瓶',
-    category: 'video',
-    publishedDate: '2026-05-30',
-    featured: true,
-    posterColor: '#D9A02E',
-    href: '#',
-    requiresReview: false,
-    reviewStatus: 'published',
-  },
-  {
-    title: '植本邏輯走進在地小農市集',
-    category: 'event',
-    publishedDate: '2026-05-18',
-    featured: false,
-    posterColor: '#9B6FC4',
-    href: '#',
-    requiresReview: false,
-    reviewStatus: 'published',
-  },
-  {
-    title: '膳食纖維與腸道健康：三好三無如何實踐',
-    category: 'article',
-    publishedDate: '2026-05-02',
-    featured: false,
-    posterColor: '#C2272D',
-    href: '#',
-    requiresReview: true,
-    reviewStatus: 'published',
-  },
-  {
-    title: '鉑金植萃的日常：一位長輩的一年',
-    category: 'video',
-    publishedDate: '2026-04-15',
-    featured: false,
-    posterColor: '#E0D5BD',
-    href: '#',
-    requiresReview: false,
-    reviewStatus: 'published',
-  },
-]
-/* ─── END 假資料 ─── */
 
 function getFeaturedEntries(entries, minCount = 3) {
   const published = entries.filter(e => e.reviewStatus === 'published')
@@ -101,8 +37,16 @@ function getSortedList(entries) {
 }
 
 export default function JournalPage() {
-  const featuredEntries = getFeaturedEntries(JOURNAL_ENTRIES)
-  const listEntries = getSortedList(JOURNAL_ENTRIES)
+  const [entries, setEntries] = useState([])
+
+  useEffect(() => {
+    fetchJournalEntries()
+      .then(setEntries)
+      .catch(err => console.error('植本誌內容讀取失敗', err))
+  }, [])
+
+  const featuredEntries = getFeaturedEntries(entries)
+  const listEntries = getSortedList(entries)
 
   return (
     <div style={{ backgroundColor: 'var(--bg-base)', minHeight: '100vh' }}>
@@ -133,8 +77,8 @@ export default function JournalPage() {
           >
             {featuredEntries.map(entry => (
               <a
-                key={entry.title}
-                href={entry.href}
+                key={entry.slug}
+                href={`/journal/${entry.slug}`}
                 style={{
                   position: 'relative',
                   flex: '0 0 clamp(260px, 32vw, 380px)',
@@ -145,14 +89,23 @@ export default function JournalPage() {
                   scrollSnapAlign: 'start',
                 }}
               >
-                {/* TODO: posterImage 替換區 — Sanity 串接後改為真實海報圖 */}
                 <div
                   aria-hidden="true"
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: `linear-gradient(160deg, ${entry.posterColor}cc 0%, #8a8a8a55 100%)`,
-                  }}
+                  style={
+                    entry.posterImageUrl
+                      ? {
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundImage: `url(${entry.posterImageUrl})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }
+                      : {
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(160deg, #8fa0a8cc 0%, #8a8a8a55 100%)',
+                        }
+                  }
                 />
                 <div
                   aria-hidden="true"
@@ -180,7 +133,7 @@ export default function JournalPage() {
           <div style={{ borderTop: '1px solid var(--ink-secondary)' }}>
             {listEntries.map(entry => (
               <div
-                key={entry.title}
+                key={entry.slug}
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '90px 1fr 110px 120px',
@@ -201,7 +154,7 @@ export default function JournalPage() {
                   {entry.publishedDate}
                 </span>
                 <a
-                  href={entry.href}
+                  href={`/journal/${entry.slug}`}
                   style={{ fontSize: '12px', color: 'var(--ink-primary)', letterSpacing: '0.08em', textDecoration: 'none', borderBottom: '1px solid var(--ink-primary)', justifySelf: 'start', paddingBottom: '1px' }}
                 >
                   前往觀看
