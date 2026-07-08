@@ -3,6 +3,7 @@ import HomePage from './pages/HomePage'
 import IdeologyPage from './pages/IdeologyPage'
 import ContactPage from './pages/ContactPage'
 import JournalPage from './pages/JournalPage'
+import NewebPayReviewPage from './pages/NewebPayReviewPage'
 import SnowMountainPage from './pages/series/SnowMountainPage'
 import LimeGreenPage from './pages/series/LimeGreenPage'
 import RosePage from './pages/series/RosePage'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/ideology" element={<IdeologyPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/journal" element={<JournalPage />} />
+        <Route path="/newebpay-review" element={<NewebPayReviewPage />} />
         <Route path="/series/snow-mountain" element={<SnowMountainPage />} />
         <Route path="/series/lime-green" element={<LimeGreenPage />} />
         <Route path="/series/rose-red" element={<RosePage />} />
